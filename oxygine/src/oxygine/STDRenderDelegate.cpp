@@ -156,15 +156,14 @@ namespace oxygine
         ShaderProgramChangedHook hook;
         hook.hook = [&]()
         {
-
             IVideoDriver::instance->setUniform("clip_mask", clipMask);
             IVideoDriver::instance->setUniform("msk", msk, 4);
-
         };
 
 
         renderer->pushShaderSetHook(&hook);
         renderer->setBaseShaderFlags(baseShaderFlags);
+        hook.hook();
 
         sprite->Sprite::render(parentRS);
 
