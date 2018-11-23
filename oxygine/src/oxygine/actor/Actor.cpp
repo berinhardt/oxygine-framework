@@ -20,6 +20,7 @@
 namespace oxygine
 {
     CREATE_COPYCLONE_NEW(Actor);
+    unsigned int Actor::DEFAULT_FLAGS = flag_visible | flag_touchEnabled | flag_touchChildrenEnabled | flag_fastTransform;
 
     std::string div(const std::string& val, const Color& color)
     {
@@ -33,7 +34,7 @@ namespace oxygine
         _zOrder(0),
         _scale(1, 1),
         _rotation(0),
-        _flags(flag_visible | flag_touchEnabled | flag_touchChildrenEnabled | flag_fastTransform),
+        _flags(Actor::DEFAULT_FLAGS),
         _parent(0),
         _alpha(255),
         _stage(0),
@@ -1168,9 +1169,18 @@ namespace oxygine
         return true;
     }
 
-    void Actor::completeRender(const RenderState& rs)
+    void Actor::completeRender(RenderState& rs)
     {
-
+      if (getAnchorAffectsOrigin() && Vector2() != getAnchor()) {
+         Vector2 offset;
+         if (_flags&flag_anchorInPixels)
+            offset = getAnchor();
+         else {
+            offset.x = getAnchorX()*getWidth();
+            offset.y = getAnchorY()*getHeight();
+         }
+         rs.transform.translate(offset);
+      }
     }
 
     bool Actor::internalRender(RenderState& rs, const RenderState& parentRS)
