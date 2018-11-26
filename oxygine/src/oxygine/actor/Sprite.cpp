@@ -288,6 +288,9 @@ namespace oxygine
         RectF r = _frame.getDestRect();
         r.pos = r.pos.mult(_localScale);
         r.size = r.size.mult(_localScale);
+
+        r.pos = alterOrigin(r.pos);
+
         return r;
     }
 
