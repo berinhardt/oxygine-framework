@@ -264,6 +264,7 @@ namespace oxygine
         virtual Vector2 parent2local(const Vector2& pos) const;
         //converts local position to parent space
         virtual Vector2 local2parent(const Vector2& pos = Vector2(0, 0)) const;
+        virtual Vector2 alterOrigin(const Vector2& pos) const;
 
         //converts local position to Stage
         Vector2 local2stage(const Vector2& pos = Vector2(0, 0), Actor* stage = 0) const;
@@ -337,7 +338,7 @@ namespace oxygine
         spTween _addTween(spTween tween, bool rel);
 
         bool prepareRender(RenderState& rs, const RenderState& parentRS);
-        void completeRender(RenderState& rs);
+        void completeRender(const RenderState& rs);
 
 
         void markTranformDirty();
