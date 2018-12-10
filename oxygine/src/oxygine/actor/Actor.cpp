@@ -307,6 +307,24 @@ namespace oxygine
         return stream.str();
     }
 
+    float Actor::globalScaleX() const {
+      float scale = getScaleX();
+      const Actor* a = this;
+      while (a->getParent()) {
+         a = a->getParent();
+         scale*=a->getScaleX();
+      }
+      return scale;
+    }
+        float Actor::globalScaleY() const {
+          float scale = getScaleY();
+          const Actor* a = this;
+          while (a->getParent()) {
+             a = a->getParent();
+             scale*=a->getScaleY();
+          }
+          return scale;
+        }
     pointer_index Actor::getPressed(MouseButton b) const
     {
         return _pressedButton[b];
@@ -1484,7 +1502,6 @@ namespace oxygine
 
         return t;
     }
-
 
 
     spTween setTimeout(timeMS dur, const EventCallback& cb, Actor* root)
