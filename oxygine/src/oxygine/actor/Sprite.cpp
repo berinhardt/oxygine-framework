@@ -95,8 +95,11 @@ namespace oxygine
         const int BITS = (sizeof(int32_t) * 8);
 
         const unsigned char* buff = ad.data;
-        Vector2 pos = localPosition * _frame.getResAnim()->getAppliedScale();
+
+        Vector2 pos = localPosition*_frame.getResAnim()->getAppliedScale();
         pos = pos.div(_localScale);
+        pos = -alterOrigin(-pos);
+
         Point lp = pos.cast<Point>() / HIT_TEST_DOWNSCALE;
         Rect r(0, 0, ad.w, ad.h);
         if (r.pointIn(lp))
@@ -105,7 +108,7 @@ namespace oxygine
 
             int n = lp.x / BITS;
             int b = lp.x % BITS;
-
+            
             return (ints[n] >> b) & 1;
         }
         return false;
