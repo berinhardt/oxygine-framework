@@ -11,7 +11,7 @@ namespace oxygine
 {
     InputText* InputText::_active = 0;
 
-    InputText::InputText(int cursorSpeed): _maxLength(0)
+    InputText::InputText(int cursorSpeed): _maxLength(0), _isNumeric(false)
     {
         _cursor = new ColorRectSprite;
         if (cursorSpeed > 0) {
@@ -102,6 +102,10 @@ namespace oxygine
         _disallowed = ws2utf8(str.c_str());
     }
 
+    void  InputText::setNumeric(bool isNumeric){
+        _isNumeric = isNumeric;
+    }
+
     void InputText::setMaxTextLength(int v)
     {
         _maxLength = v;
@@ -172,6 +176,7 @@ namespace oxygine
             break;
             case SDL_TEXTINPUT:
             {
+
                 if (_maxLength)
                 {
                     if (getLen(_txt.c_str()) >= _maxLength)
@@ -183,6 +188,8 @@ namespace oxygine
 
                 int newCode = 0;
                 getNextCode(newCode, te.text);
+
+                if(_isNumeric && (newCode < 48 || newCode > 57)) return 0;
 
                 if (!_disallowed.empty())
                 {
