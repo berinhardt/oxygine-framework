@@ -604,9 +604,6 @@ namespace oxygine
         {
             Input* input = &Input::instance;
 
-
-
-
             Event ev(EVENT_SYSTEM);
             ev.userData = &event;
             _dispatcher->dispatchEvent(&ev);
@@ -682,6 +679,9 @@ namespace oxygine
                         getStageByWindow(event.window.windowID)->dispatchEvent(&ev);
                     } break;
 
+#ifdef EMSCRIPTEN
+                       _useTouchAPI = false;
+#endif
                     case SDL_MOUSEMOTION:
                         if (!_useTouchAPI)
                             input->sendPointerMotionEvent(getStageByWindow(event.window.windowID), (float)event.motion.x, (float)event.motion.y, 1.0f, &input->_pointerMouse);
@@ -689,6 +689,9 @@ namespace oxygine
                     case SDL_MOUSEBUTTONDOWN:
                     case SDL_MOUSEBUTTONUP:
                     {
+#ifdef EMSCRIPTEN
+                        _useTouchAPI = false;
+#endif
                         if (!_useTouchAPI)
                         {
                             MouseButton b = MouseButton_Left;
@@ -698,7 +701,6 @@ namespace oxygine
                                 case 2: b = MouseButton_Middle; break;
                                 case 3: b = MouseButton_Right; break;
                             }
-
                             input->sendPointerButtonEvent(getStageByWindow(event.window.windowID), b, (float)event.button.x, (float)event.button.y, 1.0f,
                                                           event.type == SDL_MOUSEBUTTONDOWN ? TouchEvent::TOUCH_DOWN : TouchEvent::TOUCH_UP, &input->_pointerMouse);
                         }
@@ -752,7 +754,7 @@ namespace oxygine
 #ifndef OXYGINE_EDITOR
             key::update();
 #endif
-            
+
             Point ds = getDisplaySize();
             //logs::messageln("SDL_GL_GetDrawableSize: %d %d", ds.x, ds.y);
 
