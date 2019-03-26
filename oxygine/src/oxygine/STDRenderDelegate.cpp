@@ -210,7 +210,10 @@ static std::list<ClipUV> msk_stack;
         dc.color = tf->getStyle().color * dc.primary;
 
         //renderer->setBlendMode(tf->getBlendMode());
-        renderer->setTransform(rs.transform);
+        Transform t = rs.transform;
+        t.x = (int) t.x;
+        t.y = (int) t.y;
+        renderer->setTransform(t);
         root->draw(dc);
     }
 
