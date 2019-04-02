@@ -32,14 +32,15 @@ namespace oxygine
 
         static void stopAnyInput();
 
-    private:
+    protected:
         spTextField _textActor;
+        spColorRectSprite _cursor;
+        virtual void updateCursor();
 
+    private:
         std::string _allowed;
         std::string _disallowed;
         std::string _txt;
-
-        spColorRectSprite _cursor;
 
         int _maxLength;
         int _isNumeric;

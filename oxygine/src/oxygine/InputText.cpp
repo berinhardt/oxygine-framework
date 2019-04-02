@@ -54,7 +54,6 @@ namespace oxygine
             fs = _textActor->getFont()->getSize();
         float h = fs * 0.9f;
         _cursor->setSize(h / 10.0f, h);
-
         _cursor->setColor(_textActor->getColor() * _textActor->getStyle().color);
 
         core::getDispatcher()->addEventListener(core::EVENT_SYSTEM, CLOSURE(this, &InputText::_onSysEvent));
@@ -116,13 +115,16 @@ namespace oxygine
         _onSDLEvent((SDL_Event*)event->userData);
     }
 
+    void InputText::updateCursor()
+    {
+        float x = static_cast<float>(_textActor->getTextRect(_textActor->globalScaleX()).getRight());
+        _cursor->setX(x+1);
+    }
+
     void InputText::updateText()
     {
         _textActor->setText(_txt);
-        float x = static_cast<float>(_textActor->getTextRect(_textActor->globalScaleX()).getRight());
-        _cursor->setX(x+1);
-
-
+        this->updateCursor();
         Event evnt(EVENT_TEXT_CHANGED);
         dispatchEvent(&evnt);
     }
@@ -208,6 +210,7 @@ namespace oxygine
 
                 if (!newCode)
                     return 0;
+
 
                 _txt.append(te.text, te.text + strlen(te.text));
                 updateText();
