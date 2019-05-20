@@ -226,7 +226,7 @@ namespace oxygine
 
         if (_horzMode == STRETCHING)
         {
-            if (absoluteGuides) _pointsX.push_back(_guideX[1]);
+            if (absoluteGuides) _pointsX.push_back(fActorWidth-_guideX[1]);
             else _pointsX.push_back(fActorWidth - (fFrameWidth*(1-_uvX[1]+_uvX[0])));
             _pointsX.push_back(fActorWidth);
         }
@@ -266,7 +266,7 @@ namespace oxygine
 
         if (_vertMode == STRETCHING)
         {
-            if (absoluteGuides) _pointsY.push_back(_guideY[1]);
+            if (absoluteGuides) _pointsY.push_back(fActorHeight-_guideY[1]);
             else _pointsY.push_back(fActorHeight - (fFrameHeight*(1-_uvY[1]+_uvY[0])));
             _pointsY.push_back(fActorHeight);
         }
