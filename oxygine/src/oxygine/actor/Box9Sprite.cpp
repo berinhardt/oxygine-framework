@@ -176,14 +176,9 @@ namespace oxygine
     {
         return Actor::isOn(localPosition, localScale);
     }
-#define DBG(...) \
-   if (debug && this->getName() == "Jugadores") \
-      logs::messageln(__VA_ARGS__)
 
-bool debug = true;
     void Box9Sprite::prepare() const
     {
-       DBG("PREPARE");
         _guidesX.resize(4);
         _guidesY.resize(4);
         _pointsX.clear();
@@ -191,7 +186,6 @@ bool debug = true;
 
         float fFrameWidth = _frame.getWidth();
         float fFrameHeight = _frame.getHeight();
-        DBG("FrameSize %f, %f", fFrameWidth, fFrameHeight);
         /*
         float fActorWidth = max((float)getSize().x, fFrameWidth);
         float fActorHeight = max((float)getSize().y, fFrameHeight);
@@ -199,7 +193,6 @@ bool debug = true;
 
         float fActorWidth = getSize().x;
         float fActorHeight = getSize().y;
-        DBG("ActorSize %f, %f", fActorWidth, fActorHeight);
 
         if (!absoluteGuides) {
            if (_guideX[1] == 0.0f) _guideX[1] = fFrameWidth;
@@ -214,9 +207,6 @@ bool debug = true;
            }
         }
 
-        DBG("GUIDES X[%f %f] Y[%f %f]", _guideX[0], _guideX[1], _guideY[0], _guideY[1]);
-        DBG("UVS X[%f %f] Y[%f %f]", _uvX[0], _uvX[1], _uvY[0], _uvY[1]);
-
         RectF srcFrameRect = _frame.getSrcRect();
 
         _guidesX[0] = srcFrameRect.getLeft(); // these guides contains floats from 0.0 to 1.0, compared to original guides which contain floats in px
@@ -224,24 +214,11 @@ bool debug = true;
         _guidesX[2] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), absoluteGuides?1-_uvX[1]:_uvX[1]);
         _guidesX[3] = srcFrameRect.getRight();
 
-        DBG("UV RULES X[%f %f %f %f]",
-            _guidesX[0],
-            _guidesX[1],
-            _guidesX[2],
-            _guidesX[3]
-        );
-
         _guidesY[0] = srcFrameRect.getTop();
         _guidesY[1] = lerp(srcFrameRect.getTop(), srcFrameRect.getBottom(), _uvY[0]);
         _guidesY[2] = lerp(srcFrameRect.getTop(), srcFrameRect.getBottom(), absoluteGuides?1-_uvY[1]:_uvY[1]);
         _guidesY[3] = srcFrameRect.getBottom();
 
-       DBG("UV RULES Y[%f %f %f %f]",
-           _guidesY[0],
-           _guidesY[1],
-           _guidesY[2],
-           _guidesY[3]
-       );
         // filling X axis
         _pointsX.push_back(0.0f);
         _pointsX.push_back(_guideX[0]);
@@ -282,12 +259,6 @@ bool debug = true;
             }
         }
 
-       DBG("POINTS X[%f %f %f %f]",
-           _pointsX[0],
-           _pointsX[1],
-           _pointsX[2],
-           _pointsX[3]
-       );
         // filling Y axis
         _pointsY.push_back(0.0f);
         _pointsY.push_back(_guideY[0]);
@@ -327,14 +298,7 @@ bool debug = true;
                 }
             }
         }
-
-        DBG("POINTS Y[%f %f %f %f]",
-           _pointsY[0],
-           _pointsY[1],
-           _pointsY[2],
-           _pointsY[3]
-        );
-        DBG("DONE");
+        
         _prepared = true;
     }
 
