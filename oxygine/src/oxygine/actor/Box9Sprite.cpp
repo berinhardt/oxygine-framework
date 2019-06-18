@@ -136,33 +136,16 @@ namespace oxygine
         inherited::changeAnimFrame(f);
         setSize(size);
     }
-
     void Box9Sprite::animFrameChanged(const AnimationFrame& f)
     {
         _prepared = false;
 
         ResAnim* resanim = f.getResAnim();
-        if (resanim)
-        {
-            float scaleFactor = resanim->getScaleFactor();
-
-            pugi::xml_attribute attr = resanim->getAttribute("guideX1");
-            _guideX[0] = attr.as_float(0) * scaleFactor;
-
-            attr = resanim->getAttribute("guideX2");
-            _guideX[1] = attr.as_float(resanim->getWidth()) * scaleFactor;
-
-            attr = resanim->getAttribute("guideY1");
-            _guideY[0] = attr.as_float(0) * scaleFactor;
-
-            attr = resanim->getAttribute("guideY2");
-            _guideY[1] = attr.as_float(resanim->getHeight()) * scaleFactor;
-
-            attr = resanim->getAttribute("vertical");
-            _vertMode = (StretchMode)attr.as_uint(STRETCHING);
-
-            attr = resanim->getAttribute("horizontal");
-            _horzMode = (StretchMode)attr.as_uint(STRETCHING);
+        if (resanim) {
+            std::istringstream attr(resanim->getAttribute("offsets").as_string("0 0 0 0"));
+            Vector4 offsets;
+            attr >> offsets.x >> offsets.y >> offsets.z >> offsets.w;
+            this->setGuides(offsets.x, offsets.y, offsets.z, offsets.w);
         }
         inherited::animFrameChanged(f);
     }
