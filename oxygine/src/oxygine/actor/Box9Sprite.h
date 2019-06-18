@@ -47,7 +47,8 @@ namespace oxygine
         void setVerticalUV(float x1, float x2);
         void setHorizontalUV(float y1, float y2);
 
-        void setAbsoluteGuides(bool v);
+        void setCustomUVS(bool v);
+        void calculateUVSFromGuides(float x1, float x2, float y1, float y2);
 
         bool isOn(const Vector2& localPosition, float localScale) override;
 
@@ -63,7 +64,7 @@ namespace oxygine
         void animFrameChanged(const AnimationFrame& f) override;
         void changeAnimFrame(const AnimationFrame& f) override;
 
-        bool absoluteGuides;
+        bool customUVS;
 
         mutable bool _prepared;
 

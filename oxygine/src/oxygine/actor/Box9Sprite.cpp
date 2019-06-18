@@ -35,12 +35,12 @@ namespace oxygine
         _pointsX = src._pointsX;
         _pointsY = src._pointsY;
 
-        absoluteGuides = src.absoluteGuides;
+        customUVS = src.customUVS;
     }
 
     Box9Sprite::Box9Sprite() :
         _prepared(false),
-        absoluteGuides(false),
+        customUVS(false),
         _vertMode(STRETCHING),
         _horzMode(STRETCHING)
 
@@ -110,15 +110,16 @@ namespace oxygine
         _prepared = false;
     }
 
-    void Box9Sprite::setAbsoluteGuides(bool v) {
-      if (v != absoluteGuides) {
-         absoluteGuides = v;
+    void Box9Sprite::setCustomUVS(bool v) {
+      if (v != customUVS) {
+         customUVS = v;
          _prepared = false;
       }
    }
     void Box9Sprite::setUV(float x1, float x2, float y1, float y2) {
       _uvX[0] = x1; _uvX[1] = x2;
       _uvY[0] = y1; _uvY[1] = y2;
+      setCustomUVS(true);
       _prepared = false;
     }
     void Box9Sprite::setVerticalUV(float x1, float x2) {
@@ -194,29 +195,23 @@ namespace oxygine
         float fActorWidth = getSize().x;
         float fActorHeight = getSize().y;
 
-        if (!absoluteGuides) {
-           if (_guideX[1] == 0.0f) _guideX[1] = fFrameWidth;
-           if (_guideY[1] == 0.0f) _guideY[1] = fFrameHeight;
-           if (_uvX[1] == 0.0f) {
-               _uvX[0] = _guideX[0]/fFrameWidth;
-               _uvX[1] = _guideX[1]/fFrameWidth;
-           }
-           if (_uvY[1] == 0.0f) {
-               _uvY[0] = _guideY[0]/fFrameHeight;
-               _uvY[1] = _guideY[1]/fFrameHeight;
-           }
+        if (!customUVS) {           
+           _uvX[0] = _guideX[0]/fFrameWidth;
+           _uvX[1] = _guideX[1]/fFrameWidth;
+           _uvY[0] = _guideY[0]/fFrameHeight;
+           _uvY[1] = _guideY[1]/fFrameHeight;
         }
 
         RectF srcFrameRect = _frame.getSrcRect();
 
         _guidesX[0] = srcFrameRect.getLeft(); // these guides contains floats from 0.0 to 1.0, compared to original guides which contain floats in px
         _guidesX[1] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), _uvX[0]); // lerp is needed here cuz the frame might be in an atlas
-        _guidesX[2] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), absoluteGuides?1-_uvX[1]:_uvX[1]);
+        _guidesX[2] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), 1-_uvX[1]);
         _guidesX[3] = srcFrameRect.getRight();
 
         _guidesY[0] = srcFrameRect.getTop();
         _guidesY[1] = lerp(srcFrameRect.getTop(), srcFrameRect.getBottom(), _uvY[0]);
-        _guidesY[2] = lerp(srcFrameRect.getTop(), srcFrameRect.getBottom(), absoluteGuides?1-_uvY[1]:_uvY[1]);
+        _guidesY[2] = lerp(srcFrameRect.getTop(), srcFrameRect.getBottom(), 1-_uvY[1]);
         _guidesY[3] = srcFrameRect.getBottom();
 
         // filling X axis
@@ -225,16 +220,15 @@ namespace oxygine
 
         if (_horzMode == STRETCHING)
         {
-            if (absoluteGuides) _pointsX.push_back(fActorWidth-_guideX[1]);
-            else _pointsX.push_back(fActorWidth - (fFrameWidth*(1-_uvX[1]+_uvX[0])));
+            _pointsX.push_back(fActorWidth-_guideX[1]);
             _pointsX.push_back(fActorWidth);
         }
         else if (_horzMode == TILING || _horzMode == TILING_FULL)
         {
+            OX_ASSERT(!"NYI");
             float curX = _guideX[0];
-            float rightB = _guideX[1];
-            if (!absoluteGuides) rightB = fActorWidth - (fFrameWidth*(1-_uvX[1]+_uvX[0])); // right bound (in px)
-            float centerPart = _guideX[1] - _guideX[0]; // length of the center piece (in px)
+            float rightB = fActorWidth-_guideX[1];
+            float centerPart = fActorWidth-_guideX[1] - _guideX[0]; // length of the center piece (in px)
 
             // now we add a new center piece every time until we reach right bound
             while (1)
@@ -265,15 +259,14 @@ namespace oxygine
 
         if (_vertMode == STRETCHING)
         {
-            if (absoluteGuides) _pointsY.push_back(fActorHeight-_guideY[1]);
-            else _pointsY.push_back(fActorHeight - (fFrameHeight*(1-_uvY[1]+_uvY[0])));
+            _pointsY.push_back(fActorHeight-_guideY[1]);
             _pointsY.push_back(fActorHeight);
         }
         else if (_vertMode == TILING || _vertMode == TILING_FULL)
         {
+            OX_ASSERT(!"NYI");
             float curY = _guideY[0];
             float bottomB = _guideY[1];
-            if (!absoluteGuides) bottomB = fActorHeight - (fFrameHeight*(1-_uvY[1]+_uvY[0])); // bottom bound (in px)
             float centerPart = _guideY[1] - _guideY[0]; // length of the center piece (in px)
 
             // now we add a new center piece every time until we reach right bound
@@ -330,7 +323,7 @@ namespace oxygine
         stream << "uvY1=" << _uvY[0] << " ";
         stream << "uvY2=" << _uvY[1] << " ";
 
-        stream << "absoluteGuides=" << absoluteGuides << " ";
+        stream << "customUVS=" << customUVS << " ";
         stream << "vert=" << stretchMode2String(_vertMode) << " ";
         stream << "hor=" << stretchMode2String(_horzMode) << " ";
 
