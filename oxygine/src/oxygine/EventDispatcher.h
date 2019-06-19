@@ -23,6 +23,15 @@ namespace oxygine
 #define  EventID(str) EventIDc11(str)
 
 
+   class event_exception : public std::exception { 
+   public:
+      event_exception(std::string what) : std::exception() { }
+      event_exception(const event_exception &other) : event_exception(other.what()) { }
+      
+      virtual const char* what() const _NOEXCEPT override { return _what.c_str(); }
+   private:
+      std::string _what;
+   };
     DECLARE_SMART(EventDispatcher, spEventDispatcher);
     class EventDispatcher: public Object
     {
