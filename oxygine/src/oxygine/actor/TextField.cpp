@@ -309,14 +309,7 @@ namespace oxygine
                 _root = new text::TextNode(_text.c_str());
             }
 
-            Vector2 offset;
-            if (getAnchorAffectsOrigin()) {
-               offset = getAnchor();
-               if (!getIsAnchorInPixels()) {
-                  offset.x *= getSize().x;
-                  offset.y *= getSize().y;
-               }
-            }
+            Vector2 offset = alterOrigin(Vector2(0,0));
 
             text::Aligner rd(_style, _mat, font, scale, getSize());
             rd.begin();
@@ -325,7 +318,7 @@ namespace oxygine
             
             Point origin = rd.bounds.pos;
             rd.bounds.pos.x = 0;
-            rd.bounds.pos -= offset.cast<Point>();
+            rd.bounds.pos += offset.cast<Point>();
             
             _root->finalPass(rd);
             rd.bounds.pos.x += origin.x;
