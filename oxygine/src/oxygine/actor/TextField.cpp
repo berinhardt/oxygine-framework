@@ -318,7 +318,7 @@ namespace oxygine
             
             Point origin = rd.bounds.pos;
             rd.bounds.pos.x = 0;
-            rd.bounds.pos += offset.cast<Point>();
+            rd.bounds.pos += offset.cast<Point>()*rd.getScale();
             
             _root->finalPass(rd);
             rd.bounds.pos.x += origin.x;
