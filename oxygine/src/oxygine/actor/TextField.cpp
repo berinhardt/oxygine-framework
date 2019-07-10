@@ -172,13 +172,13 @@ namespace oxygine
 
     void TextField::matChanged()
     {
-        logs::warning("not optimal");
         if (_flags & flag_rebuild)
             return;
 
         if (!_root)
             return;
 
+         logs::error("not optimal");
         _root->updateMaterial(*_mat.get());
     }
 
