@@ -103,8 +103,8 @@ def process(values):
 if __name__ == "__main__":
     parser = get_parser()
 
-    dt = time.clock()
+    #dt = time.clock()
     do(parser.parse_args())
-    dt = time.clock() - dt
+    #dt = time.clock() - dt
 
     # print("total time: " + str(dt))
