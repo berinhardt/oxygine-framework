@@ -64,7 +64,12 @@ namespace oxygine
     {
         cleanup();
     }
-
+    std::list<std::string> ResFontBM::getPageFiles() const {
+       std::list<std::string> list;
+       for (auto it = _pages.begin(); it != _pages.end(); ++it)
+         list.push_back(it->file);
+      return list;
+    }
     const oxygine::Font* ResFontBM::getClosestFont(float worldScale, int styleFontSize, float& resScale) const
     {
         if (!styleFontSize)

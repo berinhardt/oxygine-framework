@@ -3,6 +3,7 @@
 #include "ResFont.h"
 #include "../core/Texture.h"
 #include <vector>
+#include <list>
 
 namespace oxygine
 {
@@ -19,6 +20,8 @@ namespace oxygine
         /**loads "fnt" font from file, supported XML and text format*/
         void init(const char* fntPath, bool premultipliedAlpha = false);
         void initSD(const char* fntPath, int downsample);
+
+        std::list<std::string> getPageFiles() const;
 
         void cleanup();
 
