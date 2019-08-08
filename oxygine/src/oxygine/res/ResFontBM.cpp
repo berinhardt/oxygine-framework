@@ -55,7 +55,7 @@ namespace oxygine
     }
 
 
-    ResFontBM::ResFontBM(): _font(0), _format(TF_R8G8B8A8), _premultipliedAlpha(false), _sdf(false)
+    ResFontBM::ResFontBM(): _font(0), _format(TF_R8G8B8A8), _premultipliedAlpha(false), _sdf(false), loaded(false)
     {
 
     }
@@ -63,12 +63,6 @@ namespace oxygine
     ResFontBM::~ResFontBM()
     {
         cleanup();
-    }
-    std::list<std::string> ResFontBM::getPageFiles() const {
-       std::list<std::string> list;
-       for (auto it = _pages.begin(); it != _pages.end(); ++it)
-         list.push_back(it->file);
-      return list;
     }
     const oxygine::Font* ResFontBM::getClosestFont(float worldScale, int styleFontSize, float& resScale) const
     {
@@ -141,6 +135,10 @@ namespace oxygine
 
     void ResFontBM::_load(LoadResourcesContext* load_context)
     {
+      if (!loaded) {
+         _loadFontFromFile(_file, _sdf, !_sdf, getAttribute("downsample").as_int(1));
+         loaded = true;
+      }
         OX_ASSERT(!_pages.empty());
         if (_pages.empty())
             return;
@@ -332,13 +330,8 @@ namespace oxygine
         Font* font = new Font();
         font->init(getName().c_str(), fontSize, fontSize, lineHeight + fontSize - base, _sdf);
         _size = fontSize;
-        _font = font;
-
-        if (context)
-        {
-            float scale = context->walker.getMeta().attribute("sf").as_float(1.0f) / context->walker.getScaleFactor();
-            _font->setScale(scale);
-        }
+        _font = font;        
+        _font->setScale(this->base_scale);
 
         // chars block
         int numChars = 0;
@@ -482,7 +475,10 @@ namespace oxygine
                 _file = *context->prebuilt_folder + getName() + ".fnt";
             }
         }
-
+        this->base_scale = context->walker.getMeta().attribute("sf").as_float(1.0f) / context->walker.getScaleFactor();
+        this->_path = context->walker.getPath("");
+     }
+     void ResFontBM::_loadFontFromFile(const std::string& file, bool sd, bool bmc, int downsample) {
         std::string path = _file;
         file::buffer fb;
         file::read(path, fb);
@@ -495,7 +491,7 @@ namespace oxygine
 
         if (!isXml)
         {
-            _createFontFromTxt(context, reinterpret_cast<char*>(fb.getData()), path, downsample);
+            _createFontFromTxt(NULL, reinterpret_cast<char*>(fb.getData()), path, downsample);
             return;
         }
         /////////////////////////////////////////////////
@@ -546,13 +542,8 @@ namespace oxygine
         font->init(getName().c_str(), fontSize, fontSize, lineHeight + fontSize - base, _sdf);
         _size = fontSize;
         _font = font;
-
-        if (context)
-        {
-            float scale = context->walker.getMeta().attribute("sf").as_float(1.0f) / context->walker.getScaleFactor();
-            _font->setScale(scale);
-        }
-
+        _font->setScale(this->base_scale);
+        
         pugi::xml_node chars = pages.next_sibling("chars");
         pugi::xml_node child = chars.first_child();
         while (!child.empty())

@@ -20,8 +20,7 @@ namespace oxygine
         /**loads "fnt" font from file, supported XML and text format*/
         void init(const char* fntPath, bool premultipliedAlpha = false);
         void initSD(const char* fntPath, int downsample);
-
-        std::list<std::string> getPageFiles() const;
+        std::string getPath() const { return _path; }
 
         void cleanup();
 
@@ -39,6 +38,7 @@ namespace oxygine
 
         void _loadPage(const page& p, LoadResourcesContext*);
         void _load(LoadResourcesContext*) override;
+        void _loadFontFromFile(const std::string&, bool sdf, bool bmc, int downsample);
         void _unload() override;
         void _restore(Restorable*, void*);
         void _createFont(CreateResourceContext* context, bool sd, bool bmc, int downsample);
@@ -51,8 +51,11 @@ namespace oxygine
         bool _sdf;
 
         TextureFormat _format;
-
+        
+        bool loaded;
         std::string _file;
+        std::string _path;
         bool _premultipliedAlpha;
+        float base_scale;
     };
 }
