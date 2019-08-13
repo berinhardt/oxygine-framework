@@ -159,7 +159,11 @@ namespace oxygine
                         float iw = 1.0f / texture->getWidth();
                         float ih = 1.0f / texture->getHeight();
 
-                        RectF srcRect(x * iw, y * ih, bbox_w * iw, bbox_h * ih);
+                        RectF srcRect(
+                           (x+0.5) * iw, 
+                           (y+0.5) * ih, 
+                           (bbox_w-1) * iw, 
+                           (bbox_h-1) * ih);
 
                         float fs = frame_scale;
                         RectF destRect(
