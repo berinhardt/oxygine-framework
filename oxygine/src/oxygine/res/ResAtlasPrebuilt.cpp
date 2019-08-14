@@ -121,12 +121,12 @@ namespace oxygine
 
             if (columns)
             {
+                bool hpc = child_node.attribute("hpc").as_bool(HPC_DEFAULT);
                 animationFrames frames;
                 int frames_count = rows * columns;
                 frames.reserve(frames_count);
 
                 ResAnim* ra = new ResAnim(this);
-
 
                 OX_ASSERT(meta_frames);
 
@@ -159,11 +159,8 @@ namespace oxygine
                         float iw = 1.0f / texture->getWidth();
                         float ih = 1.0f / texture->getHeight();
 
-                        RectF srcRect(
-                           (x+0.5) * iw, 
-                           (y+0.5) * ih, 
-                           (bbox_w-1) * iw, 
-                           (bbox_h-1) * ih);
+                        RectF srcRect(x * iw, y * ih, bbox_w * iw, bbox_h * ih);
+                        if (hpc) srcRect.expand2(Vector2(-0.5f*iw, -0.5f*ih));
 
                         float fs = frame_scale;
                         RectF destRect(
