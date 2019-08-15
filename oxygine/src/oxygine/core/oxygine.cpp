@@ -690,6 +690,7 @@ namespace oxygine
                     case SDL_MOUSEBUTTONUP:
                     {
 #ifdef EMSCRIPTEN
+                        EM_ASM({ window.focus(); });
                         _useTouchAPI = false;
 #endif
                         if (!_useTouchAPI)
@@ -728,6 +729,7 @@ namespace oxygine
                     case SDL_FINGERUP:
                     {
 #ifdef EMSCRIPTEN
+                        EM_ASM({ window.focus(); });
                         _useTouchAPI = true;
 #endif
                         if (_useTouchAPI)
