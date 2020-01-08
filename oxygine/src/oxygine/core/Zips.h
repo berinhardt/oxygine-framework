@@ -14,9 +14,9 @@ namespace oxygine
     {
     struct file_entry
     {
-        unzFile zp;
+        ox_unzFile zp;
         char name[128];
-        unz_file_pos pos;
+        ox_unz_file_pos pos;
         int refs;
     };
 
@@ -43,14 +43,14 @@ namespace oxygine
 
     private:
         friend class ZipFileSystem;
-        void read(unzFile zp);
+        void read(ox_unzFile zp);
 
         typedef std::unordered_map<std::string, file_entry> files;
         files _files;
 
         struct zpitem
         {
-            unzFile handle;
+            ox_unzFile handle;
             std::vector<char> data;
             char name[255];
 

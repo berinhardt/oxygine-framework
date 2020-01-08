@@ -18,20 +18,20 @@ namespace oxygine
     bool readEntry(const file_entry* entry, file::buffer& bf)
     {
         bf.data.clear();
-        int r = unzGoToFilePos(entry->zp, const_cast<unz_file_pos*>(&entry->pos));
+        int r = ox_unzGoToFilePos(entry->zp, const_cast<ox_unz_file_pos*>(&entry->pos));
         OX_ASSERT(r == UNZ_OK);
 
-        unz_file_info file_info;
-        r = unzGetCurrentFileInfo(entry->zp, &file_info, 0, 0, 0, 0, 0, 0);
+        ox_unz_file_info file_info;
+        r = ox_unzGetCurrentFileInfo(entry->zp, &file_info, 0, 0, 0, 0, 0, 0);
         OX_ASSERT(r == UNZ_OK);
 
-        unzOpenCurrentFile(entry->zp);
+        ox_unzOpenCurrentFile(entry->zp);
 
         bf.data.resize(file_info.uncompressed_size);
-        r = unzReadCurrentFile(entry->zp, &bf.data.front(), (int)bf.data.size());
+        r = ox_unzReadCurrentFile(entry->zp, &bf.data.front(), (int)bf.data.size());
         OX_ASSERT(r == (int)file_info.uncompressed_size);
 
-        unzCloseCurrentFile(entry->zp);
+        ox_unzCloseCurrentFile(entry->zp);
         return true;
     }
 
@@ -45,17 +45,17 @@ namespace oxygine
         reset();
     }
 
-    void Zips::read(unzFile zp)
+    void Zips::read(ox_unzFile zp)
     {
         //MutexAutoLock al(_lock);
 
         do
         {
-            unz_file_pos pos;
-            unzGetFilePos(zp, &pos);
+            ox_unz_file_pos pos;
+            ox_unzGetFilePos(zp, &pos);
 
             file_entry entry;
-            unzGetCurrentFileInfo(zp, 0, entry.name, sizeof(entry.name) - 1, 0, 0, 0, 0);
+            ox_unzGetCurrentFileInfo(zp, 0, entry.name, sizeof(entry.name) - 1, 0, 0, 0, 0);
             entry.refs = 0;
             entry.pos = pos;
             entry.zp = zp;
@@ -69,7 +69,7 @@ namespace oxygine
 
             _files[entry.name] = entry;
 
-        } while (unzGoToNextFile(zp) != UNZ_END_OF_LIST_OF_FILE);
+        } while (ox_unzGoToNextFile(zp) != UNZ_END_OF_LIST_OF_FILE);
 
     }
 
@@ -84,7 +84,7 @@ namespace oxygine
         dta.data = (char*)data;
         dta.size = size;
 
-        unzFile zp = unzOpen2((const char*)&dta, &ff);
+        ox_unzFile zp = ox_unzOpen2((const char*)&dta, &ff);
         OX_ASSERT(zp);
         if (!zp)
             return;
@@ -108,7 +108,7 @@ namespace oxygine
         dta.data = (char*)&data.front();
         dta.size = data.size();
 
-        unzFile zp = unzOpen2((const char*)&dta, &ff);
+        ox_unzFile zp = ox_unzOpen2((const char*)&dta, &ff);
         OX_ASSERT(zp);
         if (!zp)
             return;
@@ -181,7 +181,7 @@ namespace oxygine
                         ++it;
                 }
 
-                unzClose(item.handle);
+                ox_unzClose(item.handle);
 
                 _zps.erase(_zps.begin() + i);
                 break;
@@ -206,7 +206,7 @@ namespace oxygine
         zpfs.opaque = (void*)_zps.size();
         //zpfs.opaque = name;
 
-        unzFile zp = unzOpen2(name, &zpfs);//todo, optimize search in zip
+        ox_unzFile zp = ox_unzOpen2(name, &zpfs);//todo, optimize search in zip
         OX_ASSERT(zp);
         if (!zp)
             return;
@@ -247,7 +247,7 @@ namespace oxygine
         for (zips::iterator i = _zps.begin(); i != _zps.end(); ++i)
         {
             zpitem& f = *i;
-            unzClose(f.handle);
+            ox_unzClose(f.handle);
         }
 
 
