@@ -611,6 +611,14 @@ namespace oxygine
             if (!ev.stopsPropagation)
                 switch (event.type)
                 {
+                   case SDL_APP_WILLENTERBACKGROUND:
+                      active = false;
+                      glFlush();
+                      break;
+                   case SDL_APP_DIDENTERFOREGROUND:
+                      active = true;
+                      glFlush();
+                      break;
                     case SDL_QUIT:
                         logs::messageln("SDL_QUIT");
                         done = true;
