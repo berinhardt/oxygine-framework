@@ -42,7 +42,7 @@ class HttpRequestHolder {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
               asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
             } else {
-              throw new RejectedExecutionException("Invalid API level")
+              throw new RejectedExecutionException("Invalid API level");
             }
         } catch(RejectedExecutionException e) {
           asyncTask.execute(params);
