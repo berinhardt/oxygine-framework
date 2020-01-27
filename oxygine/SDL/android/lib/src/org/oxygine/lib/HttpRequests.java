@@ -37,14 +37,10 @@ class HttpRequestHolder {
 
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // API 11
-    public static <T> void executeAsyncTask(AsyncTask<T, ?, ?> asyncTask, T... params) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-              asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-            } else {
-              throw new RejectedExecutionException("Invalid API level");
-            }
-        } catch(RejectedExecutionException e) {
+    public static <T> void executeAsyncTask(AsyncTask<T, ?, ?> asyncTask, T... params) throws RejectedExecutionException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+          asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+        } else {
           asyncTask.execute(params);
         }
     }
@@ -55,8 +51,11 @@ class HttpRequestHolder {
             @Override
             public void run() {
                 HttpRequest task = new HttpRequest();
-                //task.execute(details);
-                executeAsyncTask(task, details);
+                try {
+                  executeAsyncTask(task, details);
+                }catch(RejectedExecutionException ree) {
+                  HttpRequest.nativeHttpRequestError(details.handle);
+                }
             }
         });
     }
