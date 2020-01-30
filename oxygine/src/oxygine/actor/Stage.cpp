@@ -137,7 +137,7 @@ namespace oxygine
 
     void Stage::render(const Color* clearColor, const Rect& viewport, const Matrix& view, const Matrix& proj)
     {
-
+      if (!STDRenderer::instance || !IVideoDriver::instance || !STDRenderer::getCurrent()) return;
         IVideoDriver* driver = IVideoDriver::instance;
         driver->setViewport(viewport);
 
