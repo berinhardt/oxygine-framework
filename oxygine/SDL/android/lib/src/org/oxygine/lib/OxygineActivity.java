@@ -5,6 +5,7 @@ import android.os.Bundle;
 import org.libsdl.app.SDLActivity;
 import org.oxygine.lib.extension.ActivityObservable;
 import org.oxygine.lib.extension.ActivityObserver;
+import android.util.Log;
 
 /**
  * OxygineActivity
@@ -32,6 +33,7 @@ public class OxygineActivity extends SDLActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         Utils._context = this;
+        Log.e("SDL","nativeOxygineInit(this, getClass());");
         nativeOxygineInit(this, getClass());
 
         _observable.onCreate();
