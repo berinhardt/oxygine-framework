@@ -38,11 +38,18 @@ class HttpRequestHolder {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB) // API 11
     public static <T> void executeAsyncTask(AsyncTask<T, ?, ?> asyncTask, T... params) throws RejectedExecutionException {
+      try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
           asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
         } else {
           asyncTask.execute(params);
         }
+      } catch (Exception e) {
+        if (params.length > 0 && params[0] instanceof RequestDetails) {
+          RequestDetails details = (RequestDetails) params[1];
+          HttpRequest.nativeHttpRequestError(details.handle);
+        }
+      }
     }
 
 
@@ -119,14 +126,14 @@ class HttpRequest extends AsyncTask<RequestDetails, Integer, String> {
 
                 connection.setRequestProperty(key, value);
             }
+            connection.setConnectTimeout(1000);
+            connection.setReadTimeout(2000);
 
             if (details.postData != null) {
                 connection.setDoOutput(true);
                 connection.setRequestMethod("POST");
                 connection.getOutputStream().write(details.postData);
             }
-
-
 
             int respCode = connection.getResponseCode();
             nativeHttpRequestGotHeader(details.handle, respCode, connection.getContentLength());
@@ -169,18 +176,18 @@ class HttpRequest extends AsyncTask<RequestDetails, Integer, String> {
         super.onPreExecute();
         // take CPU lock to prevent CPU from going off if the user
         // presses the power button during download
-        PowerManager pm = (PowerManager) OxygineActivity.instance.getSystemService(Context.POWER_SERVICE);
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
-        if (mWakeLock != null)
-        	mWakeLock.acquire();
+        //PowerManager pm = (PowerManager) OxygineActivity.instance.getSystemService(Context.POWER_SERVICE);
+        //mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
+        //if (mWakeLock != null)
+        	//mWakeLock.acquire();
         //mProgressDialog.show();
     }
 
 
     @Override
     protected void onPostExecute(String result) {
-    	if (mWakeLock != null)
-        	mWakeLock.release();
+//    	if (mWakeLock != null)
+  //      	mWakeLock.release();
     }
 }
 
