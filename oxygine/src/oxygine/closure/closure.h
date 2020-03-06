@@ -28,12 +28,12 @@ Many thanks to Wolfhound
 #endif
 
 #define TEMPLATE_PARAM_LIST class R
-#define PARAM_TYPE_LIST 
-#define PARAM_TYPE_LIST_COMMA 
-#define PARAM_FORM_ARG_LIST 
-#define PARAM_FORM_ARG_LIST_COMMA 
-#define PARAM_ARG_LIST 
-#define PARAM_ARG_LIST_COMMA 
+#define PARAM_TYPE_LIST
+#define PARAM_TYPE_LIST_COMMA
+#define PARAM_FORM_ARG_LIST
+#define PARAM_FORM_ARG_LIST_COMMA
+#define PARAM_ARG_LIST
+#define PARAM_ARG_LIST_COMMA
 #define CLOSURE_NUM Closure0
 #include "closure_impl.h"
 
@@ -50,7 +50,7 @@ Many thanks to Wolfhound
 #define TEMPLATE_PARAM_LIST class R, class P0, class P1
 #define PARAM_TYPE_LIST P0, P1
 #define PARAM_TYPE_LIST_COMMA , P0, P1
-#define PARAM_FORM_ARG_LIST P0 p0, P1 p1 
+#define PARAM_FORM_ARG_LIST P0 p0, P1 p1
 #define PARAM_FORM_ARG_LIST_COMMA , P0 p0, P1 p1
 #define PARAM_ARG_LIST p0, p1
 #define PARAM_ARG_LIST_COMMA , p0, p1
@@ -83,5 +83,6 @@ Many thanks to Wolfhound
 #	define CLOSUREF(F) (detail::CreateClosureF(F))
 #endif
 
-#endif
+#define NOOP(...) [=](__VA_ARGS__) {}
 
+#endif
