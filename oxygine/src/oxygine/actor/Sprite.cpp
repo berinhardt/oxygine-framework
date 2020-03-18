@@ -114,6 +114,12 @@ namespace oxygine
         return false;
     }
 
+    void Sprite::setUseResAnchor(bool useResAnchor) {
+      if (useResAnchor != isUseResAnchor()) {
+        _flags ^= flag_useResAnchor;
+        animFrameChanged(_frame);
+      }
+    }
     void Sprite::setFlippedX(bool flippedX)
     {
         if (flippedX != isFlippedX())
@@ -123,7 +129,6 @@ namespace oxygine
             animFrameChanged(_frame);
         }
     }
-
     void Sprite::setFlippedY(bool flippedY)
     {
         if (flippedY != isFlippedY())
@@ -218,6 +223,18 @@ namespace oxygine
             rs = frame.getResAnim();
             if (rs)
                 rs->getAtlas()->load();
+        }
+
+        if (_flags & flag_useResAnchor)
+        {
+            ResAnim* rs = frame.getResAnim();
+            std::istringstream attr(rs->getAttribute("anchor").as_string("0.5 0.5"));
+            if (attr.str() != "")
+            {
+                Vector2 v;
+                attr >> v.x >> v.y;
+                setAnchor(v);
+            }
         }
 
         bool flipX = (_flags & flag_flipX) != 0;
