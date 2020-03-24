@@ -267,7 +267,7 @@ namespace oxygine
             for (size_t i = 0; i < _data.size(); ++i)
             {
                 Symbol& s = _data[i];
-                s.y += offsetY;
+                s.y += offsetY-rd.offY;
                 s.x += offsetX;
 
                 if (s.gl.texture)

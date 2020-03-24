@@ -49,6 +49,7 @@ namespace oxygine
             int width;
             int height;
             size_t options;
+            int offY;
 
             spSTDMaterial mat;
 
