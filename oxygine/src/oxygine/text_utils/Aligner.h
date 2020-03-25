@@ -49,11 +49,12 @@ namespace oxygine
             int width;
             int height;
             size_t options;
-            int offY;
+            bool trimTopLine;
 
             spSTDMaterial mat;
 
             const Font* _font;
+            int offsetY() const;
 
         private:
             int getLineWidth()const;
@@ -68,6 +69,7 @@ namespace oxygine
             void _nextLine(line& ln);
 
             float _scale;
+            int _offY;
             int _x, _y;
             line _line;
             int _lineWidth;

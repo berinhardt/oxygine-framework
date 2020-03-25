@@ -262,12 +262,12 @@ namespace oxygine
 
             int offsetY = rd.bounds.pos.y;
             int offsetX = rd.bounds.pos.x;
-            
+
 
             for (size_t i = 0; i < _data.size(); ++i)
             {
                 Symbol& s = _data[i];
-                s.y += offsetY-rd.offY;
+                s.y += offsetY-rd.offsetY();
                 s.x += offsetX;
 
                 if (s.gl.texture)

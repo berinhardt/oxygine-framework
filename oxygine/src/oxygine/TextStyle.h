@@ -29,6 +29,7 @@ namespace oxygine
         TextStyle(const ResFont* rs = 0): font(rs),
             hAlign(HALIGN_DEFAULT),
             vAlign(VALIGN_DEFAULT),
+            preserveLineHeight(false),
             linesOffset(0),
             kerning(0),
             multiline(false),
@@ -42,6 +43,7 @@ namespace oxygine
         HorizontalAlign hAlign;
         VerticalAlign vAlign;
 
+        bool preserveLineHeight;
         int linesOffset;//vertical distance offset between lines
         int kerning;//horizontal distance
         bool multiline;
@@ -74,6 +76,7 @@ namespace oxygine
         TextStyle withFontSize(int size) const { TextStyle st = *this; st.fontSize = size; return st; }
 
         TextStyle withOptions(size_t opt) const { TextStyle st = *this; st.options = opt; return st; }
+        TextStyle withPreserveLineHeight(bool v) const { TextStyle st = *this; st.preserveLineHeight = v; return st; }
     };
 
     std::string dumpStyle(const TextStyle& s, bool onlydiff);

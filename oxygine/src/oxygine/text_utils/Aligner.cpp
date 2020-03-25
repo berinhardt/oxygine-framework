@@ -13,9 +13,10 @@ namespace oxygine
             bounds(0, 0, 0, 0), style(Style), _scale(gscale), _font(font), mat(mt)
         {
             //logs::messageln("gscale %f, adjScale %f globscale %f, %d %f", gscale, _globalScale, _fontSize, fs);
+            trimTopLine = true;
             _line.reserve(50);
             _lineSkip = (int)(_font->getBaselineDistance() * style.baselineScale) + style.linesOffset;
-            offY = _lineSkip;
+            _offY = _lineSkip;
             options = Style.options;
         }
 
@@ -23,7 +24,9 @@ namespace oxygine
         {
 
         }
-
+        int Aligner::offsetY() const {
+          return trimTopLine?_offY:0;
+        }
         int Aligner::_alignX(int rx)
         {
             int tx = 0;
@@ -93,7 +96,7 @@ namespace oxygine
                 _alignLine(_line);
             }
 
-            ry -= offY;
+            ry -= offsetY();
             bounds.setY(_alignY(ry));
             bounds.setHeight(ry);
         }
@@ -118,7 +121,7 @@ namespace oxygine
                 {
                     Symbol& s = *ln[i];
                     rx = std::max(s.x + s.gl.advance_x, rx);
-                    offY = std::min((int)s.y, offY);
+                    _offY = std::min((int)s.y, _offY);
                 }
 
                 int tx = _alignX(rx);

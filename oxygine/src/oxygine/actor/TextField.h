@@ -67,6 +67,7 @@ namespace oxygine
         void setStyleColor(const Color&);
         /**Overwrites TextStyle options*/
         void setOptions(size_t opt);
+        void setPreserveLineHeight(bool plh);
 
         /**Overwrites TextStyle font.*/
         void setFont(const ResFont* rs);

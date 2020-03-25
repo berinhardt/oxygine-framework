@@ -116,7 +116,10 @@ namespace oxygine
         _style.options = opt;
         needRebuild();
     }
-
+    void TextField::setPreserveLineHeight(bool plh) {
+      _style.preserveLineHeight = plh;
+      needRebuild();
+    }
     const ResFont* TextField::getFont() const
     {
         return _style.font;
@@ -312,19 +315,20 @@ namespace oxygine
             Vector2 offset = alterOrigin(Vector2(0,0));
 
             text::Aligner rd(_style, _mat, font, scale, getSize());
+            rd.trimTopLine = !_style.preserveLineHeight;
             rd.begin();
             _root->resize(rd);
             rd.end();
-            
+
             Point origin = rd.bounds.pos;
             rd.bounds.pos.x = 0;
             rd.bounds.pos += offset.cast<Point>()*rd.getScale();
-            
+
             _root->finalPass(rd);
             rd.bounds.pos.x += origin.x;
-            
+
             rd.bounds = (rd.bounds.cast<RectF>() / rd.getScale()).cast<Rect>();
-            
+
             _textRect = rd.bounds;
 
             Event ev(EVENT_REBUILD);
@@ -421,7 +425,7 @@ namespace oxygine
 
         Rect r = const_cast<TextField*>(this)->getTextRect();
         stream << " textRect=(" << r.pos.x << ", " << r.pos.y << ", " << r.size.x << ", " << r.size.y << ")";
-        
+
         stream << "\n" << Actor::dump(options);
 
         return stream.str();
