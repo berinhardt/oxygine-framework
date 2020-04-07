@@ -4,9 +4,9 @@
 
 namespace oxygine {
 Restorable::restorable _restorable;
-bool _restoring                  = false;
-static Mutex* Restorable::_mutex = NULL;
-static Mutex& Restorable::getMutex() {
+bool   _restoring         = false;
+Mutex* Restorable::_mutex = NULL;
+Mutex& Restorable::getMutex() {
    if (!_mutex) _mutex = new Mutex();
    return *_mutex;
 }
