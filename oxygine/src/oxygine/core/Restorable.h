@@ -3,38 +3,41 @@
 #include "../closure/closure.h"
 #include <vector>
 
-namespace oxygine
-{
-    class Restorable
-    {
-    public:
-        Restorable();
-        virtual ~Restorable();
+namespace oxygine {
+class Restorable {
+public:
 
-        typedef std::vector<Restorable*> restorable;
-        static const restorable& getObjects();
-        static void restoreAll();
-        static void releaseAll();
-        static bool isRestored();
+   Restorable();
+   virtual ~Restorable();
 
-        virtual void* _getRestorableObject() = 0;
-        virtual void release() = 0;
+   typedef std::vector<Restorable*> restorable;
+   static const restorable& getObjects();
+   static void              restoreAll();
+   static void              releaseAll();
+   static bool              isRestored();
 
-        void restore();
-        typedef Closure<void (Restorable*, void* userData)> RestoreCallback;
+   virtual void*            _getRestorableObject() = 0;
+   virtual void             release()              = 0;
 
-        void reg(RestoreCallback cb, void* user);
-        void unreg();
+   void                     restore();
+   typedef Closure<void (Restorable*, void* userData)> RestoreCallback;
 
-    protected:
+   void                     reg(RestoreCallback cb, void* user);
+   void                     unreg();
 
-    private:
-        //non copyable
-        Restorable(const Restorable&);
-        const Restorable& operator=(const Restorable&);
+protected:
 
-        RestoreCallback _cb;
-        void* _userData;
-        bool _registered;
-    };
+   static Mutex& getMutex();
+   static Mutex* _mutex;
+
+private:
+
+   // non copyable
+   Restorable(const Restorable&);
+   const Restorable& operator=(const Restorable&);
+
+   RestoreCallback _cb;
+   void* _userData;
+   bool _registered;
+};
 }
