@@ -19,7 +19,10 @@ public class OxygineActivity extends SDLActivity {
     }
 
     public static native void nativeOxygineInit(OxygineActivity activity, Class c);
-
+    public void cpp_onJNIException(Throwable ex) {
+      this.onJNIException(ex);
+    }
+    public void onJNIException(Throwable ex) { }
     public void addObserver(ActivityObserver l) {
         _observable.addObserver(l);
     }
