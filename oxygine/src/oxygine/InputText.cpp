@@ -7,240 +7,211 @@
 #include "res/ResFont.h"
 #include "utils/stringUtils.h"
 
-namespace oxygine
-{
-    InputText* InputText::_active = 0;
+namespace oxygine {
+InputText* InputText::_active = 0;
 
-    InputText::InputText(int cursorSpeed): _maxLength(0), _isNumeric(false)
-    {
-        _cursor = new ColorRectSprite;
-        if (cursorSpeed > 0) {
-           _cursor->addTween(Actor::TweenAlpha(0), cursorSpeed, -1, true);
-        }
-        _cursor->setVisible(false);
-    }
+InputText::InputText(int cursorSpeed) : _maxLength(0), _isNumeric(false) {
+   _cursor = new ColorRectSprite;
 
-    void InputText::showCursor(bool show)
-    {
-        _cursor->setVisible(show);
-    }
+   if (cursorSpeed > 0) {
+      _cursor->addTween(Actor::TweenAlpha(0), cursorSpeed, -1, true);
+   }
+   _cursor->setVisible(false);
+}
 
-    InputText::~InputText()
-    {
+void InputText::showCursor(bool show) {
+   _cursor->setVisible(show);
+}
 
-    }
+InputText::~InputText() {}
 
-    void InputText::stopAnyInput()
-    {
-        if (!_active)
-            return;
-        _active->stop();
-        _active = 0;
-    }
+void InputText::stopAnyInput() {
+   if (!_active) return;
+   _active->stop();
+   _active = 0;
+}
 
-    void InputText::start(spTextField ta)
-    {
-        addRef();
+void InputText::start(spTextField ta) {
+   addRef();
 
-        if (_active)
-            _active->stop();
+   if (_active) _active->stop();
 
-        _active = this;
+   _active = this;
 
-        _textActor = ta;
-        _cursor->attachTo(_textActor);
-        int fs = _textActor->getFontSize();
-        if (fs == 0)
-            fs = _textActor->getFont()->getSize();
-        float h = fs * 0.9f;
-        _cursor->setSize(h / 10.0f, h);
-        _cursor->setColor(_textActor->getColor() * _textActor->getStyle().color);
+   _textActor = ta;
+   _cursor->attachTo(_textActor);
+   int fs = _textActor->getFontSize();
 
-        core::getDispatcher()->addEventListener(core::EVENT_SYSTEM, CLOSURE(this, &InputText::_onSysEvent));
+   if (fs == 0) fs = _textActor->getFont()->getSize();
+   float h = fs * 0.9f;
+   _cursor->setSize(h / 10.0f, h);
+   _cursor->setColor(_textActor->getColor() * _textActor->getStyle().color);
 
-        SDL_StartTextInput();
+   core::getDispatcher()->addEventListener(core::EVENT_SYSTEM, CLOSURE(this, &InputText::_onSysEvent));
 
-        _txt = ta->getText();
-        updateText();
-    }
+   SDL_StartTextInput();
+
+   _txt = ta->getText();
+   updateText();
+}
+
+void InputText::stop() {
+   if (!_textActor) return;
+
+   SDL_StopTextInput();
+   core::getDispatcher()->removeEventListeners(this);
+
+   _cursor->detach();
+   _active    = 0;
+   _textActor = 0;
+
+   // logs::messageln("InputText::stop  %x", this);
+   releaseRef();
+}
+
+void InputText::setAllowedSymbols(const std::string& utf8str) {
+   _allowed = utf8str;
+}
+
+void InputText::setAllowedSymbols(const std::wstring& str) {
+   _allowed = ws2utf8(str.c_str());
+}
+
+void InputText::setDisallowedSymbols(const std::string& utf8str) {
+   _disallowed = utf8str;
+}
+
+void InputText::setDisallowedSymbols(const std::wstring& str) {
+   _disallowed = ws2utf8(str.c_str());
+}
+
+void InputText::setNumeric(bool isNumeric) {
+   _isNumeric = isNumeric;
+}
+
+void InputText::setMaxTextLength(int v) {
+   _maxLength = v;
+}
+
+void InputText::_onSysEvent(Event* event) {
+   _onSDLEvent((SDL_Event*)event->userData);
+}
+
+void InputText::updateCursor() {
+   float x = static_cast<float>(_textActor->getTextRect(_textActor->globalScaleX()).getRight());
+
+   _cursor->setX(x + 1);
+}
+
+void InputText::updateText() {
+   _textActor->setText(_txt);
+   this->updateCursor();
+   Event evnt(EVENT_TEXT_CHANGED);
+   dispatchEvent(&evnt);
+}
+
+bool findCode(const char* str, int c) {
+   while (*str)
+   {
+      int code = 0;
+      str = getNextCode(code, str);
+
+      if (code == c) return true;
+   }
+   return false;
+}
+
+int getLen(const char* str) {
+   int i = 0;
+
+   while (*str)
+   {
+      ++i;
+      int code = 0;
+      str = getNextCode(code, str);
+   }
+   return i;
+}
+
+int getLastPos(const char* str) {
+   const char* begin = str;
+   const char* prev  = str;
+
+   while (*str)
+   {
+      prev = str;
+      int code = 0;
+      str = getNextCode(code, str);
+   }
+   return (int)(prev - begin);
+}
+
+int InputText::_onSDLEvent(SDL_Event* event) {
+   switch (event->type)
+   {
+      case SDL_TEXTEDITING:
+      {
+         // SDL_TextEditingEvent &te = event->edit;
+         // int q=0;
+         break;
+      }
+      case SDL_TEXTINPUT:
+      {
+         if (_maxLength) {
+            if (getLen(_txt.c_str()) >= _maxLength) return 0;
+         }
+
+         SDL_TextInputEvent& te = event->text;
+
+         // logs::messageln("text: %d %d %d %d", (int)(te.text[0]), (int)(te.text[1]), (int)(te.text[2]), (int)(te.text[3]));
+
+         int newCode = 0;
+         getNextCode(newCode, te.text);
+
+         if (_isNumeric && ((newCode < 48) || (newCode > 57))) return 0;
+
+         if (!_disallowed.empty()) {
+            if (findCode(_disallowed.c_str(), newCode)) newCode = 0;
+         }
+
+         if (!newCode) return 0;
+
+         if (!_allowed.empty()) {
+            if (!findCode(_allowed.c_str(), newCode)) newCode = 0;
+         }
+
+         if (!newCode) return 0;
 
 
-
-    void InputText::stop()
-    {
-        if (!_textActor)
-            return;
-
-        SDL_StopTextInput();
-        core::getDispatcher()->removeEventListeners(this);
-
-        _cursor->detach();
-        _active = 0;
-        _textActor = 0;
-        //logs::messageln("InputText::stop  %x", this);
-        releaseRef();
-    }
-
-    void InputText::setAllowedSymbols(const std::string& utf8str)
-    {
-        _allowed = utf8str;
-    }
-
-    void InputText::setAllowedSymbols(const std::wstring& str)
-    {
-        _allowed = ws2utf8(str.c_str());
-    }
-
-    void InputText::setDisallowedSymbols(const std::string& utf8str)
-    {
-        _disallowed = utf8str;
-    }
-
-    void InputText::setDisallowedSymbols(const std::wstring& str)
-    {
-        _disallowed = ws2utf8(str.c_str());
-    }
-
-    void  InputText::setNumeric(bool isNumeric){
-        _isNumeric = isNumeric;
-    }
-
-    void InputText::setMaxTextLength(int v)
-    {
-        _maxLength = v;
-    }
-
-    void InputText::_onSysEvent(Event* event)
-    {
-        _onSDLEvent((SDL_Event*)event->userData);
-    }
-
-    void InputText::updateCursor()
-    {
-        float x = static_cast<float>(_textActor->getTextRect(_textActor->globalScaleX()).getRight());
-        _cursor->setX(x+1);
-    }
-
-    void InputText::updateText()
-    {
-        _textActor->setText(_txt);
-        this->updateCursor();
-        Event evnt(EVENT_TEXT_CHANGED);
-        dispatchEvent(&evnt);
-    }
-
-    bool findCode(const char* str, int c)
-    {
-        while (*str)
-        {
-            int code = 0;
-            str = getNextCode(code, str);
-            if (code == c)
-                return true;
-        }
-        return false;
-    }
-
-    int getLen(const char* str)
-    {
-        int i = 0;
-        while (*str)
-        {
-            ++i;
-            int code = 0;
-            str = getNextCode(code, str);
-        }
-        return i;
-    }
-
-    int getLastPos(const char* str)
-    {
-        const char* begin = str;
-        const char* prev = str;
-        while (*str)
-        {
-            prev = str;
-            int code = 0;
-            str = getNextCode(code, str);
-        }
-        return (int)(prev - begin);
-    }
-
-    int InputText::_onSDLEvent(SDL_Event* event)
-    {
-        switch (event->type)
-        {
-            case SDL_TEXTEDITING:
+         _txt.append(te.text, te.text + strlen(te.text));
+         updateText();
+         break;
+      }
+      case SDL_KEYDOWN:
+      {
+         // logs::messageln("SDL_KEYDOWN");
+         switch (event->key.keysym.sym)
+         {
+            case SDLK_BACKSPACE:
             {
-                //SDL_TextEditingEvent &te = event->edit;
-                //int q=0;
+               if (!_txt.empty()) {
+                  int pos = getLastPos(_txt.c_str());
+                  _txt.erase(_txt.begin() + pos, _txt.end());
+               }
+               updateText();
+               break;
             }
-            break;
-            case SDL_TEXTINPUT:
+            case SDLK_KP_ENTER:
+            case SDLK_RETURN:
             {
-
-                if (_maxLength)
-                {
-                    if (getLen(_txt.c_str()) >= _maxLength)
-                        return 0;
-                }
-
-                SDL_TextInputEvent& te = event->text;
-                //logs::messageln("text: %d %d %d %d", (int)(te.text[0]), (int)(te.text[1]), (int)(te.text[2]), (int)(te.text[3]));
-
-                int newCode = 0;
-                getNextCode(newCode, te.text);
-
-                if(_isNumeric && (newCode < 48 || newCode > 57)) return 0;
-
-                if (!_disallowed.empty())
-                {
-                    if (findCode(_disallowed.c_str(), newCode))
-                        newCode = 0;
-                }
-
-                if (!newCode)
-                    return 0;
-
-                if (!_allowed.empty())
-                {
-                    if (!findCode(_allowed.c_str(), newCode))
-                        newCode = 0;
-                }
-
-                if (!newCode)
-                    return 0;
-
-
-                _txt.append(te.text, te.text + strlen(te.text));
-                updateText();
+               Event evnt(EVENT_COMPLETE);
+               dispatchEvent(&evnt);
+               break;
             }
-            break;
-            case SDL_KEYDOWN:
-            {
-                //logs::messageln("SDL_KEYDOWN");
-                switch (event->key.keysym.sym)
-                {
-                    case SDLK_BACKSPACE:
-                    {
-                        if (!_txt.empty())
-                        {
-                            int pos = getLastPos(_txt.c_str());
-                            _txt.erase(_txt.begin() + pos, _txt.end());
-                        }
-                        updateText();
-                    }
-                    break;
-                    case SDLK_RETURN:
-                    {
-                        Event evnt(EVENT_COMPLETE);
-                        dispatchEvent(&evnt);
-                    }
-                    break;
-                }
-            }
-            break;
-        }
-        return 0;
-    }
+         }
+         break;
+      }
+   }
+   return 0;
+}
 }
