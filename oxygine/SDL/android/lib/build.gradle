@@ -22,6 +22,7 @@ apply plugin: 'com.android.library'
 
 dependencies {
         implementation project(':oxygine-extension')
+        implementation 'com.android.volley:volley:1.1.1'
         api project(':SDL') {
           ext.BUILD_AS_LIBRARY = true
           ext.EXCLUDE_NATIVE_LIBS = true
@@ -43,4 +44,8 @@ android {
                 res.srcDirs = ['res']
             }
         }
+}
+tasks.withType(JavaCompile) {
+  options.compilerArgs << '-Xlint:unchecked' 
+  options.deprecation = true
 }

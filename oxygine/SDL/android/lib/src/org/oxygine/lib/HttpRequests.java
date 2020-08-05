@@ -3,8 +3,6 @@ package org.oxygine.lib;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
@@ -15,6 +13,11 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.concurrent.RejectedExecutionException;
+
+import com.android.volley.*;
+import com.android.volley.toolbox.*;
+import java.util.Map;
+import java.util.HashMap;
 /**
  * Created by Denis on 31.12.2014.
  */
@@ -27,6 +30,52 @@ class RequestDetails {
     public String[] headerValues;
 };
 
+class OxRequest extends Request<byte[]> implements Response.ErrorListener {
+  public static abstract class Listener {
+    public abstract void onResponse(OxRequest ox, byte[] response);
+    public abstract void onFailure(OxRequest ox, VolleyError error);
+  };
+  @Override
+  protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+    return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+  }
+  @Override
+  protected void deliverResponse(byte[] response) {
+    listener.onResponse(this, response);
+  }
+  @Override
+  public void deliverError(VolleyError error) {
+    super.deliverError(error);
+    listener.onFailure(this,error);
+  }
+
+  private Listener listener;
+  private RequestDetails details;
+  private Map<String, String> headers;
+  public OxRequest(final RequestDetails d, OxRequest.Listener l) {
+    super(d.postData == null?Request.Method.GET:Request.Method.POST,
+          d.url, null);
+    listener = l;
+    details = d;
+    headers = new HashMap<String, String>();
+    for (int i = 0; i < d.headerKeys.length; ++i) {
+      headers.put(d.headerKeys[i], d.headerValues[i]);
+    }
+  }
+  @Override
+  public Map<String,String> getHeaders() throws AuthFailureError {
+    return headers;
+  }
+  @Override
+  public byte[] getBody() throws AuthFailureError {
+    return details.postData;
+  }
+  @Override
+  public void onErrorResponse(VolleyError ve) {
+    HttpRequest.nativeHttpRequestError(details.handle);
+  }
+  public long getHandle() { return details.handle; }
+}
 
 class HttpRequestHolder {
 
@@ -34,35 +83,22 @@ class HttpRequestHolder {
 
     public HttpRequestHolder() {
     }
-
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // API 11
-    public static <T> void executeAsyncTask(AsyncTask<T, ?, ?> asyncTask, T... params) throws RejectedExecutionException {
-      try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-          asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-        } else {
-          asyncTask.execute(params);
-        }
-      } catch (Exception e) {
-        if (params.length > 0 && params[0] instanceof RequestDetails) {
-          RequestDetails details = (RequestDetails) params[1];
-          HttpRequest.nativeHttpRequestError(details.handle);
-        }
-      }
-    }
-
-
     public void run(final RequestDetails details) {
         OxygineActivity.instance.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                HttpRequest task = new HttpRequest();
-                try {
-                  executeAsyncTask(task, details);
-                }catch(RejectedExecutionException ree) {
-                  HttpRequest.nativeHttpRequestError(details.handle);
-                }
+                VolleyManager.addRequest(new OxRequest(details, new OxRequest.Listener() {
+                  @Override
+                  public void onResponse(OxRequest ox, byte[] r) {
+                    HttpRequest.nativeHttpRequestGotHeader(ox.getHandle(), 200, r.length);
+                    HttpRequest.nativeHttpRequestWrite(ox.getHandle(), r, r.length);
+                    HttpRequest.nativeHttpRequestSuccess(ox.getHandle());
+                  }
+                  @Override
+                  public void onFailure(OxRequest ox, VolleyError err) {
+                    HttpRequest.nativeHttpRequestError(ox.getHandle());
+                  }
+                }));
             }
         });
     }
@@ -70,9 +106,8 @@ class HttpRequestHolder {
 
 // usually, subclasses of AsyncTask are declared inside the activity class.
 // that way, you can easily modify the UI thread from here
-class HttpRequest extends AsyncTask<RequestDetails, Integer, String> {
+class HttpRequest {
 
-    private PowerManager.WakeLock mWakeLock;
 
     public HttpRequest() {
     }
@@ -81,114 +116,6 @@ class HttpRequest extends AsyncTask<RequestDetails, Integer, String> {
     public static native void nativeHttpRequestError(long handle);
     public static native void nativeHttpRequestGotHeader(long handle, int code, int contentLength);
     public static native void nativeHttpRequestWrite(long handle, byte[] data, int size);
-
-
-    private Proxy detectProxy() {
-        try {
-            ConnectivityManager cm = (ConnectivityManager) OxygineActivity.instance.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            if (ni != null && ni.isAvailable() && ni.getType() == ConnectivityManager.TYPE_MOBILE) {
-                String proxyHost = android.net.Proxy.getDefaultHost();
-                int port = android.net.Proxy.getDefaultPort();
-                if (proxyHost != null) {
-                    final InetSocketAddress sa = new InetSocketAddress(proxyHost, port);
-                    return new Proxy(Proxy.Type.HTTP, sa);
-                }
-            }
-        } catch (SecurityException ex) {
-        }
-        return null;
-    }
-
-    @Override
-    protected String doInBackground(RequestDetails... details_) {
-        InputStream input = null;
-
-        HttpURLConnection connection = null;
-        RequestDetails details = details_[0];
-
-
-        try {
-            URL url = new URL(details.url);
-
-            Proxy proxy = detectProxy();
-            if (proxy != null)
-                connection = (HttpURLConnection) url.openConnection(proxy);
-            else
-                connection = (HttpURLConnection) url.openConnection();
-
-            connection.setInstanceFollowRedirects(true);
-
-            for (int i = 0; i < details.headerKeys.length; ++i)
-            {
-                String key = details.headerKeys[i];
-                String value = details.headerValues[i];
-
-                connection.setRequestProperty(key, value);
-            }
-            connection.setConnectTimeout(1000);
-            connection.setReadTimeout(2000);
-
-            if (details.postData != null) {
-                connection.setDoOutput(true);
-                connection.setRequestMethod("POST");
-                connection.getOutputStream().write(details.postData);
-            }
-
-            int respCode = connection.getResponseCode();
-            nativeHttpRequestGotHeader(details.handle, respCode, connection.getContentLength());
-
-
-            if (respCode >= 400 && respCode <= 599)
-                input = connection.getErrorStream();
-            else
-                input = connection.getInputStream();
-
-
-            byte data[] = new byte[4096];
-            int count;
-
-            while ((count = input.read(data)) != -1)
-                nativeHttpRequestWrite(details.handle, data, count);
-
-
-            nativeHttpRequestSuccess(details.handle);
-
-        } catch (Exception e) {
-            Log.v("HttpRequest", "error: " + e.toString());
-            nativeHttpRequestError(details.handle);
-            return e.toString();
-        } finally {
-            try {
-                if (input != null)
-                    input.close();
-            } catch (IOException ignored) {
-            }
-
-            if (connection != null)
-                connection.disconnect();
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        // take CPU lock to prevent CPU from going off if the user
-        // presses the power button during download
-        //PowerManager pm = (PowerManager) OxygineActivity.instance.getSystemService(Context.POWER_SERVICE);
-        //mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
-        //if (mWakeLock != null)
-        	//mWakeLock.acquire();
-        //mProgressDialog.show();
-    }
-
-
-    @Override
-    protected void onPostExecute(String result) {
-//    	if (mWakeLock != null)
-  //      	mWakeLock.release();
-    }
 }
 
 
@@ -216,4 +143,24 @@ public class HttpRequests {
 
         return downloadTask;
     }
+}
+class VolleyManager {
+  private static VolleyManager instance = null;
+  private RequestQueue queue = null;
+  private VolleyManager() { }
+  public RequestQueue getQueue() {
+    if (queue == null) {
+      queue = Volley.newRequestQueue(OxygineActivity.instance.getApplicationContext());
+    }
+    return queue;
+  }
+  public static VolleyManager get() {
+    if (instance == null) {
+      instance = new VolleyManager();
+    }
+    return instance;
+  }
+  public static void addRequest(OxRequest r) {
+    VolleyManager.get().getQueue().add(r);
+  }
 }
