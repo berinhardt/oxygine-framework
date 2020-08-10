@@ -8,12 +8,12 @@ static HttpRequestTask* createTask() {
    return new HttpRequestJavaTask;
 }
 
+int globalRefs = 0;
 void HttpRequestTask::init() {
    setCustomRequests(createTask);
 
    JNIEnv* env = jniGetEnv();
    LOCAL_REF_HOLDER(env);
-
    _jHttpRequestsClass = (jclass)env->NewGlobalRef(env->FindClass("org/oxygine/lib/HttpRequests"));
    JNI_NOT_NULL(_jHttpRequestsClass);
 
@@ -38,7 +38,6 @@ void HttpRequestTask::release() {
    jmethodID jRelease = env->GetStaticMethodID(_jHttpRequestsClass, "release", "()V");
    JNI_NOT_NULL(jRelease);
    env->CallStaticVoidMethod(_jHttpRequestsClass, jRelease);
-
    env->DeleteGlobalRef(_jHttpRequestsClass);
    _jHttpRequestsClass   = 0;
    _jCreateRequestMethod = 0;
@@ -112,7 +111,7 @@ void HttpRequestJavaTask::complete_() {
       });
 }
 
-void HttpRequestJavaTask::_finaliaze(bool) {
+void HttpRequestJavaTask::_finalize(bool) {
    JNIEnv* env = jniGetEnv();
 
    env->DeleteGlobalRef(_handle);

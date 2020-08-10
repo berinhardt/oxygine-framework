@@ -11,26 +11,25 @@
 #include "jniUtils.h"
 #include "../../HttpRequestTask.h"
 
-namespace oxygine
-{
-    class HttpRequestJavaTask: public HttpRequestTask
-    {
-    public:
-        HttpRequestJavaTask();
-        ~HttpRequestJavaTask();
+namespace oxygine {
+class HttpRequestJavaTask : public HttpRequestTask {
+public:
 
-        void complete_();
-        void progress_(int loaded, int total);
-        void gotHeader_(int respCode, int contentLen);
-        void write_(jbyteArray, int size);
-        void error_();
+   HttpRequestJavaTask();
+   ~HttpRequestJavaTask();
 
+   void complete_();
+   void progress_(int loaded, int total);
+   void gotHeader_(int respCode, int contentLen);
+   void write_(jbyteArray, int size);
+   void error_();
 
-    protected:
-        void _run();
-        void _finaliaze(bool);
-        jobject _handle;
-    private:
-    };
+protected:
+
+   void         _run();
+   virtual void _finalize(bool) override;
+   jobject _handle;
+
+private:
+};
 }
-
