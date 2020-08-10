@@ -62,6 +62,8 @@ void HttpRequestJavaTask::_run() {
       env->SetByteArrayRegion(jpost, 0, _postData.size(), (jbyte*)&_postData.front());
    }
 
+   checkJNIException();
+
    jobjectArray jkeys   = (jobjectArray)env->NewObjectArray(_headers.size(), env->FindClass("java/lang/String"), 0);
    jobjectArray jvalues = (jobjectArray)env->NewObjectArray(_headers.size(), env->FindClass("java/lang/String"), 0);
 

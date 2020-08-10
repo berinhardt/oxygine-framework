@@ -6,147 +6,160 @@
 #include <string>
 
 #if OXYGINE_SDL
-typedef void* SDL_GLContext;
+typedef void*             SDL_GLContext;
 typedef struct SDL_Window SDL_Window;
-typedef SDL_Window* window;
-#else
+typedef SDL_Window*       window;
+#else // if OXYGINE_SDL
 typedef int window;
-#endif
+#endif // if OXYGINE_SDL
 
 /**main oxygine namespace*/
-namespace oxygine
+namespace oxygine {
+class ThreadDispatcher;
+
+void  checkJNIException();
+
+void* fastAlloc(size_t size);
+void  fastFree(void* data);
+
+typedef int timeMS;
+
+/** returns local app time in milliseconds (1sec = 1000ms). Counting starts from zero*/
+timeMS      getTimeMS();
+
+/** returns UTC time in milliseconds */
+int64       getTimeUTCMS();
+
+/** is any network connection available?*/
+bool        isNetworkAvailable();
+
+
+int64       getFreeSpace(const char* fullpath = 0);
+
+/**returns locale. ISO 639-1 */
+std::string getLanguage();
+
+
+/**sleep for milliseconds*/
+void sleep(timeMS);
+
+
+namespace core {
+struct init_desc
 {
-    class ThreadDispatcher;
+   init_desc() : w(-1), h(-1),  mode24bpp(true), vsync(true), fullscreen(false), resizable(false), borderless(false), show_window(true),
+      force_gles(false), allow_screensaver(true), title("Oxygine"), appName(0), companyName(0) {}
 
-    void* fastAlloc(size_t size);
-    void fastFree(void* data);
+   /**display width*/
+   int w;
 
-    typedef int timeMS;
+   /**display height*/
+   int h;
 
-    /** returns local app time in milliseconds (1sec = 1000ms). Counting starts from zero*/
-    timeMS          getTimeMS();
+   /**sets 24 bits per pixel, otherwise sets 16 bits per pixel?*/
+   bool mode24bpp;
 
-    /** returns UTC time in milliseconds */
-    int64           getTimeUTCMS();
+   /**vertical sync*/
+   bool vsync;
 
-    /** is any network connection available?*/
-    bool            isNetworkAvailable();
+   /**fullscreen mode*/
+   bool fullscreen;
 
+   /**can the window be resized*/
+   bool resizable;
 
-    int64           getFreeSpace(const char* fullpath = 0);
+   /**borderless window*/
+   bool borderless;
 
-    /**returns locale. ISO 639-1 */
-    std::string     getLanguage();
+   /**will the window be visible*/
+   bool show_window;
 
+   /**use OpenGLES driver. Could be used on Windows for emulation OpenGLES via Direct3D*/
+   bool force_gles;
 
-    /**sleep for milliseconds*/
-    void    sleep(timeMS);
+   /**allow screensaver*/
+   bool allow_screensaver;
 
+   /**window title*/
+   const char* title;
 
-    namespace core
-    {
-        struct init_desc
-        {
-            init_desc() : w(-1), h(-1),  mode24bpp(true), vsync(true), fullscreen(false), resizable(false), borderless(false), show_window(true), force_gles(false), allow_screensaver(true), title("Oxygine"), appName(0), companyName(0) {}
+   /** Application name to be used as part of the file system directory for writable storage. If appName is empty files would be written
+      next to working directory*/
+   const char* appName;
 
-            /**display width*/
-            int w;
-            /**display height*/
-            int h;
+   /** Company name to be used as part of the file system directory for writable storage*/
+   const char* companyName;
+};
 
-            /**sets 24 bits per pixel, otherwise sets 16 bits per pixel?*/
-            bool mode24bpp;
-            /**vertical sync*/
-            bool vsync;
-            /**fullscreen mode*/
-            bool fullscreen;
-            /**can the window be resized*/
-            bool resizable;
-            /**borderless window*/
-            bool borderless;
-            /**will the window be visible*/
-            bool show_window;
-            /**use OpenGLES driver. Could be used on Windows for emulation OpenGLES via Direct3D*/
-            bool force_gles;
-            /**allow screensaver*/
-            bool allow_screensaver;
+void              init0();
 
-            /**window title*/
-            const char* title;
+/** Initializes Oxygine*/
+int               init(init_desc* desc = 0);
 
-            /** Application name to be used as part of the file system directory for writable storage. If appName is empty files would be written next to working directory*/
-            const char* appName;
-            /** Company name to be used as part of the file system directory for writable storage*/
-            const char* companyName;
-        };
+/** Releases all internal components*/
+void              release();
 
-        void init0();
+/**sends QUIT event to queue*/
+void              requestQuit();
 
-        /** Initializes Oxygine*/
-        int init(init_desc* desc = 0);
+/**destroy and reset any GPU allocated memory and handles. Call it to free memory if app was minimized (lost focus)*/
+void              reset();
 
-        /** Releases all internal components*/
-        void release();
+/**restores GPU memory state after reset*/
+void              restore();
 
-        /**sends QUIT event to queue*/
-        void requestQuit();
+/** Update engine*/
+bool              update();
 
-        /**destroy and reset any GPU allocated memory and handles. Call it to free memory if app was minimized (lost focus)*/
-        void reset();
+/**returns True if device is ready for rendering*/
+bool              isReady2Render();
 
-        /**restores GPU memory state after reset*/
-        void restore();
+/**returns True if device is ready for rendering*/
+bool              beginRendering(window i = 0);
 
-        /** Update engine*/
-        bool update();
+/** Swap Video buffers*/
+void              swapDisplayBuffers(window i = 0);
 
-        /**returns True if device is ready for rendering*/
-        bool isReady2Render();
-        /**returns True if device is ready for rendering*/
-        bool beginRendering(window i = 0);
+/**Opens browser*/
+void              execute(const char* url);
 
-        /** Swap Video buffers*/
-        void swapDisplayBuffers(window i = 0);
+/**returns app package, example: com.company.apps*/
+std::string       getPackage();
 
-        /**Opens browser*/
-        void execute(const char* url);
+/** Returns display size in pixels*/
+Point             getDisplaySize();
 
-        /**returns app package, example: com.company.apps*/
-        std::string getPackage();
+ThreadDispatcher& getMainThreadDispatcher();
+ThreadDispatcher& getUiThreadMessages();
 
-        /** Returns display size in pixels*/
-        Point getDisplaySize();
+bool              isActive();
+bool              hasFocus();
 
-        ThreadDispatcher& getMainThreadDispatcher();
-        ThreadDispatcher& getUiThreadMessages();
-
-        bool isActive();
-        bool hasFocus();
-
-        bool isMainThread();
+bool              isMainThread();
 
 
 #ifdef OXYGINE_SDL
-        SDL_GLContext   getGLContext();
-        SDL_Window*     getWindow();
-#endif
+SDL_GLContext getGLContext();
+SDL_Window*   getWindow();
+#endif // ifdef OXYGINE_SDL
 
-        enum
-        {
-            EVENT_SYSTEM = sysEventID('c', 'S', 'y'), //events from SDL
-            EVENT_PRECREATEWINDOW = sysEventID('c', 'P', 'W'),//dispatched before creating window/context
-            EVENT_EXIT = sysEventID('c', 'E', 'x'), //dispatched from core::release
-        };
+enum
+{
+   EVENT_SYSTEM          = sysEventID('c', 'S', 'y'), // events from SDL
+   EVENT_PRECREATEWINDOW = sysEventID('c', 'P', 'W'), // dispatched before creating window/context
+   EVENT_EXIT            = sysEventID('c', 'E', 'x'), // dispatched from core::release
+};
 
-        class PreCreateWindowEvent : public Event
-        {
-        public:
-            PreCreateWindowEvent(): Event(EVENT_PRECREATEWINDOW) {}
-            int flags;
-        };
+class PreCreateWindowEvent : public Event {
+public:
 
-        spEventDispatcher getDispatcher();
+   PreCreateWindowEvent() : Event(EVENT_PRECREATEWINDOW) {}
 
-        void init0();
-    }
+   int flags;
+};
+
+spEventDispatcher getDispatcher();
+
+void              init0();
+}
 }

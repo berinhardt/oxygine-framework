@@ -8,6 +8,7 @@
 #endif // ifdef ANDROID
 
 namespace oxygine {
+extern void   checkJNIException();
 #if 0
 static size_t threadID() {
    pthread_t pt = pthread_self();
@@ -135,18 +136,7 @@ void ThreadDispatcher::_popMessage(message& res) {
 
 bool ThreadDispatcher::peek(peekMessage& ev, bool del) {
    if (!ev.num) return false;
-#ifdef ANDROID
-   JNIEnv* env   = jniGetEnv();
-   jthrowable ex = env->ExceptionOccurred();
-
-   if (ex) {
-      env->ExceptionClear();
-      jobject   obj = jniGetMainActivity();
-      jclass    cls = jniGetMainActivityClass();
-      jmethodID mid = env->GetMethodID(cls, "cpp_onJNIException", "(Ljava/lang/Throwable;)V");
-      env->CallVoidMethod(obj, mid, ex);
-   }
-#endif // ifdef ANDROID
+   oxygine::checkJNIException();
 
    bool ret = false;
    {
