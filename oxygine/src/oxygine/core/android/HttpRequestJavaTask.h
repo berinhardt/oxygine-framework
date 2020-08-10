@@ -26,7 +26,7 @@ public:
 
 protected:
 
-   void         _run();
+   virtual void _run() override;
    virtual void _finalize(bool) override;
    jobject _handle;
 
