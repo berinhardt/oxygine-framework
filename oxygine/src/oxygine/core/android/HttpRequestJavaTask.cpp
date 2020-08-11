@@ -72,12 +72,16 @@ void HttpRequestJavaTask::_run() {
 
       env->SetObjectArrayElement(jkeys,   i, jkey);
       env->SetObjectArrayElement(jvalues, i, jvalue);
+
+      env->DeleteLocalRef(jkey);
+      env->DeleteLocalRef(jvalue);
    }
 
 
    addRef();
    _handle = env->NewGlobalRef(env->CallStaticObjectMethod(_jHttpRequestsClass, _jCreateRequestMethod,
                                                            jurl, jkeys, jvalues, jpost, (jlong)this));
+   env->DeleteLocalRef(jurl);
 }
 
 void HttpRequestJavaTask::error_() {

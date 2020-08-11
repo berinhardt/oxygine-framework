@@ -112,6 +112,7 @@ int64 jniGetFreeSpace(const char* path) {
 
    jstring jarg  = env->NewStringUTF(path);
    jlong   value = env->CallStaticLongMethod(_jUtils, _jUtils_getFreeSpace, jarg);
+   env->DeleteLocalRef(jarg);
    return value;
 }
 
@@ -159,6 +160,7 @@ void jniBrowse(const char* url) {
       jmethodID m = env->GetStaticMethodID(_jUtils, "browse", "(Ljava/lang/String;)V");
       JNI_NOT_NULL(m);
       env->CallStaticVoidMethod(_jUtils, m, jstr);
+      env->DeleteLocalRef(jstr);
    } catch (const notFound&) {}
 }
 
@@ -171,7 +173,9 @@ void jniWriteBuffer2InternalStorageFile(const char* path, const char* data, size
       jbyteArray buffer = env->NewByteArray(size);
       env->SetByteArrayRegion(buffer, 0, size, (const jbyte*)data);
       JNI_NOT_NULL(m);
-      env->CallStaticVoidMethod(_jUtils, m, env->NewStringUTF(path), buffer);
+      jstring jpath = env->NewStringUTF(path);
+      env->CallStaticVoidMethod(_jUtils, m, jpath, buffer);
+      env->DeleteLocalRef(jpath);
    } catch (const notFound&) {}
 }
 
@@ -197,7 +201,7 @@ std::string jniGetProperty(const std::string& id) {
 
    jstring jarg = env->NewStringUTF(id.c_str());
    jstring jstr = (jstring)env->CallStaticObjectMethod(_jUtils, _jUtils_getProperty, jarg);
-
+   env->DeleteLocalRef(jarg);
 
    return jniGetString(env, jstr);
 }
