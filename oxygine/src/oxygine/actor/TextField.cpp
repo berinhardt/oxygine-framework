@@ -248,8 +248,9 @@ text::Node* TextField::getRootNode(float globalScale) {
    float scale      = 1.0f;
    const Font* font = _style.font->getClosestFont(globalScale, _style.fontSize, scale);
 
-   if ((_flags & flag_rebuild || (_rtscale != scale)) && font) {
-      _rtscale = scale;
+   if (font && (_flags & flag_rebuild || (_rtscale != scale) || (font->getHash() != _fonthash))) {
+      _rtscale  = scale;
+      _fonthash = font->getHash();
 
       // _realFontSize = fontSize;
       delete _root;

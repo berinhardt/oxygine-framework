@@ -4,73 +4,86 @@
 #include "math/Rect.h"
 #include <unordered_set>
 
-namespace oxygine
+namespace oxygine {
+struct glyph
 {
-    struct glyph
-    {
-        RectF src;
+   RectF src;
 
-        int ch;
-        glyphOptions opt;
+   int          ch;
+   glyphOptions opt;
 
-        short sw;
-        short sh;
+   short sw;
+   short sh;
 
-        short offset_x;
-        short offset_y;
+   short offset_x;
+   short offset_y;
 
-        short advance_x;
-        short advance_y;
+   short advance_x;
+   short advance_y;
 
-        spNativeTexture texture;
+   spNativeTexture texture;
 
-        bool operator == (const glyph& r) const {return ch == r.ch && opt == r.opt;}
-    };
+   bool operator==(const glyph& r) const {
+      return ch == r.ch && opt == r.opt;
+   }
+};
 
-    struct GlyphHasher
-    {
-        std::size_t operator()(const glyph& k) const
-        {
-            return std::hash<size_t>()(k.ch + k.opt);
-        }
-    };
+struct GlyphHasher
+{
+   std::size_t operator()(const glyph& k) const {
+      return std::hash<size_t>()(k.ch + k.opt);
+   }
+};
 
 
-    class Font: public ObjectBase
-    {
-    public:
-        Font();
-        ~Font();
+class Font : public ObjectBase {
+public:
 
-        void init(const char* name, int size, int baselineDistance, int lineHeight, bool sdf = false);
+   Font();
+   ~Font();
 
-        void addGlyph(const glyph& g);
-        void sortGlyphs() {}
+   void    init(const char* name, int size, int baselineDistance, int lineHeight, bool sdf = false);
 
-        void clear();
+   void    addGlyph(const glyph& g);
+   void    sortGlyphs() {}
 
-        void setScale(float scale) { _scale = scale; }
-        void setBaselineDistance(int d) { _baselineDistance = d; }
+   uint8_t getHash() const {
+      return _hash;
+   }
 
-        const glyph*    getGlyph(int code, const glyphOptions& opt) const;
-        int             getBaselineDistance() const;
-        int             getSize() const;
-        float           getScale() const;
+   void clear();
 
-    protected:
-        const glyph* findGlyph(int code, const glyphOptions& opt) const;
+   void setScale(float scale) {
+      _scale = scale;
+   }
 
-        virtual bool loadGlyph(int code, glyph&, const glyphOptions& opt) { return false; }
+   void setBaselineDistance(int d) {
+      _baselineDistance = d;
+   }
 
-        typedef std::unordered_set<glyph, GlyphHasher> glyphs;
+   const glyph* getGlyph(int code, const glyphOptions& opt) const;
+   int          getBaselineDistance() const;
+   int          getSize() const;
+   float        getScale() const;
 
-        glyphs _glyphs;
-        bool _ignoreOptions;
+protected:
 
-        float _scale;
-        bool _sdf;
+   const glyph* findGlyph(int code, const glyphOptions& opt) const;
 
-        int _size;
-        int _baselineDistance;
-    };
+   virtual bool loadGlyph(int code, glyph&, const glyphOptions& opt) {
+      return false;
+   }
+
+   typedef std::unordered_set<glyph, GlyphHasher> glyphs;
+
+   glyphs _glyphs;
+   bool _ignoreOptions;
+
+   float _scale;
+   bool _sdf;
+
+   int _size;
+   int _baselineDistance;
+   uint8_t _hash;
+};
 }

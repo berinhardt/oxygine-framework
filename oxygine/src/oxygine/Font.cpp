@@ -1,88 +1,75 @@
 #include "Font.h"
 #include "core/NativeTexture.h"
 
-namespace oxygine
-{
-    Font::Font() : _size(0), _baselineDistance(0), _scale(1.0f), _sdf(false), _ignoreOptions(true)
-    {
-    }
+namespace oxygine {
+Font::Font() : _size(0), _baselineDistance(0), _scale(1.0f), _sdf(false), _ignoreOptions(true) {}
 
-    Font::~Font()
-    {
-    }
+Font::~Font() {}
 
-    void Font::init(const char* name, int realSize, int baselineDistance, int lineHeight, bool sdf)
-    {
-        setName(name);
-        _sdf = sdf;
-        _size = realSize;
-        _baselineDistance = baselineDistance;
-    }
+void Font::init(const char* name, int realSize, int baselineDistance, int lineHeight, bool sdf) {
+   setName(name);
+   _sdf              = sdf;
+   _size             = realSize;
+   _baselineDistance = baselineDistance;
+}
 
-    void Font::addGlyph(const glyph& gl)
-    {
-        _glyphs.insert(gl);
-    }
+void Font::addGlyph(const glyph& gl) {
+   _glyphs.insert(gl);
+}
 
-    void Font::clear()
-    {
-        _glyphs.clear();
-    }
+void Font::clear() {
+   _hash++;
+   _glyphs.clear();
+}
 
-    bool glyphFindPred(const glyph& g, int code)
-    {
-        return g.ch < code;
-    }
+bool glyphFindPred(const glyph& g, int code) {
+   return g.ch < code;
+}
 
-    bool glyphsComparePred(const glyph& ob1, const glyph& ob2)
-    {
-        return ob1.ch < ob2.ch;
-    }
+bool glyphsComparePred(const glyph& ob1, const glyph& ob2) {
+   return ob1.ch < ob2.ch;
+}
 
-    const glyph* Font::findGlyph(int code, const glyphOptions& opt) const
-    {
-        glyph g;
-        g.ch = code;
-        g.opt = _ignoreOptions ? 0 : opt;
-        glyphs::const_iterator it = _glyphs.find(g);
-        if (it != _glyphs.end())
-        {
-            return &(*it);
-        }
+const glyph* Font::findGlyph(int code, const glyphOptions& opt) const {
+   glyph g;
 
-        return 0;
-    }
+   g.ch  = code;
+   g.opt = _ignoreOptions ? 0 : opt;
+   glyphs::const_iterator it = _glyphs.find(g);
 
-    const glyph* Font::getGlyph(int code, const glyphOptions& opt) const
-    {
-        const glyph* g = findGlyph(code, opt);
-        if (g)
-            return g;
+   if (it != _glyphs.end()) {
+      return &(*it);
+   }
 
-        glyph gl;
-        Font* fn = const_cast<Font*>(this);
-        if (fn->loadGlyph(code, gl, opt))
-        {
-            fn->_glyphs.insert(gl);
-            g = findGlyph(code, opt);
-            OX_ASSERT(g);
-        }
+   return 0;
+}
 
-        return g;
-    }
+const glyph* Font::getGlyph(int code, const glyphOptions& opt) const {
+   const glyph* g = findGlyph(code, opt);
 
-    int Font::getBaselineDistance() const
-    {
-        return _baselineDistance;
-    }
+   if (g) return g;
 
-    int Font::getSize() const
-    {
-        return _size;
-    }
+   glyph gl;
+   Font* fn = const_cast<Font*>(this);
 
-    float Font::getScale() const
-    {
-        return _scale;
-    }
+   if (fn->loadGlyph(code, gl, opt)) {
+      fn->_glyphs.insert(gl);
+      g = findGlyph(code, opt);
+      OX_ASSERT(g);
+   }
+
+   return g;
+}
+
+int Font::getBaselineDistance() const {
+   return _baselineDistance;
+}
+
+int Font::getSize() const {
+   return _size;
+}
+
+float Font::getScale() const {
+   return _scale;
+}
 }
