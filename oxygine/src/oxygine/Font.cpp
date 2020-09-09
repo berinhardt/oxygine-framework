@@ -18,7 +18,6 @@ void Font::addGlyph(const glyph& gl) {
 }
 
 void Font::clear() {
-   _hash++;
    _glyphs.clear();
 }
 

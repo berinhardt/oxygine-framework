@@ -51,6 +51,10 @@ public:
       return _hash;
    }
 
+   void rehash() {
+      _hash++;
+   }
+
    void clear();
 
    void setScale(float scale) {
