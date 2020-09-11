@@ -70,7 +70,9 @@ public:
    int          getSize() const;
    float        getScale() const;
 
-   virtual void BiDiPass(std::vector<text::Symbol*>&) const {}
+   virtual bool BiDiPass(std::vector<text::Symbol*>&) const {
+      return false;
+   }
 
 protected:
 
