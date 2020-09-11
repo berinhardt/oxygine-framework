@@ -35,7 +35,7 @@ struct GlyphHasher
    }
 };
 
-
+struct Symbol;
 class Font : public ObjectBase {
 public:
 
@@ -69,6 +69,8 @@ public:
    int          getBaselineDistance() const;
    int          getSize() const;
    float        getScale() const;
+
+   virtual void BiDiPass(std::vector<text::Symbol*>&) const {}
 
 protected:
 
