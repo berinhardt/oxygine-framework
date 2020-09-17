@@ -1096,6 +1096,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = C3E86F4116EBC8A500052915;
@@ -1315,6 +1316,10 @@
 					"$(THIRD_PARTY)/libjpeg",
 				);
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-DFORCE_HPC",
+					"-DNDEBUG",
+				);
 				PRODUCT_NAME = oxygine_ios;
 				SKIP_INSTALL = YES;
 			};
@@ -1336,6 +1341,10 @@
 					"$(THIRD_PARTY)/libjpeg",
 				);
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-DFORCE_HPC",
+					"-DNDEBUG",
+				);
 				PRODUCT_NAME = oxygine_ios;
 				SKIP_INSTALL = YES;
 			};

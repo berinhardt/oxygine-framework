@@ -60,7 +60,7 @@
 
 #if _DEBUG || DEBUG
 #   ifndef OX_DEBUG
-#       define OX_DEBUG 1
+//#       define OX_DEBUG 1
 #   endif
 #endif
 
