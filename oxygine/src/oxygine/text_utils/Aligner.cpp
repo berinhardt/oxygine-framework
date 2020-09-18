@@ -114,7 +114,7 @@ void Aligner::_alignLine(line& ln) {
                if (gl) s->gl = *gl;
                s->y = oy + s->gl.offset_y;
             }
-            s->x = ox;
+            s->x = ox + s->gl.offset_x;
             ox  +=  s->gl.advance_x;
          }
       }
@@ -170,7 +170,7 @@ int Aligner::putSymbol(Symbol& s) {
    _line.push_back(&s);
 
    // optional.. remove?
-   if ((_line.size() == 1) && (s.gl.offset_x < 0)) _x -= s.gl.offset_x;
+   // if ((_line.size() == 1) && (s.gl.offset_x < 0)) _x -= s.gl.offset_x;
 
    s.x = _x + s.gl.offset_x;
    s.y = _y + s.gl.offset_y;
