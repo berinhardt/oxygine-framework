@@ -23,6 +23,8 @@ apply plugin: 'com.android.library'
 dependencies {
         implementation project(':oxygine-extension')
         implementation 'com.android.volley:volley:1.1.1'
+            implementation "androidx.appcompat:appcompat:1.2.0"
+            implementation "androidx.appcompat:appcompat-resources:1.2.0"
         api project(':SDL') {
           ext.BUILD_AS_LIBRARY = true
           ext.EXCLUDE_NATIVE_LIBS = true
