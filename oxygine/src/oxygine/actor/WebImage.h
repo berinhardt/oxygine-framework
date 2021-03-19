@@ -5,42 +5,51 @@
 #include "../res/ResAnim.h"
 #include <string>
 
-namespace oxygine
-{
-    DECLARE_SMART(WebImage, spWebImage);
-    class WebImage : public Actor
-    {
-        INHERITED(Actor);
-    public:
-        DECLARE_COPYCLONE_NEW(WebImage);
+namespace oxygine {
+DECLARE_SMART(WebImage, spWebImage);
+class WebImage : public Actor {
+   INHERITED(Actor);
 
-        WebImage();
-        ~WebImage();
+public:
 
-        void load(const std::string& url);
-        void load(spHttpRequestTask task);
-        void unload();
+   DECLARE_COPYCLONE_NEW(WebImage);
 
-        void serialize(serializedata*) override;
-        void deserialize(const deserializedata*) override;
+   WebImage();
+   ~WebImage();
 
-    private:
-        void _load(spHttpRequestTask task);
+   void load(const std::string& url);
+   void load(spHttpRequestTask task);
+   void unload();
 
-        void loaded(Event*);
-        void error(Event*);
-        void sizeChanged(const Vector2& size) override;
-        void fit();
+   void serialize(serializedata*) override;
+   void deserialize(const deserializedata*) override;
+   void keepSize(bool ks) {
+      this->_ks = ks;
+   }
 
-        void init();
+   bool keepSize() const {
+      return this->_ks;
+   }
 
-        ResAnim _rs;
+private:
 
-        spSprite _image;
+   void _load(spHttpRequestTask task);
 
-        spHttpRequestTask _http;
-        bool _allowSwap;
-    };
+   void loaded(Event*);
+   void error(Event*);
+   void sizeChanged(const Vector2& size) override;
+   void fit();
+
+   void init();
+
+   ResAnim _rs;
+
+   spSprite _image;
+
+   spHttpRequestTask _http;
+   bool _allowSwap;
+   bool _ks;
+};
 }
 
 EDITOR_INCLUDE(WebImage);
