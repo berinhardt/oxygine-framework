@@ -72,6 +72,7 @@ class OxRequest extends Request<byte[]> implements Response.ErrorListener {
   }
   @Override
   public void onErrorResponse(VolleyError ve) {
+    Log.e("SDL", ve.getMessage());
     HttpRequest.nativeHttpRequestError(details.handle);
   }
   public long getHandle() { return details.handle; }
