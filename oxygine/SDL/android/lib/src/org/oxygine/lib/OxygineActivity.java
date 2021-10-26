@@ -37,7 +37,12 @@ public class OxygineActivity extends SDLActivity {
         instance = this;
         Utils._context = this;
         Log.e("SDL","nativeOxygineInit(this, getClass());");
-        nativeOxygineInit(this, getClass());
+        try {
+          nativeOxygineInit(this, getClass());
+        } catch(UnsatisfiedLinkError ule) {
+          SDL.loadLibraries();
+          nativeOxygineInit(this, getClass());
+        }
 
         _observable.onCreate();
     }
