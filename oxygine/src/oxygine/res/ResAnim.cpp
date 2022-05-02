@@ -6,7 +6,7 @@
 
 namespace oxygine {
 static AnimationFrame emptyFrame;
-Vector2 ResAnim::NOSIZE(1, 1)
+Vector2 ResAnim::NOSIZE(1, 1);
 ResAnim::ResAnim(Resource* atlas) : _columns(1), _atlas(atlas), _scaleFactor(1.0f), _appliedScale(1.0f), _framerate(30) {}
 
 ResAnim::~ResAnim() {}
