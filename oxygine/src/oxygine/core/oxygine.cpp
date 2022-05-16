@@ -290,7 +290,7 @@ int init(init_desc* desc_ptr) {
 
 # if TARGET_OS_IPHONE
    flags |= SDL_WINDOW_SHOWN;
-   flags |= SDL_WINDOW_BORDERLESS;
+   //flags |= SDL_WINDOW_BORDERLESS;
    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 # elif __ANDROID__
    flags |= SDL_WINDOW_RESIZABLE; // fix for latest SDL, related with new setOrientationBis java function

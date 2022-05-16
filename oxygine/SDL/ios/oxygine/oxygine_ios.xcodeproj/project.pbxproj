@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -246,7 +246,7 @@
 		4F7EF3912006173E004089D6 /* RenderDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7EF38D2006173E004089D6 /* RenderDelegate.h */; };
 		4F7EF3922006173E004089D6 /* RenderDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7EF38E2006173E004089D6 /* RenderDelegate.cpp */; };
 		4F7EF3932006173E004089D6 /* STDRenderDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7EF38F2006173E004089D6 /* STDRenderDelegate.h */; };
-		C38EC22C1709600E00568283 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C38EC22B1709600E00568283 /* OpenGLES.framework */; };
+		C38EC22C1709600E00568283 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C38EC22B1709600E00568283 /* OpenGLES.framework */; platformFilter = ios; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1321,6 +1321,7 @@
 					"-DNDEBUG",
 				);
 				PRODUCT_NAME = oxygine_ios;
+				SDL = ../../../../../SDL/;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1346,6 +1347,7 @@
 					"-DNDEBUG",
 				);
 				PRODUCT_NAME = oxygine_ios;
+				SDL = ../../../../../SDL/;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
