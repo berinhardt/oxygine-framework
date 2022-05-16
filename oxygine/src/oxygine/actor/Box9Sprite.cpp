@@ -165,13 +165,30 @@ void Box9Sprite::prepare() const {
    float fActorWidth  = getSize().x;
    float fActorHeight = getSize().y;
 
-   if (!customUVS) {
-      _uvX[0] = _guideX[0] / fFrameWidth;
-      _uvX[1] = _guideX[1] / fFrameWidth;
-      _uvY[0] = _guideY[0] / fFrameHeight;
-      _uvY[1] = _guideY[1] / fFrameHeight;
+   float X1, X2, Y1, Y2;
+
+   if (!isFlippedX()) {
+      X1 = _guideX[0];
+      X2 = _guideX[1];
+   } else {
+      X1 = _guideX[1];
+      X2 = _guideX[0];
    }
 
+   if (!isFlippedY()) {
+      Y1 = _guideY[0];
+      Y2 = _guideY[1];
+   } else {
+      Y1 = _guideY[1];
+      Y2 = _guideY[0];
+   }
+
+   if (!customUVS) {
+      _uvX[0] = X1 / fFrameWidth;
+      _uvX[1] = X2 / fFrameWidth;
+      _uvY[0] = Y1 / fFrameHeight;
+      _uvY[1] = Y2 / fFrameHeight;
+   }
    RectF srcFrameRect = _frame.getSrcRect();
 
    _guidesX[0] = srcFrameRect.getLeft();                                         // these guides contains floats from 0.0 to 1.0, compared
@@ -186,15 +203,16 @@ void Box9Sprite::prepare() const {
    _guidesY[3] = srcFrameRect.getBottom();
 
    // filling X axis
+
    _pointsX.push_back(0.0f);
-   _pointsX.push_back(_guideX[0]);
+   _pointsX.push_back(X1);
 
    if (_horzMode == STRETCHING) {
-      _pointsX.push_back(fActorWidth - _guideX[1]);
+      _pointsX.push_back(fActorWidth - X2);
       _pointsX.push_back(fActorWidth);
    } else if ((_horzMode == TILING) || (_horzMode == TILING_FULL)) {
-      float curX       = _guideX[0];
-      float rightB     = fActorWidth - _guideX[1];
+      float curX       = X1;
+      float rightB     = fActorWidth - X2;
       float centerPart = (1 - _uvX[1] - _uvX[0]) * fFrameWidth; // length of the center piece (in px)
 
       // now we add a new center piece every time until we reach right bound
@@ -210,7 +228,7 @@ void Box9Sprite::prepare() const {
             if (_horzMode == TILING_FULL) {
                _pointsX.push_back(rightB);
                _pointsX.push_back(fActorWidth);
-            } else _pointsX.push_back(curX - centerPart + (fFrameWidth - _guideX[1]));
+            } else _pointsX.push_back(curX - centerPart + (fFrameWidth - X2));
             done = true;
          }
       }
@@ -218,14 +236,14 @@ void Box9Sprite::prepare() const {
 
    // filling Y axis
    _pointsY.push_back(0.0f);
-   _pointsY.push_back(_guideY[0]);
+   _pointsY.push_back(Y1);
 
    if (_vertMode == STRETCHING) {
-      _pointsY.push_back(fActorHeight - _guideY[1]);
+      _pointsY.push_back(fActorHeight - Y2);
       _pointsY.push_back(fActorHeight);
    } else if ((_vertMode == TILING) || (_vertMode == TILING_FULL)) {
-      float curY       = _guideY[0];
-      float bottomB    = fActorHeight - _guideY[1];
+      float curY       = Y1;
+      float bottomB    = fActorHeight - Y2;
       float centerPart = (1 - _uvY[1] - _uvY[0]) * fFrameHeight; // length of the center piece (in px)
 
       // now we add a new center piece every time until we reach right bound
@@ -241,7 +259,7 @@ void Box9Sprite::prepare() const {
             if (_vertMode == TILING_FULL) {
                _pointsY.push_back(bottomB);
                _pointsY.push_back(fActorHeight);
-            } else _pointsY.push_back(curY - centerPart + (fFrameHeight - _guideY[1]));
+            } else _pointsY.push_back(curY - centerPart + (fFrameHeight - Y2));
             done = true;
          }
       }
