@@ -45,6 +45,8 @@ class OxRequest extends Request<byte[]> implements Response.ErrorListener {
   }
   @Override
   public void deliverError(VolleyError error) {
+    if (error.getMessage() != null)
+      Log.e("SDL", error.getMessage());
     super.deliverError(error);
     listener.onFailure(this,error);
   }
@@ -72,6 +74,7 @@ class OxRequest extends Request<byte[]> implements Response.ErrorListener {
   }
   @Override
   public void onErrorResponse(VolleyError ve) {
+    Log.e("SDL", ve.getMessage());
     HttpRequest.nativeHttpRequestError(details.handle);
   }
   public long getHandle() { return details.handle; }
