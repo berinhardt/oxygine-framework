@@ -266,6 +266,7 @@ text::Node* TextField::getRootNode(float globalScale) {
 
       Vector2 offset = alterOrigin(Vector2(0, 0));
 
+      if (!_mat) resetMaterial();
       text::Aligner rd(_style, _mat, font, scale, getSize());
       rd.trimTopLine = _style.trimLineHeight;
       rd.begin();
