@@ -73,8 +73,10 @@ public class Utils {
     }
 
     public static void browse(String url) {
-        Intent browseIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        _context.startActivity(browseIntent);
+        if (!url.isEmpty()) {
+          Intent browseIntent = new Intent(ACTION_VIEW, Uri.parse(url));
+          _context.startActivity(browseIntent);
+        }
     }
 
 
