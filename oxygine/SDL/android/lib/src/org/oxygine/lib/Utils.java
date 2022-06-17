@@ -75,7 +75,9 @@ public class Utils {
     public static void browse(String url) {
         if (!url.isEmpty()) {
           Intent browseIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-          _context.startActivity(browseIntent);
+          try {
+            _context.startActivity(browseIntent);
+          } catch(android.content.ActivityNotFoundException ex) {}
         }
     }
 
