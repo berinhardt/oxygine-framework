@@ -46,7 +46,7 @@ class OxRequest extends Request<byte[]> implements Response.ErrorListener {
   @Override
   public void deliverError(VolleyError error) {
     if (error.getMessage() != null)
-      Log.e("SDL", error.getMessage());
+      Log.e("SDL", "VolleyError: "+error.getMessage());
     super.deliverError(error);
     listener.onFailure(this,error);
   }
