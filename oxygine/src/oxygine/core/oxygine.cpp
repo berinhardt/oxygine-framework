@@ -91,7 +91,7 @@ void emscStackTrace() {
 #   else // if defined(__ARM_PCS_VFP)
 #    define ABI "armeabi-v7a/NEON"
 #   endif // if defined(__ARM_PCS_VFP)
-#  else // if defined(__ARM_NEON__)
+#  else  // if defined(__ARM_NEON__)
 #   if defined(__ARM_PCS_VFP)
 #    define ABI "armeabi-v7a (hard-float)"
 #   else // if defined(__ARM_PCS_VFP)
@@ -290,7 +290,8 @@ int init(init_desc* desc_ptr) {
 
 # if TARGET_OS_IPHONE
    flags |= SDL_WINDOW_SHOWN;
-   //flags |= SDL_WINDOW_BORDERLESS;
+
+   // flags |= SDL_WINDOW_BORDERLESS;
    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 # elif __ANDROID__
    flags |= SDL_WINDOW_RESIZABLE; // fix for latest SDL, related with new setOrientationBis java function
@@ -379,7 +380,7 @@ int init(init_desc* desc_ptr) {
    _useTouchAPI = true;
 # endif // if __ANDROID__ || TARGET_OS_IPHONE
 
-#endif // ifdef OXYGINE_SDL
+#endif  // ifdef OXYGINE_SDL
 
    init2();
 
@@ -442,7 +443,7 @@ void init2() {
    DebugActor::initialize();
    TextField::setDefaultFont(DebugActor::resSystem->getResFont("system"));
 # endif // ifndef OXYGINE_EDITOR
-#endif // ifdef OX_DEBUG
+#endif  // ifdef OX_DEBUG
    Point ds = getDisplaySize();
    logs::messageln("oxygine initialized, drawable size: %d %d", ds.x, ds.y);
 }
@@ -836,7 +837,6 @@ void release() {
 #endif // if OXYGINE_SDL
 
    _dispatcher->removeAllEventListeners();
-   _dispatcher = 0;
 }
 
 void execute(const char* str) {
