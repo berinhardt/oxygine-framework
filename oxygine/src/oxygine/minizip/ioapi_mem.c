@@ -78,11 +78,7 @@ typedef struct zmemdata_s
 	uLong size;
 } zmemdata_t;
 
-voidpf ZCALLBACK fopen_mem_func (opaque, filename, mode)
-   voidpf opaque;
-   const char* filename;
-   int mode;
-{
+voidpf ZCALLBACK fopen_mem_func (voidpf opaque, const char* filename, int mode) {
     ourmemory_t *mem = malloc(sizeof(*mem));
 	  zmemdata_t *data = (zmemdata_t*)(filename);
 
@@ -114,11 +110,7 @@ voidpf ZCALLBACK fopen_mem_func (opaque, filename, mode)
 }
 
 
-uLong ZCALLBACK fread_mem_func (opaque, stream, buf, size)
-   voidpf opaque;
-   voidpf stream;
-   void* buf;
-   uLong size;
+uLong ZCALLBACK fread_mem_func (voidpf opaque,  voidpf stream,   void* buf,   uLong size)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
 
@@ -132,11 +124,7 @@ uLong ZCALLBACK fread_mem_func (opaque, stream, buf, size)
 }
 
 
-uLong ZCALLBACK fwrite_mem_func (opaque, stream, buf, size)
-   voidpf opaque;
-   voidpf stream;
-   const void* buf;
-   uLong size;
+uLong ZCALLBACK fwrite_mem_func (voidpf opaque,voidpf stream,const void* buf,uLong size)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
 
@@ -151,20 +139,16 @@ uLong ZCALLBACK fwrite_mem_func (opaque, stream, buf, size)
     return size;
 }
 
-long ZCALLBACK ftell_mem_func (opaque, stream)
-   voidpf opaque;
-   voidpf stream;
+long ZCALLBACK ftell_mem_func (
+   voidpf opaque,
+   voidpf stream)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
 
     return mem->cur_offset;
 }
 
-long ZCALLBACK fseek_mem_func (opaque, stream, offset, origin)
-   voidpf opaque;
-   voidpf stream;
-   uLong offset;
-   int origin;
+long ZCALLBACK fseek_mem_func (voidpf opaque, voidpf stream, uLong offset, int origin)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
     uLong new_pos;
@@ -192,9 +176,9 @@ long ZCALLBACK fseek_mem_func (opaque, stream, offset, origin)
     return 0;
 }
 
-int ZCALLBACK fclose_mem_func (opaque, stream)
-   voidpf opaque;
-   voidpf stream;
+int ZCALLBACK fclose_mem_func (
+   voidpf opaque,
+   voidpf stream)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
 
@@ -210,17 +194,14 @@ int ZCALLBACK fclose_mem_func (opaque, stream)
     return 0;
 }
 
-int ZCALLBACK ferror_mem_func (opaque, stream)
-   voidpf opaque;
-   voidpf stream;
+int ZCALLBACK ferror_mem_func (voidpf opaque, voidpf stream)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
     /* We never return errors */
     return 0;
 }
 
-void fill_memory_filefunc (pzlib_filefunc_def)
-  zlib_filefunc_def* pzlib_filefunc_def;
+void fill_memory_filefunc (zlib_filefunc_def* pzlib_filefunc_def)
 {
     pzlib_filefunc_def->zopen_file = fopen_mem_func;
     pzlib_filefunc_def->zread_file = fread_mem_func;
