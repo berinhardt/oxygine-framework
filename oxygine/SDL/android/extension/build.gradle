@@ -1,16 +1,7 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
-    }
-}
 apply plugin: 'com.android.library'
 
 android {
+        namespace 'org.oxygine.lib.extension'
         compileSdkVersion rootProject.ext.compileSdkVersion
         buildToolsVersion rootProject.ext.buildToolsVersion
 
