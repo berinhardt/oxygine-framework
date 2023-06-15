@@ -1,9 +1,10 @@
 #include "EventDispatcher.h"
+
 #include "Event.h"
 
 #ifdef __MINGW32__
-# include <malloc.h>
-#endif // ifdef __MINGW32__
+#include <malloc.h>
+#endif  // ifdef __MINGW32__
 
 #define USE_ALLOCA
 
@@ -12,7 +13,7 @@ EventDispatcher::EventDispatcher() : _lastID(0), _listeners(0) {}
 
 EventDispatcher::~EventDispatcher() {
    __doCheck();
-   delete _listeners;
+   if (_listeners) delete _listeners;
 }
 
 int EventDispatcher::addEventListener(eventType et, const EventCallback& cb) {
@@ -37,8 +38,8 @@ int EventDispatcher::addEventListener(eventType et, const EventCallback& cb) {
 
    listener ls;
    ls.type = et;
-   ls.cb   = cb;
-   ls.id   = _lastID;
+   ls.cb = cb;
+   ls.id = _lastID;
    _listeners->push_back(ls);
 
    return ls.id;
@@ -150,26 +151,24 @@ void EventDispatcher::dispatchEvent(Event* event) {
 
    if (!_listeners) return;
 
-
    size_t size = _listeners->size();
-   size_t num  = 0;
+   size_t num = 0;
 
 #ifdef USE_ALLOCA
    listenerbase* copy = (listenerbase*)alloca(sizeof(listenerbase) * size);
-#else // ifdef USE_ALLOCA
+#else   // ifdef USE_ALLOCA
    listenerbase* copy = new listenerbase[size];
-#endif // ifdef USE_ALLOCA
-
+#endif  // ifdef USE_ALLOCA
 
    for (size_t i = 0; i != size; ++i) {
       listener& ls = _listeners->at(i);
 
       if (ls.type != event->type) continue;
 #ifdef USE_ALLOCA
-      new(copy + num) listenerbase(ls);
-#else // ifdef USE_ALLOCA
+      new (copy + num) listenerbase(ls);
+#else   // ifdef USE_ALLOCA
       copy[num] = ls;
-#endif // ifdef USE_ALLOCA
+#endif  // ifdef USE_ALLOCA
 
       ++num;
    }
@@ -195,13 +194,13 @@ void EventDispatcher::dispatchEvent(Event* event) {
       listenerbase& ls = copy[i];
       ls.~listenerbase();
    }
-#else // ifdef USE_ALLOCA
+#else   // ifdef USE_ALLOCA
    delete[] copy;
-#endif // ifdef USE_ALLOCA
+#endif  // ifdef USE_ALLOCA
 }
 
 int EventDispatcher::getListenersCount() const {
    if (!_listeners) return 0;
    return (int)_listeners->size();
 }
-}
+}  // namespace oxygine
