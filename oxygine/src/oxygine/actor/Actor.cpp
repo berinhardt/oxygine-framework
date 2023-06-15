@@ -1,21 +1,24 @@
 #include "Actor.h"
-#include "Stage.h"
+
+#include <sstream>
+#include <typeinfo>
+
 #include "../Clock.h"
 #include "../core/Texture.h"
 #include "../math/AffineTransform.h"
 #include "../res/ResAnim.h"
 #include "../tween/Tween.h"
-#include <sstream>
-#include <typeinfo>
+#include "Stage.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../utils/stringUtils.h"
-#include "../RenderState.h"
 #include <stdio.h>
-#include "../Serialize.h"
+
 #include "../RenderDelegate.h"
+#include "../RenderState.h"
+#include "../Serialize.h"
 #include "../math/OBBox.h"
+#include "../utils/stringUtils.h"
 
 namespace oxygine {
 CREATE_COPYCLONE_NEW(Actor);
@@ -28,16 +31,15 @@ std::string div(const std::string& val, const Color& color) {
    return str;
 }
 
-Actor::Actor() :
-   _extendedIsOn(0),
-   _zOrder(0),
-   _scale(1, 1),
-   _rotation(0),
-   _flags(Actor::DEFAULT_FLAGS),
-   _parent(0),
-   _alpha(255),
-   _stage(0),
-   _rdelegate(STDRenderDelegate::instance) {
+Actor::Actor() : _extendedIsOn(0),
+                 _zOrder(0),
+                 _scale(1, 1),
+                 _rotation(0),
+                 _flags(Actor::DEFAULT_FLAGS),
+                 _parent(0),
+                 _alpha(255),
+                 _stage(0),
+                 _rdelegate(STDRenderDelegate::instance) {
    _transform.identity();
    _transformInvert.identity();
    _pressedOvered = 0;
@@ -46,29 +48,27 @@ Actor::Actor() :
 void Actor::copyFrom(const Actor& src, cloneOptions opt) {
    _stage = 0;
 
-   _pos          = src._pos;
+   _pos = src._pos;
    _extendedIsOn = src._extendedIsOn;
-   _size         = src._size;
-   _zOrder       = src._zOrder;
-   _anchor       = src._anchor;
-   _scale        = src._scale;
-   _rotation     = src._rotation;
-   _flags        = src._flags;
-   _parent       = 0;
-   _alpha        = src._alpha;
+   _size = src._size;
+   _zOrder = src._zOrder;
+   _anchor = src._anchor;
+   _scale = src._scale;
+   _rotation = src._rotation;
+   _flags = src._flags;
+   _parent = 0;
+   _alpha = src._alpha;
 
    _pressedOvered = 0;
-   _rdelegate     = src._rdelegate;
+   _rdelegate = src._rdelegate;
 
-   _transform       = src._transform;
+   _transform = src._transform;
    _transformInvert = src._transformInvert;
-
 
    if (!(opt & cloneOptionsDoNotCloneClildren)) {
       spActor child = src.getFirstChild();
 
-      while (child)
-      {
+      while (child) {
          spActor copy = child->clone(opt);
          addChild(copy);
          child = child->getNextSibling();
@@ -100,8 +100,7 @@ void Actor::added2stage(Stage* stage) {
 
    spActor actor = _children._first;
 
-   while (actor)
-   {
+   while (actor) {
       spActor next = actor->_next;
       actor->added2stage(stage);
       actor = next;
@@ -114,6 +113,7 @@ void Actor::removedFromStage() {
    OX_ASSERT(_stage);
 
    onRemovedFromStage();
+   if (!_stage) return;
    _stage->removeEventListeners(this);
    _stage = 0;
 
@@ -121,8 +121,7 @@ void Actor::removedFromStage() {
 
    spActor actor = _children._first;
 
-   while (actor)
-   {
+   while (actor) {
       spActor next = actor->_next;
       actor->removedFromStage();
       actor = next;
@@ -134,8 +133,7 @@ void Actor::transformUpdated() {}
 void Actor::calcChildrenBounds(RectF& bounds, const Transform& transform) const {
    const Actor* c = getFirstChild().get();
 
-   while (c)
-   {
+   while (c) {
       if (c->getVisible()) {
          Transform tr = c->getTransform() * transform;
          c->calcBounds2(bounds, tr);
@@ -181,9 +179,8 @@ Transform Actor::computeGlobalTransform(Actor* parent) const {
    t.identity();
    const Actor* actor = this;
 
-   while (actor && actor != parent)
-   {
-      t     = t * actor->getTransform();
+   while (actor && actor != parent) {
+      t = t * actor->getTransform();
       actor = actor->getParent();
    }
 
@@ -200,10 +197,10 @@ std::string Actor::dump(const dumpOptions& opt) const {
 #if DYNAMIC_OBJECT_NAME
 
    if (__name && __name->size()) stream << " name='" << div(*__name, Color::Red) << "'";
-#else // if DYNAMIC_OBJECT_NAME
+#else   // if DYNAMIC_OBJECT_NAME
 
    if (__name.size()) stream << " name='" << div(__name, Color::Red) << "'";
-#endif // if DYNAMIC_OBJECT_NAME
+#endif  // if DYNAMIC_OBJECT_NAME
 
    stream << " id='" << getObjectID() << "'";
    stream << "\n";
@@ -241,10 +238,9 @@ std::string Actor::dump(const dumpOptions& opt) const {
    if (getRotation() != 0.0f) stream << " rot=" << getRotation() / MATH_PI * 360.0f << "";
 
    int tweensCount = 0;
-   spTween t       = _tweens._first;
+   spTween t = _tweens._first;
 
-   while (t)
-   {
+   while (t) {
       t = t->getNextSibling();
       tweensCount++;
    }
@@ -252,7 +248,6 @@ std::string Actor::dump(const dumpOptions& opt) const {
    if (tweensCount) stream << " tweens=" << tweensCount << "";
 
    if (getListenersCount()) stream << " listeners=" << (int)getListenersCount() << "";
-
 
    /*
       int handlersCount = 0;
@@ -272,22 +267,22 @@ std::string Actor::dump(const dumpOptions& opt) const {
 }
 
 float Actor::globalScaleX() const {
-   float scale    = getScaleX();
+   float scale = getScaleX();
    const Actor* a = this;
 
    while (a->getParent()) {
-      a      = a->getParent();
+      a = a->getParent();
       scale *= a->getScaleX();
    }
    return scale;
 }
 
 float Actor::globalScaleY() const {
-   float scale    = getScaleY();
+   float scale = getScaleY();
    const Actor* a = this;
 
    while (a->getParent()) {
-      a      = a->getParent();
+      a = a->getParent();
       scale *= a->getScaleY();
    }
    return scale;
@@ -304,7 +299,7 @@ pointer_index Actor::getOvered() const {
 void Actor::setNotPressed(MouseButton b) {
    _pressedButton[b] = 0;
 
-   if (_pressedOvered == _overred) { // !_pressed[0] && !_pressed[1] && !_pressed[2])
+   if (_pressedOvered == _overred) {  // !_pressed[0] && !_pressed[1] && !_pressed[2])
       Stage* stage = _getStage();
 
       if (stage) stage->removeEventListener(TouchEvent::TOUCH_UP, CLOSURE(this, &Actor::_onGlobalTouchUpEvent));
@@ -321,7 +316,7 @@ void Actor::_onGlobalTouchUpEvent(Event* ev) {
    setNotPressed(te->mouseButton);
 
    TouchEvent up = *te;
-   up.bubbles       = false;
+   up.bubbles = false;
    up.localPosition = stage2local(te->localPosition, _getStage());
    dispatchEvent(&up);
 }
@@ -337,8 +332,8 @@ void Actor::_onGlobalTouchMoveEvent(Event* ev) {
    _getStage()->removeEventListener(TouchEvent::MOVE, CLOSURE(this, &Actor::_onGlobalTouchMoveEvent));
 
    TouchEvent up = *te;
-   up.type          = TouchEvent::OUTX;
-   up.bubbles       = false;
+   up.type = TouchEvent::OUTX;
+   up.bubbles = false;
    up.localPosition = stage2local(te->localPosition, _getStage());
    dispatchEvent(&up);
 
@@ -354,7 +349,7 @@ void Actor::dispatchEvent(Event* event) {
          updateStateOvered();
 
          TouchEvent over = *te;
-         over.type    = TouchEvent::OVER;
+         over.type = TouchEvent::OVER;
          over.bubbles = false;
          dispatchEvent(&over);
 
@@ -366,7 +361,7 @@ void Actor::dispatchEvent(Event* event) {
       TouchEvent* te = safeCast<TouchEvent*>(event);
 
       if (!_pressedButton[te->mouseButton]) {
-         if (_pressedOvered == _overred) // !_pressed[0] && !_pressed[1] && !_pressed[2])
+         if (_pressedOvered == _overred)  // !_pressed[0] && !_pressed[1] && !_pressed[2])
             _getStage()->addEventListener(TouchEvent::TOUCH_UP, CLOSURE(this, &Actor::_onGlobalTouchUpEvent));
 
          _pressedButton[te->mouseButton] = te->index;
@@ -381,16 +376,15 @@ void Actor::dispatchEvent(Event* event) {
 
       if ((_pressedButton[te->mouseButton] == te->index) && !te->__clickDispatched) {
          te->__clickDispatched = true;
-         click                 = *te;
-         click.type            = TouchEvent::CLICK;
-         click.bubbles         = true;
+         click = *te;
+         click.type = TouchEvent::CLICK;
+         click.bubbles = true;
 
          // will be dispatched later after UP
 
          setNotPressed(te->mouseButton);
       }
    }
-
 
    EventDispatcher::dispatchEvent(event);
 
@@ -401,7 +395,7 @@ void Actor::dispatchEvent(Event* event) {
             me->localPosition = local2parent(me->localPosition);
          }
 
-         event->phase         = Event::phase_bubbling;
+         event->phase = Event::phase_bubbling;
          event->currentTarget = 0;
          _parent->dispatchEvent(event);
       }
@@ -425,27 +419,26 @@ void Actor::handleEvent(Event* event) {
    }
 
    Vector2 originalLocalPos;
-   float   originalLocalScale;
+   float originalLocalScale;
 
    if (touchEvent) {
       TouchEvent* me = safeCast<TouchEvent*>(event);
-      originalLocalPos   = me->localPosition;
+      originalLocalPos = me->localPosition;
       originalLocalScale = me->__localScale;
-      me->localPosition  = parent2local(originalLocalPos);
-      me->__localScale  *= _transform.a;
+      me->localPosition = parent2local(originalLocalPos);
+      me->__localScale *= _transform.a;
 #ifdef OX_HAS_CPP11
 
       if (me->__localScale == NAN) {
          OX_ASSERT(0);
       }
-#endif // ifdef OX_HAS_CPP11
+#endif  // ifdef OX_HAS_CPP11
    }
 
    event->phase = Event::phase_capturing;
    spActor actor = _children._last;
 
-   while (actor)
-   {
+   while (actor) {
       spActor prev = actor->_prev;
 
       if (!touchEvent || (_flags & flag_touchChildrenEnabled)) actor->handleEvent(event);
@@ -460,7 +453,7 @@ void Actor::handleEvent(Event* event) {
 
       if (!event->target) {
          if ((_flags & flag_touchEnabled) && isOn(me->localPosition, me->__localScale)) {
-            event->phase  = Event::phase_target;
+            event->phase = Event::phase_target;
             event->target = this;
 
             me->position = me->localPosition;
@@ -469,7 +462,7 @@ void Actor::handleEvent(Event* event) {
       }
 
       me->localPosition = originalLocalPos;
-      me->__localScale  = originalLocalScale;
+      me->__localScale = originalLocalScale;
    }
 }
 
@@ -522,26 +515,26 @@ void Actor::setY(float y) {
 void Actor::setAnchorX(float x) {
    if (_anchor.x == x) return;
    _anchor.x = x;
-   _flags   &= ~flag_anchorInPixels;
+   _flags &= ~flag_anchorInPixels;
    markTranformDirty();
 }
 
 void Actor::setAnchorY(float y) {
    if (_anchor.y == y) return;
    _anchor.y = y;
-   _flags   &= ~flag_anchorInPixels;
+   _flags &= ~flag_anchorInPixels;
    markTranformDirty();
 }
 
 void Actor::setTransform(const AffineTransform& tr) {
    _transform = tr;
-   _flags    &= ~flag_transformDirty;
-   _flags    &= ~flag_fastTransform;
-   _flags    |= flag_transformInvertDirty;
+   _flags &= ~flag_transformDirty;
+   _flags &= ~flag_fastTransform;
+   _flags |= flag_transformInvertDirty;
 }
 
 void Actor::setPriority(short zorder) {
-   if (_zOrder == zorder) // fixed by Evgeniy Golovin
+   if (_zOrder == zorder)  // fixed by Evgeniy Golovin
       return;
 
    _zOrder = zorder;
@@ -559,8 +552,7 @@ void Actor::setPriority(short zorder) {
       if (sibling && (sibling->getPriority() > _zOrder)) {
          sibling = sibling->intr_list::_prev.get();
 
-         while (sibling)
-         {
+         while (sibling) {
             if (sibling->getPriority() <= _zOrder) break;
             sibling = sibling->intr_list::_prev.get();
          }
@@ -569,7 +561,8 @@ void Actor::setPriority(short zorder) {
       if (sibling) {
          spActor s = sibling;
          parent->_children.insert_after(me, s);
-      } else parent->_children.prepend(me);
+      } else
+         parent->_children.prepend(me);
    }
 }
 
@@ -660,7 +653,7 @@ const Transform& Actor::getTransform() const {
 
 const Transform& Actor::getTransformInvert() const {
    if (_flags & flag_transformInvertDirty) {
-      _flags          &= ~flag_transformInvertDirty;
+      _flags &= ~flag_transformInvertDirty;
       _transformInvert = getTransform();
       _transformInvert.invert();
    }
@@ -701,9 +694,9 @@ void Actor::updateTransform() const {
       }
 
       tr = AffineTransform(
-         c * _scale.x, s * _scale.x,
-         -s * _scale.y, c * _scale.y,
-         _pos.x, _pos.y);
+          c * _scale.x, s * _scale.x,
+          -s * _scale.y, c * _scale.y,
+          _pos.x, _pos.y);
    }
 
    if (!(_flags & flag_anchorAffectsOrigin)) {
@@ -714,15 +707,14 @@ void Actor::updateTransform() const {
          offset.y = -_anchor.y;
       } else {
          offset.x = -float(_size.x * _anchor.x);
-         offset.y = -float(_size.y * _anchor.y); // todo, what to do? (per pixel quality)
+         offset.y = -float(_size.y * _anchor.y);  // todo, what to do? (per pixel quality)
       }
 
       tr.translate(offset);
    }
 
-
    _transform = tr;
-   _flags    &= ~flag_transformDirty;
+   _flags &= ~flag_transformDirty;
 
    const_cast<Actor*>(this)->transformUpdated();
 }
@@ -741,8 +733,7 @@ bool Actor::isOn(const Vector2& localPosition, float localScale) {
 bool Actor::isDescendant(const spActor& actor) const {
    const Actor* act = actor.get();
 
-   while (act)
-   {
+   while (act) {
       if (act == this) return true;
       act = act->getParent();
    }
@@ -763,8 +754,7 @@ Actor* Actor::getDescendant(const std::string& name, error_policy ep) {
 Actor* Actor::_getDescendant(const std::string& name) {
    Actor* child = _children._first.get();
 
-   while (child)
-   {
+   while (child) {
       if (child->isName(name.c_str())) return child;
 
       child = child->getNextSibling().get();
@@ -772,8 +762,7 @@ Actor* Actor::_getDescendant(const std::string& name) {
 
    child = _children._first.get();
 
-   while (child)
-   {
+   while (child) {
       Actor* des = child->_getDescendant(name);
 
       if (des) return des;
@@ -787,8 +776,7 @@ Actor* Actor::_getDescendant(const std::string& name) {
 spActor Actor::getChild(const std::string& name, error_policy ep) const {
    spActor actor = _children._first;
 
-   while (actor)
-   {
+   while (actor) {
       if (actor->isName(name)) return actor;
       actor = actor->_next;
    }
@@ -801,7 +789,8 @@ spActor Actor::getChild(const std::string& name, error_policy ep) const {
 void Actor::setParent(Actor* actor, Actor* parent) {
    actor->_parent = parent;
 
-   if (parent && parent->_getStage()) actor->added2stage(parent->_getStage());
+   if (parent && parent->_getStage())
+      actor->added2stage(parent->_getStage());
    else {
       if (actor->_getStage()) actor->removedFromStage();
    }
@@ -861,15 +850,14 @@ void Actor::addChild(Actor* actor) {
    if (sibling && (sibling->getPriority() > z)) {
       sibling = sibling->getPrevSibling();
 
-      while (sibling)
-      {
+      while (sibling) {
          if (sibling->getPriority() <= z) break;
          sibling = sibling->getPrevSibling();
       }
    }
 
-
-   if (sibling) sibling->insertSiblingAfter(actor);
+   if (sibling)
+      sibling->insertSiblingAfter(actor);
    else {
       spActor t = actor;
       _children.prepend(t);
@@ -884,8 +872,10 @@ void Actor::prependChild(spActor actor) {
 void Actor::prependChild(Actor* actor) {
    if (actor == getFirstChild().get()) return;
 
-   if (getFirstChild()) getFirstChild()->insertSiblingBefore(actor);
-   else addChild(actor);
+   if (getFirstChild())
+      getFirstChild()->insertSiblingBefore(actor);
+   else
+      addChild(actor);
 }
 
 void Actor::addChild(spActor actor) {
@@ -908,8 +898,7 @@ void Actor::removeChild(spActor actor) {
 void Actor::removeChildren() {
    spActor child = getFirstChild();
 
-   while (child)
-   {
+   while (child) {
       spActor copy = child;
       child = child->getNextSibling();
       removeChild(copy);
@@ -926,8 +915,7 @@ Actor* Actor::detach() {
 void Actor::internalUpdate(const UpdateState& us) {
    spTween tween = _tweens._first;
 
-   while (tween)
-   {
+   while (tween) {
       spTween tweenNext = tween->getNextSibling();
 
       if (tween->getParentList()) tween->update(*this, us);
@@ -941,8 +929,7 @@ void Actor::internalUpdate(const UpdateState& us) {
 
    spActor actor = _children._first;
 
-   while (actor)
-   {
+   while (actor) {
       spActor next = actor->_next;
 
       if (actor->getParent()) actor->update(us);
@@ -963,14 +950,13 @@ void Actor::update(const UpdateState& parentUS) {
 
       timeMS dt = _clock->doTick();
 
-      while (dt > 0)
-      {
-         us.dt   = dt;
+      while (dt > 0) {
+         us.dt = dt;
          us.time = _clock->getTime();
 
          internalUpdate(us);
 
-         dt            = _clock->doTick();
+         dt = _clock->doTick();
          us.iteration += 1;
       }
    } else {
@@ -978,7 +964,7 @@ void Actor::update(const UpdateState& parentUS) {
    }
 }
 
-void    Actor::doUpdate(const UpdateState& us) {}
+void Actor::doUpdate(const UpdateState& us) {}
 
 Vector2 Actor::parent2local(const Vector2& global) const {
    const AffineTransform& t = getTransformInvert();
@@ -1015,19 +1001,19 @@ bool Actor::prepareRender(RenderState& rs, const RenderState& parentRS) {
 
    if (!alpha) return false;
 
-   rs       = parentRS;
+   rs = parentRS;
    rs.alpha = alpha;
-
 
    const Transform& tr = getTransform();
 
    if (_flags & flag_fastTransform) {
       rs.transform = parentRS.transform;
       rs.transform.translate(Vector2(tr.x, tr.y));
-   } else Transform::multiply(rs.transform, tr, parentRS.transform);
+   } else
+      Transform::multiply(rs.transform, tr, parentRS.transform);
 
    if (_flags & flag_cull) {
-      RectF ss_rect      = getActorTransformedDestRect(this, rs.transform);
+      RectF ss_rect = getActorTransformedDestRect(this, rs.transform);
       RectF intersection = ss_rect;
       intersection.clip(*rs.clip);
 
@@ -1055,8 +1041,7 @@ void Actor::clean() {
 
    spActor child = getFirstChild();
 
-   while (child)
-   {
+   while (child) {
       child->clean();
       child = child->getNextSibling();
    }
@@ -1103,8 +1088,7 @@ spTween Actor::addTween2(spTween tween, const TweenOptions& opt) {
 spTween Actor::getTween(const std::string& name, error_policy ep) {
    spTween tween = _tweens._first;
 
-   while (tween)
-   {
+   while (tween) {
       if (tween->isName(name)) return tween;
       tween = tween->getNextSibling();
    }
@@ -1127,21 +1111,21 @@ void Actor::removeTween(spTween v) {
 void Actor::removeTweens(bool callComplete) {
    spTween t = _tweens._first;
 
-   while (t)
-   {
+   while (t) {
       spTween c = t;
       t = t->getNextSibling();
 
-      if (callComplete) c->complete();
-      else removeTween(c);
+      if (callComplete)
+         c->complete();
+      else
+         removeTween(c);
    }
 }
 
 void Actor::removeTweensByName(const std::string& name) {
    spTween t = _tweens._first;
 
-   while (t)
-   {
+   while (t) {
       spTween c = t;
       t = t->getNextSibling();
 
@@ -1156,21 +1140,20 @@ void Actor::serialize(serializedata* data) {
    pugi::xml_node node = data->node;
 
    node.append_attribute("name").set_value(getName().c_str());
-   setAttrV2(node, "pos",   getPosition(), Vector2(0, 0));
-   setAttrV2(node, "scale", getScale(),    Vector2(1, 1));
-   setAttrV2(node, "size",  getSize(),     Vector2(0, 0));
-   setAttr(node, "rotation", getRotation(),             0.0f);
-   setAttr(node, "visible",  getVisible(),              true);
-   setAttr(node, "input",    getTouchEnabled(),         true);
-   setAttr(node, "inputch",  getTouchChildrenEnabled(), true);
-   setAttr(node, "alpha",    getAlpha(),                (unsigned char)255);
+   setAttrV2(node, "pos", getPosition(), Vector2(0, 0));
+   setAttrV2(node, "scale", getScale(), Vector2(1, 1));
+   setAttrV2(node, "size", getSize(), Vector2(0, 0));
+   setAttr(node, "rotation", getRotation(), 0.0f);
+   setAttr(node, "visible", getVisible(), true);
+   setAttr(node, "input", getTouchEnabled(), true);
+   setAttr(node, "inputch", getTouchChildrenEnabled(), true);
+   setAttr(node, "alpha", getAlpha(), (unsigned char)255);
    setAttrV2(node, "anchor", getAnchor(), Vector2(0, 0));
 
    if (data->withChildren) {
       spActor child = getFirstChild();
 
-      while (child)
-      {
+      while (child) {
          serializedata d = *data;
          d.node = node.append_child("-");
          child->serialize(&d);
@@ -1189,15 +1172,13 @@ Vector2 attr2Vector2(const char* data) {
 }
 
 void Actor::deserialize(const deserializedata* data) {
-   pugi::xml_node node      = data->node;
+   pugi::xml_node node = data->node;
    pugi::xml_attribute attr = node.first_attribute();
 
-   while (attr)
-   {
+   while (attr) {
       const char* name = attr.name();
 
-      do
-      {
+      do {
          if (!strcmp(name, "name")) {
             setName(attr.as_string());
             break;
@@ -1247,17 +1228,14 @@ void Actor::deserialize(const deserializedata* data) {
             setAlpha(static_cast<unsigned char>(attr.as_int()));
             break;
          }
-      }
-      while (0);
-
+      } while (0);
 
       attr = attr.next_attribute();
    }
 
    pugi::xml_node item = node.first_child();
 
-   while (!item.empty())
-   {
+   while (!item.empty()) {
       spActor actor = deserializedata::deser(item, data->factory);
       addChild(actor);
       item = item.next_sibling();
@@ -1276,9 +1254,8 @@ Vector2 convert_global2local(spActor child, spActor parent, const Vector2& pos) 
 }
 
 Vector2 convert_local2global_(const Actor* child, const Actor* parent, Vector2 pos) {
-   while (child && child != parent)
-   {
-      pos   = child->local2parent(pos);
+   while (child && child != parent) {
+      pos = child->local2parent(pos);
       child = child->getParent();
    }
 
@@ -1314,9 +1291,8 @@ Transform getGlobalTransform(spActor child, spActor parent) {
 
    t.identity();
 
-   while (child && child != parent)
-   {
-      t     = t * child->getTransform();
+   while (child && child != parent) {
+      t = t * child->getTransform();
       child = child->getParent();
    }
 
@@ -1340,9 +1316,8 @@ Transform getGlobalTransform2(spActor child, Actor* parent) {
 
    t.identity();
 
-   while (child && (child.get() != parent))
-   {
-      t     = t * child->getTransform();
+   while (child && (child.get() != parent)) {
+      t = t * child->getTransform();
       child = child->getParent();
    }
 
@@ -1353,8 +1328,7 @@ void changeParentAndSavePosition(spActor mutualParent, spActor actor, spActor ne
    Vector2 pos = actor->getPosition();
    spActor act = actor->getParent();
 
-   while (act && act != mutualParent)
-   {
+   while (act && act != mutualParent) {
       pos = act->local2parent(pos);
       act = act->getParent();
    }
@@ -1377,7 +1351,7 @@ void decompose(const Transform& t, Vector2& pos, float& angle, Vector2& scale) {
 void setDecomposedTransform(Actor* actor, const Transform& t) {
    Vector2 pos;
    Vector2 scale;
-   float   angle;
+   float angle;
 
    decompose(t, pos, angle, scale);
    actor->setPosition(pos);
@@ -1394,7 +1368,7 @@ void reattachActor(spActor actor, spActor newParent, spActor root) {
 
    Vector2 pos;
    Vector2 scale;
-   float   angle;
+   float angle;
 
    decompose(r, pos, angle, scale);
    actor->attachTo(newParent);
@@ -1404,16 +1378,16 @@ void reattachActor(spActor actor, spActor newParent, spActor root) {
 }
 
 RectF getActorTransformedDestRect(Actor* actor, const Transform& tr) {
-   RectF   rect = actor->getDestRect();
-   Vector2 tl   = rect.pos;
-   Vector2 br   = rect.pos + rect.size;
+   RectF rect = actor->getDestRect();
+   Vector2 tl = rect.pos;
+   Vector2 br = rect.pos + rect.size;
 
    tl = tr.transform(tl);
    br = tr.transform(br);
 
    Vector2 size = Vector2(
-      abs(br.x - tl.x),
-      abs(br.y - tl.y));
+       abs(br.x - tl.x),
+       abs(br.y - tl.y));
 
    Vector2 ntl;
    ntl.x = std::min(tl.x, br.x);
@@ -1425,9 +1399,9 @@ RectF getActorTransformedDestRect(Actor* actor, const Transform& tr) {
 extern int HIT_TEST_DOWNSCALE;
 
 bool testIntersection(spActor objA, spActor objB, spActor parent, Vector2* contact) {
-   float s1      = objB->getSize().x * objB->getSize().y;
-   float s2      = objA->getSize().x * objA->getSize().y;
-   bool  swapped = false;
+   float s1 = objB->getSize().x * objB->getSize().y;
+   float s2 = objA->getSize().x * objA->getSize().y;
+   bool swapped = false;
 
    if (s2 < s1) {
       swapped = true;
@@ -1463,10 +1437,8 @@ bool testIntersection(spActor objA, spActor objB, spActor parent, Vector2* conta
 
     */
 
-
    int w = (int)objA->getWidth();
    int h = (int)objA->getHeight();
-
 
    for (int y = 0; y < h; y += HIT_TEST_DOWNSCALE) {
       for (int x = 0; x < w; x += HIT_TEST_DOWNSCALE) {
@@ -1500,4 +1472,4 @@ Vector2 Actor::alterOrigin(const Vector2& pos) const {
    }
    return pos;
 }
-}
+}  // namespace oxygine
