@@ -3,7 +3,6 @@ apply plugin: 'com.android.library'
 android {
         namespace 'org.oxygine.lib.extension'
         compileSdkVersion rootProject.ext.compileSdkVersion
-        buildToolsVersion rootProject.ext.buildToolsVersion
 
         sourceSets {
             main {
