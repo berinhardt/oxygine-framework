@@ -9,38 +9,22 @@
 // #define USE_ALLOCA
 
 namespace oxygine {
-EventDispatcher::EventDispatcher() : _lastID(0), _listeners(0) {}
+EventDispatcher::EventDispatcher() : _lastID(0) {}
 
 EventDispatcher::~EventDispatcher() {
    __doCheck();
-   if (_listeners) delete _listeners;
 }
 
 int EventDispatcher::addEventListener(eventType et, const EventCallback& cb) {
    __doCheck();
 
-   if (!_listeners) _listeners = new listeners;
-
    _lastID++;
-
-   /*
-    #ifdef OX_DEBUG
-      for (listeners::iterator i = _listeners->begin(); i != _listeners->end(); ++i)
-      {
-       const listener& ls = *i;
-       if (ls.type == et && cb == ls.cb)
-       {
-           OX_ASSERT(!"you are already added this event listener");
-       }
-      }
-    #endif
-    */
 
    listener ls;
    ls.type = et;
    ls.cb = cb;
    ls.id = _lastID;
-   _listeners->push_back(ls);
+   _listeners.push_back(ls);
 
    return ls.id;
 }
@@ -48,13 +32,11 @@ int EventDispatcher::addEventListener(eventType et, const EventCallback& cb) {
 void EventDispatcher::removeEventListener(int id) {
    __doCheck();
 
-   if (!_listeners) return;
-
-   for (size_t size = _listeners->size(), i = 0; i != size; ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if (ls.id == id) {
-         _listeners->erase(_listeners->begin() + i);
+         _listeners.erase(it);
          break;
       }
    }
@@ -63,29 +45,20 @@ void EventDispatcher::removeEventListener(int id) {
 void EventDispatcher::removeEventListener(eventType et, const EventCallback& cb) {
    __doCheck();
 
-   // OX_ASSERT(_listeners);
-   if (!_listeners) return;
-
-   for (size_t size = _listeners->size(), i = 0; i != size; ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if ((ls.type == et) && (cb == ls.cb)) {
-         _listeners->erase(_listeners->begin() + i);
+         _listeners.erase(it);
          break;
-
-         // OX_ASSERT(hasEventListeners(et, cb) == false);
-         // --i;
       }
    }
 }
 
 bool EventDispatcher::hasEventListeners(void* CallbackThis) {
    __doCheck();
-
-   if (!_listeners) return false;
-
-   for (size_t size = _listeners->size(), i = 0; i != size; ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if (ls.cb.p_this == CallbackThis) return true;
    }
@@ -95,29 +68,28 @@ bool EventDispatcher::hasEventListeners(void* CallbackThis) {
 bool EventDispatcher::hasEventListeners(eventType et, const EventCallback& cb) {
    __doCheck();
 
-   if (!_listeners) return false;
-
-   for (size_t size = _listeners->size(), i = 0; i != size; ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if ((ls.type == et) && (cb == ls.cb)) return true;
    }
    return false;
 }
-
+const EventCallback* EventDispatcher::getListenerByID(int index) const {
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
+      if (ls.id == index) return &ls.cb;
+   }
+   return NULL;
+}
 void EventDispatcher::removeEventListeners(void* CallbackThis) {
    __doCheck();
 
-   if (!_listeners) return;
-
-   for (size_t i = 0; i < _listeners->size(); ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if (ls.cb.p_this == CallbackThis) {
-         _listeners->erase(_listeners->begin() + i);
-
-         // OX_ASSERT(hasEventListeners(CallbackThis) == false);
-         --i;
+         _listeners.erase(it);
       }
    }
 }
@@ -125,23 +97,17 @@ void EventDispatcher::removeEventListeners(void* CallbackThis) {
 void EventDispatcher::removeEventListenersByType(eventType et) {
    __doCheck();
 
-   if (!_listeners) return;
-
-   for (size_t i = 0; i < _listeners->size(); ++i) {
-      const listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      const listener& ls = *it;
 
       if (ls.type == et) {
-         _listeners->erase(_listeners->begin() + i);
-
-         // OX_ASSERT(hasEventListeners(CallbackThis) == false);
-         --i;
+         _listeners.erase(it);
       }
    }
 }
 
 void EventDispatcher::removeAllEventListeners() {
-   delete _listeners;
-   _listeners = 0;
+   _listeners.clear();
 }
 
 void EventDispatcher::dispatchEvent(Event* event) {
@@ -149,15 +115,15 @@ void EventDispatcher::dispatchEvent(Event* event) {
 
    __doCheck();
 
-   if (!_listeners) return;
+   size_t size = _listeners.size();
+   if (size == 0) return;
 
-   size_t size = _listeners->size();
    size_t num = 0;
 
    listenerbase* copy = new listenerbase[size];
 
-   for (size_t i = 0; i != size; ++i) {
-      listener& ls = _listeners->at(i);
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
+      listener& ls = *it;
 
       if (ls.type != event->type) continue;
       copy[num] = ls;
@@ -169,13 +135,8 @@ void EventDispatcher::dispatchEvent(Event* event) {
 
       if (this->_ref_counter > 0) event->currentTarget = this;
       event->listenerID = ls.id;
-      try {
-         ls.cb(event);
-      } catch (const oxygine::event_exception& ex) {
-         Event e(Event::ERROR);
-         e.userData = (void*)&ex;
-         dispatchEvent(&e);
-      }
+      ls.cb(event);
+
       if (event->stopsImmediatePropagation) break;
    }
 
@@ -183,7 +144,11 @@ void EventDispatcher::dispatchEvent(Event* event) {
 }
 
 int EventDispatcher::getListenersCount() const {
-   if (!_listeners) return 0;
-   return (int)_listeners->size();
+   return (int)_listeners.size();
 }
 }  // namespace oxygine
+uint32_t detail::Closure0::NEXT_FINGERPRINT = 0;
+uint32_t detail::Closure1::NEXT_FINGERPRINT = 0;
+uint32_t detail::Closure2::NEXT_FINGERPRINT = 0;
+uint32_t detail::Closure3::NEXT_FINGERPRINT = 0;
+uint32_t detail::Closure4::NEXT_FINGERPRINT = 0;
