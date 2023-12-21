@@ -85,8 +85,7 @@ const EventCallback* EventDispatcher::getListenerByID(int index) const {
 void EventDispatcher::removeEventListeners(void* CallbackThis) {
    __doCheck();
 
-   for (auto next = _listeners.begin(); next != _listeners.end();) {
-      auto it = next++;
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
       const listener& ls = *it;
 
       if (ls.cb.p_this == CallbackThis) {
@@ -98,8 +97,7 @@ void EventDispatcher::removeEventListeners(void* CallbackThis) {
 void EventDispatcher::removeEventListenersByType(eventType et) {
    __doCheck();
 
-   for (auto next = _listeners.begin(); next != _listeners.end();) {
-      auto it = next++;
+   for (auto it = _listeners.begin(); it != _listeners.end(); ++it) {
       const listener& ls = *it;
 
       if (ls.type == et) {
