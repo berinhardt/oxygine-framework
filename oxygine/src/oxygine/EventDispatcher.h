@@ -22,6 +22,11 @@ constexpr int EventIDc11(const char* str) { return constStringLength(str) == 4 ?
 
 #define EventID(str) EventIDc11(str)
 
+class event_exception : public std::runtime_error {
+  public:
+   event_exception(const char* what) : std::runtime_error(what) {}
+   event_exception(const event_exception& other) : event_exception(other.what()) {}
+};
 DECLARE_SMART(EventDispatcher, spEventDispatcher);
 class EventDispatcher : public Object {
    INHERITED(Object);
@@ -60,7 +65,7 @@ class EventDispatcher : public Object {
    int getListenersCount() const;
    int getLastListenerID() const { return _lastID; }
 
-   const EventCallback* getListenerByID(int index) const;
+   const EventCallback& getListenerByIndex(int index) const { return _listeners[index].cb; }
 
   protected:
    struct listenerbase {
@@ -74,7 +79,7 @@ class EventDispatcher : public Object {
 
    int _lastID;
 
-   typedef std::list<listener> listeners;
+   typedef std::vector<listener> listeners;
    listeners _listeners;
 };
 }  // namespace oxygine
