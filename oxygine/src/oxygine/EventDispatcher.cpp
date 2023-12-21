@@ -6,7 +6,7 @@
 #include <malloc.h>
 #endif  // ifdef __MINGW32__
 
-#define USE_ALLOCA
+// #define USE_ALLOCA
 
 namespace oxygine {
 EventDispatcher::EventDispatcher() : _lastID(0), _listeners(0) {}
@@ -154,22 +154,13 @@ void EventDispatcher::dispatchEvent(Event* event) {
    size_t size = _listeners->size();
    size_t num = 0;
 
-#ifdef USE_ALLOCA
-   listenerbase* copy = (listenerbase*)alloca(sizeof(listenerbase) * size);
-#else   // ifdef USE_ALLOCA
    listenerbase* copy = new listenerbase[size];
-#endif  // ifdef USE_ALLOCA
 
    for (size_t i = 0; i != size; ++i) {
       listener& ls = _listeners->at(i);
 
       if (ls.type != event->type) continue;
-#ifdef USE_ALLOCA
-      new (copy + num) listenerbase(ls);
-#else   // ifdef USE_ALLOCA
       copy[num] = ls;
-#endif  // ifdef USE_ALLOCA
-
       ++num;
    }
 
@@ -188,15 +179,7 @@ void EventDispatcher::dispatchEvent(Event* event) {
       if (event->stopsImmediatePropagation) break;
    }
 
-#ifdef USE_ALLOCA
-
-   for (size_t i = 0; i != num; ++i) {
-      listenerbase& ls = copy[i];
-      ls.~listenerbase();
-   }
-#else   // ifdef USE_ALLOCA
    delete[] copy;
-#endif  // ifdef USE_ALLOCA
 }
 
 int EventDispatcher::getListenersCount() const {
