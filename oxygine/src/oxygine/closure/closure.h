@@ -9,23 +9,29 @@ Many thanks to Wolfhound
 
 */
 
-
-
 #ifndef CLOSURE_HEADER_
 #define CLOSURE_HEADER_
 
 #ifdef _MSC_VER
-#  pragma once
+#pragma once
 #endif
 
 #if !defined(OXYGINE_EDITOR)
 #define CLOSURE_FUNCTION 1
 #endif
 
+namespace oxygine {
+class Object;
+namespace logs {
+void messageln(const char* format, ...);
+}
+}  // namespace oxygine
+
 #ifdef CLOSURE_FUNCTION
-#	include <functional>
-#	include <memory>
+#include <functional>
+#include <memory>
 #endif
+#include <inttypes.h>
 
 #define TEMPLATE_PARAM_LIST class R
 #define PARAM_TYPE_LIST
@@ -80,7 +86,7 @@ Many thanks to Wolfhound
 #define CLOSURE(PTR, MEM_PTR) (detail::CreateClosure(MEM_PTR).Init<MEM_PTR>(PTR))
 
 #if CLOSURE_FUNCTION
-#	define CLOSUREF(F) (detail::CreateClosureF(F))
+#define CLOSUREF(F) (detail::CreateClosureF(F))
 #endif
 
 #define NOOP(...) [=](__VA_ARGS__) {}

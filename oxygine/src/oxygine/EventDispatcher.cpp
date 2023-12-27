@@ -79,14 +79,13 @@ bool EventDispatcher::hasEventListeners(void* CallbackThis) {
    for (size_t size = _listeners.size(), i = 0; i != size; ++i) {
       const listener& ls = _listeners.at(i);
 
-      if (ls.cb.p_this == CallbackThis) return true;
+      if (ls.cb.owned(CallbackThis)) return true;
    }
    return false;
 }
 
 bool EventDispatcher::hasEventListeners(eventType et, const EventCallback& cb) {
    __doCheck();
-
    for (size_t size = _listeners.size(), i = 0; i != size; ++i) {
       const listener& ls = _listeners.at(i);
 
@@ -101,7 +100,7 @@ void EventDispatcher::removeEventListeners(void* CallbackThis) {
    for (size_t i = 0; i < _listeners.size(); ++i) {
       const listener& ls = _listeners.at(i);
 
-      if (ls.cb.p_this == CallbackThis) {
+      if (ls.cb.owned(CallbackThis)) {
          _listeners.erase(_listeners.begin() + i);
 
          // OX_ASSERT(hasEventListeners(CallbackThis) == false);
@@ -169,3 +168,4 @@ int EventDispatcher::getListenersCount() const {
    return (int)_listeners.size();
 }
 }  // namespace oxygine
+uint64_t detail::NEXT_FINGERPRINT = 0;
