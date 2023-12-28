@@ -161,7 +161,10 @@ class Closure<R(PARAM_TYPE_LIST)> {
    }
 
    R operator()(PARAM_FORM_ARG_LIST) {
-      if (this->callback) return this->callback->execute(PARAM_ARG_LIST);
+      if (this->callback)
+         return this->callback->execute(PARAM_ARG_LIST);
+      else
+         throw std::invalid_argument("null callback called");
    }
    explicit operator bool() const {
       return this->callback != nullptr;
