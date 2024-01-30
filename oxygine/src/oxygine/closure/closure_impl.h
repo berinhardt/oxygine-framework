@@ -136,9 +136,8 @@ class Closure<R(PARAM_TYPE_LIST)> {
       this->fingerprint = ++detail::NEXT_FINGERPRINT;
    }
    ~Closure() {
-      if (this->callback) {
+      if (this->callback)
          delete this->callback;
-      }
    }
    Closure(const Closure<R(PARAM_TYPE_LIST)>& o) {
       if (o.callback)
@@ -148,11 +147,16 @@ class Closure<R(PARAM_TYPE_LIST)> {
       this->fingerprint = o.fingerprint;
    }
    Closure<R(PARAM_TYPE_LIST)>& operator=(const Closure<R(PARAM_TYPE_LIST)>& o) {
+      if (this->callback)
+         delete this->callback;
+
       if (o.callback)
          this->callback = o.callback->copy();
       else
          this->callback = nullptr;
+
       this->fingerprint = o.fingerprint;
+
       return *this;
    }
    template <typename Clazz>
