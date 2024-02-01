@@ -1,25 +1,25 @@
 #pragma once
-#include "oxygine-include.h"
-#include "core/Object.h"
-#include "math/Rect.h"
 #include <unordered_set>
 
+#include "core/Object.h"
+#include "math/Rect.h"
+#include "oxygine-include.h"
+
 namespace oxygine {
-struct glyph
-{
+struct glyph {
    RectF src;
 
-   int          ch;
-   glyphOptions opt;
+   int ch = 0;
+   glyphOptions opt = 0;
 
-   short sw;
-   short sh;
+   short sw = 0;
+   short sh = 0;
 
-   short offset_x;
-   short offset_y;
+   short offset_x = 0;
+   short offset_y = 0;
 
-   short advance_x;
-   short advance_y;
+   short advance_x = 0;
+   short advance_y = 0;
 
    spNativeTexture texture;
 
@@ -28,8 +28,7 @@ struct glyph
    }
 };
 
-struct GlyphHasher
-{
+struct GlyphHasher {
    std::size_t operator()(const glyph& k) const {
       return std::hash<size_t>()(k.ch + k.opt);
    }
@@ -37,15 +36,14 @@ struct GlyphHasher
 
 struct Symbol;
 class Font : public ObjectBase {
-public:
-
+  public:
    Font();
    ~Font();
 
-   void    init(const char* name, int size, int baselineDistance, int lineHeight, bool sdf = false);
+   void init(const char* name, int size, int baselineDistance, int lineHeight, bool sdf = false);
 
-   void    addGlyph(const glyph& g);
-   void    sortGlyphs() {}
+   void addGlyph(const glyph& g);
+   void sortGlyphs() {}
 
    uint8_t getHash() const {
       return _hash;
@@ -66,16 +64,15 @@ public:
    }
 
    const glyph* getGlyph(int code, const glyphOptions& opt) const;
-   int          getBaselineDistance() const;
-   int          getSize() const;
-   float        getScale() const;
+   int getBaselineDistance() const;
+   int getSize() const;
+   float getScale() const;
 
    virtual bool BiDiPass(std::vector<text::Symbol*>&) const {
       return false;
    }
 
-protected:
-
+  protected:
    const glyph* findGlyph(int code, const glyphOptions& opt) const;
 
    virtual bool loadGlyph(int code, glyph&, const glyphOptions& opt) {
@@ -94,4 +91,4 @@ protected:
    int _baselineDistance;
    uint8_t _hash;
 };
-}
+}  // namespace oxygine
