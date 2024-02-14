@@ -931,16 +931,11 @@ void Actor::internalUpdate(const UpdateState& us) {
 
    while (actor) {
       spActor next = actor->_next;
+      if (actor->getParent() == this) actor->update(us);
 
-      if (actor->getParent()) actor->update(us);
-
-      if (!next) {
-         // OX_ASSERT(actor == _children._last);
-      }
       actor = next;
    }
 }
-
 void Actor::update(const UpdateState& parentUS) {
    UpdateState us = parentUS;
 
