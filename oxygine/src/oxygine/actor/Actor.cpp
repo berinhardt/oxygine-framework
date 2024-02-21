@@ -931,7 +931,7 @@ void Actor::internalUpdate(const UpdateState& us) {
 
    while (actor) {
       spActor next = actor->_next;
-      if (actor->getParent() == this) actor->update(us);
+      actor->update(us);
 
       actor = next;
    }
