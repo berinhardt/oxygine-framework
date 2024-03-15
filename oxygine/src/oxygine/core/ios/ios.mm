@@ -166,6 +166,8 @@ namespace oxygine
     
     int64 iosGetFreeDiskspace()
     {
+        return 0;
+        #if 0
         int64 totalSpace = 0;
         int64 totalFreeSpace = 0;
         NSError *error = nil;
@@ -183,5 +185,6 @@ namespace oxygine
         }  
         
         return totalFreeSpace;
+        #endif
     }
 }

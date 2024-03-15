@@ -1,54 +1,51 @@
 #pragma once
-#include "../oxygine-include.h"
-#include "../EventDispatcher.h"
-#include "../Event.h"
-#include "../math/Vector2.h"
 #include <string>
 
+#include "../Event.h"
+#include "../EventDispatcher.h"
+#include "../math/Vector2.h"
+#include "../oxygine-include.h"
+
 #if OXYGINE_SDL
-typedef void*             SDL_GLContext;
+typedef void* SDL_GLContext;
 typedef struct SDL_Window SDL_Window;
-typedef SDL_Window*       window;
-#else // if OXYGINE_SDL
+typedef SDL_Window* window;
+#else   // if OXYGINE_SDL
 typedef int window;
-#endif // if OXYGINE_SDL
+#endif  // if OXYGINE_SDL
 
 /**main oxygine namespace*/
 namespace oxygine {
 class ThreadDispatcher;
 
-void  checkJNIException();
+void checkJNIException();
 
 void* fastAlloc(size_t size);
-void  fastFree(void* data);
+void fastFree(void* data);
 
 typedef int timeMS;
 
 /** returns local app time in milliseconds (1sec = 1000ms). Counting starts from zero*/
-timeMS      getTimeMS();
+timeMS getTimeMS();
 
 /** returns UTC time in milliseconds */
-int64       getTimeUTCMS();
+int64 getTimeUTCMS();
 
 /** is any network connection available?*/
-bool        isNetworkAvailable();
+bool isNetworkAvailable();
 
-
-int64       getFreeSpace(const char* fullpath = 0);
+/** DEPRECATED on iOs**/
+int64 getFreeSpace(const char* fullpath = 0);
 
 /**returns locale. ISO 639-1 */
 std::string getLanguage();
 
-
 /**sleep for milliseconds*/
 void sleep(timeMS);
 
-
 namespace core {
-struct init_desc
-{
-   init_desc() : w(-1), h(-1),  mode24bpp(true), vsync(true), fullscreen(false), resizable(false), borderless(false), show_window(true),
-      force_gles(false), allow_screensaver(true), title("Oxygine"), appName(0), companyName(0) {}
+struct init_desc {
+   init_desc() : w(-1), h(-1), mode24bpp(true), vsync(true), fullscreen(false), resizable(false), borderless(false), show_window(true), force_gles(false), allow_screensaver(true), title("Oxygine"), appName(0), companyName(0) {}
 
    /**display width*/
    int w;
@@ -91,68 +88,65 @@ struct init_desc
    const char* companyName;
 };
 
-void              init0();
+void init0();
 
 /** Initializes Oxygine*/
-int               init(init_desc* desc = 0);
+int init(init_desc* desc = 0);
 
 /** Releases all internal components*/
-void              release();
+void release();
 
 /**sends QUIT event to queue*/
-void              requestQuit();
+void requestQuit();
 
 /**destroy and reset any GPU allocated memory and handles. Call it to free memory if app was minimized (lost focus)*/
-void              reset();
+void reset();
 
 /**restores GPU memory state after reset*/
-void              restore();
+void restore();
 
 /** Update engine*/
-bool              update();
+bool update();
 
 /**returns True if device is ready for rendering*/
-bool              isReady2Render();
+bool isReady2Render();
 
 /**returns True if device is ready for rendering*/
-bool              beginRendering(window i = 0);
+bool beginRendering(window i = 0);
 
 /** Swap Video buffers*/
-void              swapDisplayBuffers(window i = 0);
+void swapDisplayBuffers(window i = 0);
 
 /**Opens browser*/
-void              execute(const char* url);
+void execute(const char* url);
 
 /**returns app package, example: com.company.apps*/
-std::string       getPackage();
+std::string getPackage();
 
 /** Returns display size in pixels*/
-Point             getDisplaySize();
+Point getDisplaySize();
 
 ThreadDispatcher& getMainThreadDispatcher();
 ThreadDispatcher& getUiThreadMessages();
 
-bool              isActive();
-bool              hasFocus();
+bool isActive();
+bool hasFocus();
 
-bool              isMainThread();
-
+bool isMainThread();
 
 #ifdef OXYGINE_SDL
 SDL_GLContext getGLContext();
-SDL_Window*   getWindow();
-#endif // ifdef OXYGINE_SDL
+SDL_Window* getWindow();
+#endif  // ifdef OXYGINE_SDL
 
-enum
-{
-   EVENT_SYSTEM          = sysEventID('c', 'S', 'y'), // events from SDL
-   EVENT_PRECREATEWINDOW = sysEventID('c', 'P', 'W'), // dispatched before creating window/context
-   EVENT_EXIT            = sysEventID('c', 'E', 'x'), // dispatched from core::release
+enum {
+   EVENT_SYSTEM = sysEventID('c', 'S', 'y'),           // events from SDL
+   EVENT_PRECREATEWINDOW = sysEventID('c', 'P', 'W'),  // dispatched before creating window/context
+   EVENT_EXIT = sysEventID('c', 'E', 'x'),             // dispatched from core::release
 };
 
 class PreCreateWindowEvent : public Event {
-public:
-
+  public:
    PreCreateWindowEvent() : Event(EVENT_PRECREATEWINDOW) {}
 
    int flags;
@@ -160,6 +154,6 @@ public:
 
 spEventDispatcher getDispatcher();
 
-void              init0();
-}
-}
+void init0();
+}  // namespace core
+}  // namespace oxygine
