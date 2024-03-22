@@ -20,7 +20,7 @@ public:
         back->attachTo(_content);
         back->setSize(getStage()->getSize());
 
-        back->setPosition(_content->getSize() / 2 - back->getScaledSize() / 2);
+        back->setPosition(_content->getSize() / 2.0f - back->getScaledSize() / 2.0f);
 
 
 
@@ -83,8 +83,8 @@ public:
         bool paint = painter && !right;
         renderer.begin(texture);
 
-        Vector2 size = getStage()->getSize() / 20;
-        RectF destRect(te->localPosition - size, size * 2);
+        Vector2 size = getStage()->getSize() / 20.0f;
+        RectF destRect(te->localPosition - size, size * 2.0f);
 
         ResAnim* brush = resources.getResAnim("brush");
         AnimationFrame frame = brush->getFrame(0);

@@ -290,9 +290,10 @@ namespace oxygine
             if (!h)
                 return status_error;
             unsigned int size = oxGetSize(h);
-            dest.data.resize(size);
-            if (size)
-                oxFileRead(&dest.data[0], size, 1, h);
+            dest.data.clear();
+            dest.reserve(size);
+            logs::messageln("%p + %d",&dest.data[0], size);
+            if (size) oxFileRead(&dest.data[0], size, 1, h);
 
             oxFileClose(h);
             return status_ok;

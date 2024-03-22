@@ -115,7 +115,7 @@ public:
         txt->setStyle(st);
         txt->setColor(Color::CornflowerBlue);
         txt->setText("1234567890");
-        txt->setPosition(getStage()->getSize() / 2);
+        txt->setPosition(getStage()->getSize() / 2.0f);
         txt->setOuterColor(Color::White);
         txt->setKerning(5);
         txt->addTween(ShaderTextField::TweenOuterColor(Color::Black), 4000, -1, true, 2000);

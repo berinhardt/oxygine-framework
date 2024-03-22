@@ -151,7 +151,7 @@ public:
         spriteTextRect->setSize(rect.size);
 
         bg->setSize(test.size);
-        bg->setPosition(getSize() / 2 - bg->getSize() / 2);
+        bg->setPosition(getSize() / 2.0f - bg->getSize() / 2.0f);
 
 
         style.font = 0;

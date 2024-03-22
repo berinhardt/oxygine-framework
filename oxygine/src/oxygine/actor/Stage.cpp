@@ -94,11 +94,14 @@ namespace oxygine
         float scaleFactorY = height / gameSize.y;
 
         float scaleFactor = scaleFactorX < scaleFactorY ? scaleFactorX : scaleFactorY;
-        Vector2 size = gameSize * scaleFactor;
+        Vector2 size = Vector2(gameSize) * scaleFactor;
 
-        Vector2 free = displaySize.cast<Vector2>() - size;
+        Vector2 free = Vector2(displaySize) - size;
+        
+        Rect r((free / 2.0f), size);
+        logs::messageln("VP %f, %f [%f x %f]", r.pos.x, r.pos.y, r.size.x, r.size.y);
 
-        return Rect((free / 2).cast<Point>(), size.cast<Point>());
+        return r;
     }
 
     void Stage::init(const Point& displaySize, const Point& gameSize)

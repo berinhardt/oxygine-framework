@@ -33,10 +33,8 @@ namespace oxygine
     {
         if (pRelative)
         {
-            Vector2 s = current, t = *pRelative;
-
-            s.normalize(); t.normalize();
-            return acosf(s.dot(t));
+            Vector2 s = glm::normalize(current), t = glm::normalize(*pRelative);
+            return acosf(glm::dot(s, t));
         }
         else return atan2f(current.y, current.x);
     }

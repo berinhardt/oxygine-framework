@@ -32,7 +32,7 @@ namespace oxygine
         addChild(_item);
 
         _itemTree = new TreeInspectorPreview();
-        _itemTree->init(item, getStage()->getSize() / 2, true);
+        _itemTree->init(item, getStage()->getSize() / 2.0f, true);
 
 
         spTextField tb = new TextField();
@@ -53,7 +53,7 @@ namespace oxygine
         std::string desc = item->dump(0);
 
         tb->setHtmlText(desc);
-        Vector2 ts = tb->getTextRect().size.cast<Vector2>();
+        Vector2 ts = tb->getTextRect().size;
         if (ts.x < minWidth)
             ts.x = minWidth;
 
@@ -71,7 +71,7 @@ namespace oxygine
         addTouchDownListener([ = ](Event*)
         {
             _itemTree->setPriority(_stage->getLastChild()->getPriority());
-            _itemTree->setPosition(getStage()->getSize() / 2 - _itemTree->getSize() / 2);
+            _itemTree->setPosition(getStage()->getSize() / 2.0f - _itemTree->getSize() / 2.0f);
             _stage->addChild(_itemTree);
         });
 

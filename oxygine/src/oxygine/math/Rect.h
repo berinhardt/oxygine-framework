@@ -10,7 +10,7 @@ namespace oxygine
     class RectT
     {
     public:
-        typedef typename point2::type T;
+        typedef typename point2::value_type T;
         typedef point2 type;
 
         RectT(): pos(0, 0), size(0, 0) {}
@@ -191,8 +191,7 @@ namespace oxygine
         R cast() const
         {
             typedef R rect;
-            typedef typename R::type rect2type;
-            return rect(pos.template cast<rect2type>(), size.template cast<rect2type>());
+            return rect(pos, size);
         }
         /*
         template<class R>

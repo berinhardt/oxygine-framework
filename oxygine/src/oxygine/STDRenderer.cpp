@@ -436,7 +436,7 @@ namespace oxygine
         p1 = vp.transformVec3(p1);
         p2 = vp.transformVec3(p2);
 
-        Vector2 half = viewport.getSize().cast<Vector2>() / 2;
+        Vector2 half = Vector2(viewport.getSize()) / 2.0f;
         p1.x = p1.x * half.x + half.x;
         p1.y = p1.y * half.y + half.y;
 

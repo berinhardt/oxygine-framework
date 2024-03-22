@@ -134,8 +134,8 @@ public:
         txt->setStyle(st);
         txt->setColor(Color::CornflowerBlue);
         txt->setText("The quick brown fox jumps over the lazy dog. 1234567890.");
-        txt->setPosition(getStage()->getSize() / 2);
-        txt->setWidth(getStage()->getWidth() / 2);
+        txt->setPosition(getStage()->getSize() / 2.0f);
+        txt->setWidth(getStage()->getWidth() / 2.0f);
         txt->setAnchor(0.5f, 0.5f);
         txt->addTween(Actor::TweenRotationDegrees(360), 10000, -1);
 

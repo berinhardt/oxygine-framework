@@ -96,8 +96,8 @@ namespace oxygine
 
         const unsigned char* buff = ad.data;
         Vector2 pos = localPosition * _frame.getResAnim()->getAppliedScale();
-        pos = pos.div(_localScale);
-        Point lp = pos.cast<Point>() / HIT_TEST_DOWNSCALE;
+        pos = pos/_localScale;
+        Point lp = pos / (float)HIT_TEST_DOWNSCALE;
         Rect r(0, 0, ad.w, ad.h);
         if (r.pointIn(lp))
         {
@@ -174,7 +174,7 @@ namespace oxygine
     void Sprite::setLocalScale(const Vector2& s)
     {
         _localScale = s;
-        _setSize(_frame.getSize().mult(_localScale));
+        _setSize(_frame.getSize()*_localScale);
     }
 
     void Sprite::setResAnim(const ResAnim* resanim, int col, int row)
@@ -223,7 +223,7 @@ namespace oxygine
             _frame = frame.getFlipped(flipY, flipX);
         else
             _frame = frame;
-        _setSize(_frame.getSize().mult(_localScale));
+        _setSize(_frame.getSize()*_localScale);
 
 
         const Diffuse& df = _frame.getDiffuse();
@@ -286,8 +286,8 @@ namespace oxygine
         }
 
         RectF r = _frame.getDestRect();
-        r.pos = r.pos.mult(_localScale);
-        r.size = r.size.mult(_localScale);
+        r.pos = r.pos*_localScale;
+        r.size = r.size*_localScale;
         return r;
     }
 
@@ -366,7 +366,7 @@ namespace oxygine
 
 
         _localScale = attr2Vector2(node.attribute("localScale"), Vector2(1, 1));
-        _setSize(_frame.getSize().mult(_localScale));
+        _setSize(_frame.getSize()*_localScale);
 
 
         setFlipped(node.attribute("flipX").as_bool(false), node.attribute("flipY").as_bool(false));

@@ -23,7 +23,7 @@ public:
         sprite->setResAnim(resources.getResAnim("flower"));
         sprite->attachTo(_content);
         sprite->setAnchor(0.5f, 0.5f);
-        sprite->setPosition(_content->getSize() / 2);
+        sprite->setPosition(_content->getSize() / 2.0f);
 
         sprite->addEventListener(TouchEvent::OVER, CLOSURE(this, &TestAlphaHitTest::onEvent));
         sprite->addEventListener(TouchEvent::OUTX, CLOSURE(this, &TestAlphaHitTest::onEvent));

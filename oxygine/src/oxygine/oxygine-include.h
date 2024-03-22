@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-
+#include "glm-config.h"
 #if __APPLE__
 #include <TargetConditionals.h>
 #endif

@@ -99,7 +99,7 @@ namespace oxygine
         const Actor*        getParent() const {return _parent;}
         const Vector2&      getSize() const {return _size;}
         /**Returns Size*Scale*/
-        Vector2             getScaledSize() const { return _size.mult(_scale); }
+        Vector2             getScaledSize() const { return _size*_scale; }
         float               getWidth() const;
         float               getScaledWidth() const {return _size.x * _scale.x;}
         float               getHeight() const;

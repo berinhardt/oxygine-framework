@@ -20,7 +20,7 @@ public:
         spWebImage image2 = new WebImage;
         image2->load("http://graph.facebook.com/1373973107/picture?type=normal&return_ssl_resources=0");
         image2->setSize(100, 100);
-        image2->setPosition(getStage()->getSize() / 2);
+        image2->setPosition(getStage()->getSize() / 2.0f);
         image2->attachTo(_content);
 
         //Testing loading a file in memory

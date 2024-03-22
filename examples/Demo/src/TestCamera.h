@@ -88,11 +88,11 @@ public:
                         p2 = &i->second;
                 }
 
-                Vector2 center = (p1->current + p2->current) / 2;
-                Vector2 prevCenter = (p1->previous + p2->previous) / 2;
+                Vector2 center = (p1->current + p2->current) / 2.0f;
+                Vector2 prevCenter = (p1->previous + p2->previous) / 2.0f;
 
-                float dist = p1->current.distance(p2->current);
-                float prevDist = p1->previous.distance(p2->previous);
+                float dist = glm::distance(p1->current, p2->current);
+                float prevDist = glm::distance(p1->previous, p2->previous);
                 float scale = dist / prevDist;
 
 
@@ -144,7 +144,7 @@ public:
 
         spButton button = new Button;
 
-        button->setPosition(map->getSize() / 2);
+        button->setPosition(map->getSize() / 2.0f);
         button->setResAnim(DebugActor::resSystem->getResAnim("button"));
         button->attachTo(map);
         button->setAnchor(0.5f, 0.5f);

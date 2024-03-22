@@ -428,7 +428,7 @@ namespace oxygine
                         RectF srcRect(dest.pos.x * iw, dest.pos.y * ih, dest.size.x * iw, dest.size.y * ih);
 
                         Vector2 sizeScaled = Vector2((float)dest.size.x, (float)dest.size.y) * walker.getScaleFactor();
-                        RectF destRect(bounds.pos.cast<Vector2>(), sizeScaled);
+                        RectF destRect(bounds.pos, sizeScaled);
 
                         AnimationFrame frame;
                         Diffuse df;

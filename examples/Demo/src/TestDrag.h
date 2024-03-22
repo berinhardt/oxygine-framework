@@ -206,7 +206,7 @@ public:
         txt->attachTo(_content);
         txt->setVAlign(TextStyle::VALIGN_MIDDLE);
         txt->setHAlign(TextStyle::HALIGN_MIDDLE);
-        txt->setPosition(getSize() / 2);
+        txt->setPosition(getSize() / 2.0f);
     }
 
 
@@ -225,9 +225,9 @@ public:
         dragging->setColor(Color::White);
         spTween t;
         if (event->target == basket)
-            t = dragging->addTween(Actor::TweenPosition(basket->getPosition() - basket->getSize() / 2), 500);
+            t = dragging->addTween(Actor::TweenPosition(basket->getPosition() - basket->getSize() / 2.0f), 500);
         else
-            t = dragging->addTween(Actor::TweenPosition(ball->getPosition() - ball->getSize() / 2), 500);
+            t = dragging->addTween(Actor::TweenPosition(ball->getPosition() - ball->getSize() / 2.0f), 500);
         t->detachWhenDone();
         dragging = 0;
     }
@@ -269,7 +269,7 @@ public:
             dragging->setColor(Color::Red);
             dragging->setAnchor(0, 0);
             dragging->setTouchEnabled(false);
-            drag.start(touchedBy, dragging.get(), dragging->getSize() / 2);
+            drag.start(touchedBy, dragging.get(), dragging->getSize() / 2.0f);
         }
     }
 private:

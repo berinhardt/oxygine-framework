@@ -8,7 +8,7 @@ public:
     {
         spClipRectActor clp = createClipRect(250, 250, 4.0f);
         clp->attachTo(_content);
-        clp->setPosition(_content->getSize() / 2 - clp->getSize() / 2);
+        clp->setPosition(_content->getSize() / 2.0f - clp->getSize() / 2.0f);
 
         spClipRectActor childClp = createClipRect(100, 100, 2.0f);
         childClp->setPosition(-40.0f, -40.0f);

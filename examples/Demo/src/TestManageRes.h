@@ -107,7 +107,7 @@ public:
         sp->setResAnim(resources.getResAnim("loading"));
         sp->attachTo(_ui);
         sp->setAnchor(0.5f, 0.5f);
-        sp->setPosition(getSize() - sp->getSize() / 4);
+        sp->setPosition(getSize() - sp->getSize() / 4.0f);
         sp->setScale(0.5f);
         sp->addTween(Actor::TweenRotation(-(float)MATH_PI * 2), 1500, -1);
 

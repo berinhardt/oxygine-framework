@@ -46,13 +46,13 @@ namespace oxygine
 
             //Vector3 q =
 
-            float a = Vector3(_dac.x, _dAC.y, _dAC.x).dot(Vector3(1, pos.x, pos.y));
-            float b = Vector3(_dac.y, _dAB.y, _dAB.x).dot(Vector3(1, pos.x, pos.y));
+            float a = glm::dot(Vector3(_dac.x, _dAC.y, _dAC.x), Vector3(1, pos.x, pos.y));
+            float b = glm::dot(Vector3(_dac.y, _dAB.y, _dAB.x), Vector3(1, pos.x, pos.y));
 
             //float u = _uvA.x + _duvAB.x * a + _duvAC.x * b;
             //float v = _uvA.y + _duvAB.y * a + _duvAC.y * b;
-            float u = Vector3(_uvA.x, _duvAB.x, _duvAC.x).dot(Vector3(1, a, b));
-            float v = Vector3(_uvA.y, _duvAB.y, _duvAC.y).dot(Vector3(1, a, b));
+            float u = glm::dot(Vector3(_uvA.x, _duvAB.x, _duvAC.x), Vector3(1, a, b));
+            float v = glm::dot(Vector3(_uvA.y, _duvAB.y, _duvAC.y), Vector3(1, a, b));
 
             //Matrix
 

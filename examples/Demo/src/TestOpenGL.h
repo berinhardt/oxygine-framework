@@ -154,7 +154,7 @@ public:
     TestOpenGL()
     {
         spOpenGLSprite sprite = new OpenGLSprite;
-        sprite->setPosition(getStage()->getSize() / 2);
+        sprite->setPosition(getStage()->getSize() / 2.0f);
         sprite->setScale(3);
         _content->addChild(sprite);
     }

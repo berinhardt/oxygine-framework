@@ -188,27 +188,27 @@ namespace oxygine
     void VideoDriverGLES20::setUniform(const char* id, const Vector4* v, int num)
     {
         int p = oxglGetUniformLocation(_programID, id);
-        if (p == -1)
+        if (p == -1 || !v)
             return;
-        oxglUniform4fv(p, num, v->m);
+        oxglUniform4fv(p, num, glm::value_ptr(*v));
         CHECKGL();
     }
 
     void VideoDriverGLES20::setUniform(const char* id, const Vector2* v, int num)
     {
         int p = oxglGetUniformLocation(_programID, id);
-        if (p == -1)
+        if (p == -1 || !v)
             return;
-        oxglUniform2fv(p, num, &v->x);
+        oxglUniform2fv(p, num, glm::value_ptr(*v));
         CHECKGL();
     }
 
     void VideoDriverGLES20::setUniform(const char* id, const Vector3* v, int num)
     {
         int p = oxglGetUniformLocation(_programID, id);
-        if (p == -1)
+        if (p == -1 || !v)
             return;
-        oxglUniform3fv(p, num, &v->x);
+        oxglUniform3fv(p, num, glm::value_ptr(*v));
         CHECKGL();
     }
 

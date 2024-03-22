@@ -24,12 +24,12 @@ public:
 
         spSprite map = new Sprite();
         map->setResAnim(resources.getResAnim("map"));
-        map->setPosition(sliding->getSize() / 2 - map->getSize() / 2);
+        map->setPosition(sliding->getSize() / 2.0f - map->getSize() / 2.0f);
         _map = map;
 
         spButton button = new Button;
         _button = button;
-        button->setPosition(map->getSize() / 2);
+        button->setPosition(map->getSize() / 2.0f);
         button->setResAnim(DebugActor::resSystem->getResAnim("button"));
         button->attachTo(map);
         button->setAnchor(0.5f, 0.5f);
@@ -46,7 +46,7 @@ public:
         title->attachTo(map);
 
         sliding->setContent(map);
-        sliding->setPosition(getSize() / 2 - sliding->getSize() / 2);
+        sliding->setPosition(getSize() / 2.0f - sliding->getSize() / 2.0f);
         sliding->attachTo(_content);
 
         _sliding = sliding;

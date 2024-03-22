@@ -17,7 +17,7 @@ public:
         bar = new ProgressBar();
         bar->setResAnim(resources.getResAnim("bg"));
         bar->setAnchor(Vector2(0.5f, 0.5f));
-        bar->setPosition(getSize() / 2);
+        bar->setPosition(getSize() / 2.0f);
 
         //bar->setSize(600, 200);
         _content->addChild(bar);

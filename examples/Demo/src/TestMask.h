@@ -55,7 +55,7 @@ public:
 
         spTextField text = new TextField();
         text->attachTo(_masked);
-        text->setPosition(_content->getSize() / 2);
+        text->setPosition(_content->getSize() / 2.0f);
         text->setText("Oxygine. Masked sky demo");
         text->setStyle(style);
 

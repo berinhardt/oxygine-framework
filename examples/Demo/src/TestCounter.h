@@ -9,7 +9,7 @@ public:
     {
         spSprite bg = new Sprite;
         bg->setResAnim(resources.getResAnim("score_table"));
-        bg->setPosition(getStage()->getSize() / 2 - bg->getSize() / 2);
+        bg->setPosition(getStage()->getSize() / 2.0f - bg->getSize() / 2.0f);
         _content->addChild(bg);
 
 

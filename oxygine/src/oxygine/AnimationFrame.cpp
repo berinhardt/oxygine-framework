@@ -9,7 +9,7 @@ namespace oxygine
         _diffuse = df;
         _srcRect = srcRect;
         _destRect = destRect;
-        _frameSize = frame_size.cast<PointS>();
+        _frameSize = frame_size;
     }
 
     void AnimationFrame::init2(ResAnim* rs, short col, short row, const Diffuse& df, const RectF& srcRect, const RectF& destRect, const Vector2& frame_size)
@@ -20,7 +20,7 @@ namespace oxygine
         _diffuse = df;
         _srcRect = srcRect;
         _destRect = destRect;
-        _frameSize = frame_size.cast<PointS>();
+        _frameSize = frame_size;
     }
 
     AnimationFrame AnimationFrame::getClipped(const RectF& rect) const

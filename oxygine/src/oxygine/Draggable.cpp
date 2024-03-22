@@ -102,7 +102,7 @@ namespace oxygine
 
         _actor->_getStage()->addEventListener(TouchEvent::TOUCH_UP, CLOSURE(this, &Draggable::onEvent));
 
-        Vector2 src = pointer->getPosition().cast<Vector2>();
+        Vector2 src = pointer->getPosition();
         Vector2 pos = actor->getParent()->stage2local(src);
         actor->setPosition(pos - localPosition);
 

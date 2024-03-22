@@ -23,7 +23,7 @@ namespace oxygine
             for (int a = 0; a < 2; ++a)
             {
 
-                float t = other.corner[0].dot(axis[a]);
+                float t = glm::dot(other.corner[0], axis[a]);
 
                 // Find the extent of box 2 on axis a
                 float tMin = t;
@@ -31,7 +31,7 @@ namespace oxygine
 
                 for (int c = 1; c < 4; ++c)
                 {
-                    t = other.corner[c].dot(axis[a]);
+                    t = glm::dot(other.corner[c], axis[a]);
 
                     if (t < tMin)
                     {
@@ -72,8 +72,8 @@ namespace oxygine
 
             for (int a = 0; a < 2; ++a)
             {
-                axis[a] /= axis[a].sqlength();
-                origin[a] = corner[0].dot(axis[a]);
+                axis[a] /= glm::dot(axis[a], axis[a]);
+                origin[a] = glm::dot(corner[0], axis[a]);
             }
         }
 

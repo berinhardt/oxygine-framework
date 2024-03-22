@@ -251,7 +251,7 @@ void Test::notify(std::string txt, int time)
     spTextField text = createText(txt);
     text->attachTo(sprite);
     text->setColor(Color::Black);
-    text->setPosition(sprite->getSize() / 2);
+    text->setPosition(sprite->getSize() / 2.0f);
 }
 
 void Test::notifyDone(Event* ev)

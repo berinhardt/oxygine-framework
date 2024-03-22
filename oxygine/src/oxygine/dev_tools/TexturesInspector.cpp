@@ -87,7 +87,7 @@ namespace oxygine
 
             text->setBreakLongWords(true);
 
-            rect->setSize(text->getTextRect().size.cast<Vector2>() + Vector2(2, 2));
+            rect->setSize(text->getTextRect().size + Point(2, 2));
             rect->setY((itemSize.y - rect->getHeight()) / 2.0f);
         }
 

@@ -115,7 +115,7 @@ namespace oxygine
         }
 
         setSize(Vector2(0, 0));
-        setSize(TreeInspector::calcBounds(this).size.cast<Vector2>() + Vector2(5, 5));
+        setSize(TreeInspector::calcBounds(this).size + Vector2(5, 5));
     }
 
     Vector2 TreeInspectorPage::updateSizesNew()

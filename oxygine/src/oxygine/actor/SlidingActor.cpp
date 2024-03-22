@@ -194,7 +194,7 @@ namespace oxygine
             dispatchEvent(&sl);
             _speed = sl.speed;
 
-            if (_speed.sqlength() < 8)
+            if (glm::dot(_speed,_speed) < 8)
             {
                 _sliding = false;
                 SlidingEvent ev(SlidingEvent::END);
@@ -280,7 +280,7 @@ namespace oxygine
 
                     Vector2 midpos = mid->pos;
                     Vector2 dir = pos - midpos;
-                    if (dir.sqlength() < 10 * 10)
+                    if (glm::dot(dir,dir) < 10 * 10)
                         _speed = Vector2(0, 0);
                     else
                     {
@@ -290,9 +290,9 @@ namespace oxygine
 
                         Vector2 dr = pos - old->pos;
 
-                        Vector2 ns = (dr * 1000.0f) / v;
+                        Vector2 ns = (dr * 1000.0f) / (float)v;
 
-                        if (_speed.dot(ns) < 0)
+                        if (glm::dot(_speed, ns) < 0)
                             _speed = ns;
                         else
                             _speed += ns;
@@ -320,7 +320,7 @@ namespace oxygine
                 if (te->index == _finger)
                 {
                     Vector2 offset = _downPos - te->localPosition;
-                    float d = offset.dot(offset);
+                    float d = glm::dot(offset, offset);
                     if (_holded && (d >= _rad * _rad))
                     {
                         spActor act = safeSpCast<Actor>(_holded);
