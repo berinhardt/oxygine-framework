@@ -4,7 +4,7 @@
 class DraggableSprite: public Sprite
 {
 public:
-    DraggableSprite()
+    DraggableSprite() : local(0.0f)
     {
         //drag.init(this);
     }

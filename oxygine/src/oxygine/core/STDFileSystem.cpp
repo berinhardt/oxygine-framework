@@ -291,9 +291,12 @@ namespace oxygine
                 return status_error;
             unsigned int size = oxGetSize(h);
             dest.data.clear();
-            dest.reserve(size);
-            logs::messageln("%p + %d",&dest.data[0], size);
-            if (size) oxFileRead(&dest.data[0], size, 1, h);
+            dest.resize(size);
+            if (size) {
+                if (!oxFileRead(&dest.data[0], size, 1, h)) {
+                    logs::messageln("SDL_ERROR: %s", SDL_GetError());
+                }
+            }
 
             oxFileClose(h);
             return status_ok;

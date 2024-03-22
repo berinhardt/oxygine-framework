@@ -29,7 +29,7 @@ namespace oxygine
     class AnimationFrame
     {
     public:
-        AnimationFrame() : _srcRect(0, 0, 1, 1), _destRect(0, 0, 1, 1), _resAnim(0), _row(0), _column(0) {}
+        AnimationFrame() : _srcRect(0, 0, 1, 1), _destRect(0, 0, 1, 1), _resAnim(0), _row(0), _column(0), _frameSize(0) {}
         AnimationFrame(spNativeTexture t);
 
         void init(ResAnim* rs, const Diffuse& df,

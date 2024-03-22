@@ -26,7 +26,7 @@ public:
     }
 
     struct touch
-    {
+    {   
         Vector2 current;
         Vector2 previous;
     };

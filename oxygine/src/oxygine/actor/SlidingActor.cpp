@@ -19,7 +19,9 @@ namespace oxygine
         _sliding(false),
         _rad(_defaultTouchThreshold),
         _maxSpeed(250),
+        _speed(0),
         _downTime(0),
+        _downPos(0),
         _ignoreTouchUp(false),
         _lastTime(0), _current(0), _lastIterTime(0),
         _finger(0)
@@ -90,8 +92,10 @@ namespace oxygine
         //_prev[0].pos = _content->getPosition();
         //_prev[0].tm = tm;
 
-        for (int i = 0; i < NUM; ++i)
+        for (int i = 0; i < NUM; ++i) {
             _prev[i].tm = 0;
+            _prev[i].pos = Vector2(0);
+        }
 
         _holded = 0; //event->target;
         //_downPos = te->localPosition;

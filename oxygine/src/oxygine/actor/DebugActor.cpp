@@ -118,7 +118,7 @@ namespace oxygine
         btn->addEventListener(TouchEvent::CLICK, CLOSURE(this, &DebugActor::_btnClicked));
     }
 
-    DebugActor::DebugActor() : _showTexel2PixelErrors(false), _showTouchedActor(false), _dragging(false)
+    DebugActor::DebugActor() : _showTexel2PixelErrors(false), _showTouchedActor(false), _dragging(false), _local(0)
     {
         DebugActor::initialize();
 

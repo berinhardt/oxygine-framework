@@ -37,7 +37,10 @@ namespace oxygine
         _parent(0),
         _alpha(255),
         _stage(0),
-        _rdelegate(STDRenderDelegate::instance)
+        _rdelegate(STDRenderDelegate::instance),
+        _pos(0),
+        _size(0),
+        _anchor(0,0)
     {
         _transform.identity();
         _transformInvert.identity();

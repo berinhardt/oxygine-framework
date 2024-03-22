@@ -7,7 +7,7 @@ namespace oxygine
     class ClipUV
     {
     public:
-        ClipUV() {}
+        ClipUV() : _dac(0), _uvA(0), _dAB(0), _dAC(0), _duvAB(0), _duvAC(0){}
         ClipUV(const Vector2& a, const Vector2& b, const Vector2& c,
                const Vector2& a_uv, const Vector2& b_uv, const Vector2& c_uv) : _uvA(a_uv)
         {

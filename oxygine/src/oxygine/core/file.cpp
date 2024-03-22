@@ -180,6 +180,7 @@ namespace oxygine
 
             dest.data.clear();
             bool ok = _nfs.read(file, dest, ep) == FileSystem::status_ok;
+            
             if (!ok)
             {
                 handleErrorPolicy(ep, "can't read file: %s to buffer", file);

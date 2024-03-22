@@ -59,7 +59,9 @@ namespace oxygine
         _dragEnabled(true),
         _pressed(false),
         _singleDrag(false),
-        _ignoreTouchUp(false)
+        _ignoreTouchUp(false),
+        _dragPos(0),
+        _clientPos(0)
     {
 
     }

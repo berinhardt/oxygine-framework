@@ -183,7 +183,6 @@ namespace oxygine
         file::buffer fb;
         int sz = file::read(xmlFile, fb);
 
-
         if (!sz)
         {
             logs::error("can't load xml file: '%s'", xmlFile.c_str());
@@ -224,8 +223,12 @@ namespace oxygine
         pugi::xml_document* doc = new pugi::xml_document();
         _docs.push_back(doc);
 
-        bool loaded = doc->load_buffer(&fb.data[0], fb.data.size());
-        OX_ASSERT(loaded);
+        pugi::xml_parse_result loaded = doc->load_buffer(&fb.data[0], fb.data.size());
+        if (!loaded) {
+            logs::messageln("%d[[%s]]", fb.data.size(), &fb.data[0]);
+            logs::error("%s - %s", xmlFile.c_str(), loaded.description());
+            OX_ASSERT(!!loaded);            
+        }
 
         pugi::xml_node resources = doc->first_child();
         pugi::xml_node resources_meta = doc_meta.first_child();
