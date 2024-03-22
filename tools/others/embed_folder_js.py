@@ -32,7 +32,7 @@ def do(src, dest):
     for f in files:
         s = s + " --embed " + f
 
-    cmd = "python \"" + os.environ["EMSCRIPTEN"] + \
+    cmd = "python3 \"" + os.environ["EMSCRIPTEN"] + \
         "/tools/file_packager.py\" test --lz4  --js-output=\"%s\" %s" % (
             dest, s)
     print(cmd)

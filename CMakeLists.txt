@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.12)
 project (OXYGINE)
 
 
@@ -60,7 +60,7 @@ set(THIRD_PARTY ${OXYGINE_ROOT}/third_party/${PLATFORM})
 
 if (EMSCRIPTEN)
 	set(OX_HAVE_LIBPNG 1)
-	set(OX_HAVE_LIBJPEG 1)
+	set(OX_HAVE_LIBJPEG 0)
 	set(OX_HAVE_HTTP 1)	
 	set(OX_USE_SDL2 1)
 
@@ -69,7 +69,7 @@ if (EMSCRIPTEN)
 
 	file(GLOB OXYGINE_JS_LIBRARIES ${OXYGINE_SRC}/core/emscripten/*.js)
 
-	set(OXYGINE_CXX_FLAGS "${OXYGINE_CXX_FLAGS} -s USE_SDL=2 -s USE_LIBPNG=1 -s USE_ZLIB=1 -s FULL_ES2=1 ")	
+	set(OXYGINE_CXX_FLAGS "${OXYGINE_CXX_FLAGS} -s USE_SDL=2 -s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_WEBGL2=1 ")	
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_ZLIB=1")#for minizip.c
 
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux") 	
@@ -160,7 +160,7 @@ set(CORE_LIBS
 
 if (OX_USE_SDL2)
 	set(CORE_LIBS ${CORE_LIBS}
-		SDL2main SDL2)
+		SDL2)
 	set(OXYGINE_INCLUDE_DIRS ${OXYGINE_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
 endif(OX_USE_SDL2)	
 
