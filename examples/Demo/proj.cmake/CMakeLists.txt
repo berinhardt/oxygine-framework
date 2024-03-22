@@ -3,15 +3,17 @@ project (Demo)
 
 find_package( Python COMPONENTS Interpreter)
 
-add_subdirectory(../../../ oxygine-framework)
-add_definitions(${OXYGINE_DEFINITIONS})
-include_directories(${OXYGINE_INCLUDE_DIRS})
-link_directories(${OXYGINE_LIBRARY_DIRS})
+add_subdirectory(../../../ oxygine)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OXYGINE_CXX_FLAGS}")
 
 add_executable(Demo ../src/Counter.cpp ../src/example.cpp ../src/main.cpp ../src/test.cpp  ../src/Counter.h ../src/TestAlphaHitTest.h ../src/TestBox9Sprite.h ../src/TestCamera.h ../src/TestClipRect.h ../src/TestColorFont.h ../src/TestCounter.h ../src/TestDrag.h ../src/TestEdges.h ../src/TestHttp.h ../src/TestInputText.h ../src/TestManageRes.h ../src/TestMask.h ../src/TestOpenGL.h ../src/TestPerf.h ../src/TestPolygon.h ../src/TestProgressBar.h ../src/TestRender2Texture.h ../src/TestSignedDistanceFont.h ../src/TestSliding.h ../src/TestTexel2Pixel.h ../src/TestText.h ../src/TestTextureFormat.h ../src/TestTiled.h ../src/TestTouches.h ../src/TestTweenPostProcessing.h ../src/TestTweenShine.h ../src/TestTweenText.h ../src/TestTweens.h ../src/TestUserShader.h ../src/example.h ../src/test.h )
-target_link_libraries(Demo ${OXYGINE_CORE_LIBS})
+target_link_libraries(Demo oxygine-framework)
+get_target_property(DemoIncludes oxygine-framework INTERFACE_INCLUDE_DIRECTORIES)
+foreach(ITEM ${DemoIncludes})
+	message("INC ${ITEM}")
+	target_include_directories(Demo PUBLIC ${ITEM})	
+endforeach(ITEM ${DemoIncludes})
 
 if (WIN32) #disable console mode for VC++
 	set_target_properties(Demo PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -38,3 +40,4 @@ if (EMSCRIPTEN)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FULL_ES2")
 	em_link_pre_js(Demo  ${OXYGINE_JS_LIBRARIES}  ${CMAKE_CURRENT_BINARY_DIR}/data.js)
 endif(EMSCRIPTEN)
+
