@@ -282,7 +282,7 @@ namespace oxygine
         flush();
     }
 
-    const oxygine::Matrix& STDRenderer::getViewProjection() const
+    const oxygine::Matrix4& STDRenderer::getViewProjection() const
     {
         return _vp;
     }
@@ -314,15 +314,9 @@ namespace oxygine
         _verticesData.clear();
     }
 
-    void STDRenderer::initCoordinateSystem(int width, int height, bool flipU)
+    void STDRenderer::initCoordinateSystem(int width, int height)
     {
-        Matrix view = makeViewMatrix(width, height, flipU);
-        Matrix proj;
-        //initialize projection matrix
-        Matrix::orthoLH(proj, (float)width, (float)height, 0, 1);
-
-        Matrix vp = view * proj;
-        setViewProj(vp);
+        setViewProj(glm::orthoLH(.0f, (float)width, .0f, (float)height, .0f, 100.0f));
     }
 
     IVideoDriver* STDRenderer::getDriver()
@@ -331,7 +325,7 @@ namespace oxygine
     }
 
 
-    void STDRenderer::setViewProj(const Matrix& viewProj)
+    void STDRenderer::setViewProj(const Matrix4& viewProj)
     {
         _vp = viewProj;
         flush();
@@ -342,7 +336,7 @@ namespace oxygine
         _driver->setUniform("mat", _vp);
     }
 
-    void STDRenderer::setViewProjTransform(const Matrix& viewProj)
+    void STDRenderer::setViewProjTransform(const Matrix4& viewProj)
     {
         setViewProj(viewProj);
     }
@@ -409,32 +403,13 @@ namespace oxygine
             flush();
     }
 
-    Matrix makeViewMatrix(int w, int h, bool flipU)
-    {
-        //printf("s1\n");
-        Matrix view, scale, tr;
-        float offset = 0.5f;
-
-        offset = 0;
-
-        Matrix::translation(tr, Vector3(-(float)w / 2.0f - offset, (flipU ? -1.0f : 1.0f) * (float)h / 2.0f + offset, 0.0f));
-        Matrix::scaling(scale, Vector3(1.0f, flipU ? 1.0f : -1.0f, 1.0f));
-
-        view = scale * tr;
-
-        return view;
-    }
-
-
-
-
-    bool checkT2P(const Rect& viewport, const Matrix& vp, const vertexPCT2* v1, const vertexPCT2* v2, int w, int h)
+    bool checkT2P(const Rect& viewport, const Matrix4& vp, const vertexPCT2* v1, const vertexPCT2* v2, int w, int h)
     {
         Vector3 p1(v1->x, v1->y, 0);
         Vector3 p2(v2->x, v2->y, 0);
 
-        p1 = vp.transformVec3(p1);
-        p2 = vp.transformVec3(p2);
+        p1 = (vp*Vector4(p1, .0f)).xyz();
+        p2 = (vp*Vector4(p2, .0f)).xyz();
 
         Vector2 half = Vector2(viewport.getSize()) / 2.0f;
         p1.x = p1.x * half.x + half.x;
@@ -472,13 +447,12 @@ namespace oxygine
 
 
 
-    STDRenderer::STDRenderer(IVideoDriver* driver) : _driver(driver), _vdecl(0), _uberShader(0)
+    STDRenderer::STDRenderer(IVideoDriver* driver) : _driver(driver), _vdecl(0), _uberShader(0), _vp(1.0f)
     {
         if (!driver)
             driver = IVideoDriver::instance;
 
         _driver = driver;
-        _vp.identity();
 
         _vdecl = _driver->getVertexDeclaration(vertexPCT2::FORMAT);
 
@@ -547,7 +521,7 @@ namespace oxygine
         _driver->setViewport(*viewport);
 
 
-        initCoordinateSystem(viewport->getWidth(), viewport->getHeight(), true);
+        initCoordinateSystem(viewport->getWidth(), viewport->getHeight());
         begin();
     }
 

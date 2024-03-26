@@ -12,7 +12,7 @@ namespace oxygine
 
     }
 
-    void IVideoDriver::setUniform(const char* id, const Matrix& v)
+    void IVideoDriver::setUniform(const char* id, const Matrix4& v)
     {
         setUniform(id, &v, 1);
     }

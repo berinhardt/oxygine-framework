@@ -80,14 +80,14 @@ namespace oxygine
         STDRenderer(IVideoDriver* driver = 0);
         virtual ~STDRenderer();
 
-        const Matrix&               getViewProjection() const;
+        const Matrix4&               getViewProjection() const;
         IVideoDriver*               getDriver();
         const AffineTransform&      getTransform() const { return _transform; }
         const VertexDeclaration*    getVertexDeclaration() const { return _vdecl; }
         unsigned int                getBaseShaderFlags() const { return _baseShaderFlags; }
 
         void setShaderFlags(unsigned int);
-        void setViewProj(const Matrix& viewProj);
+        void setViewProj(const Matrix4& viewProj);
         void setVertexDeclaration(const VertexDeclaration* decl);
         void setUberShaderProgram(UberShaderProgram* pr);
         void setBaseShaderFlags(unsigned int fl);
@@ -102,7 +102,7 @@ namespace oxygine
         /**Completes started rendering and restores previous Frame Buffer.*/
         void end();
         /**initializes View + Projection matrices where TopLeft is (0,0) and RightBottom is (width, height). use flipU = true for render to texture*/
-        void initCoordinateSystem(int width, int height, bool flipU = false);
+        void initCoordinateSystem(int width, int height);
 
         /**Draws existing batch immediately.*/
         void flush();
@@ -119,7 +119,7 @@ namespace oxygine
         void swapVerticesData(STDRenderer& r);
 
         OXYGINE_DEPRECATED
-        void setViewProjTransform(const Matrix& viewProj);
+        void setViewProjTransform(const Matrix4& viewProj);
 
         void pushShaderSetHook(ShaderProgramChangedHook* hook);
         void popShaderSetHook();
@@ -144,7 +144,7 @@ namespace oxygine
         const VertexDeclaration* _vdecl;
 
         IVideoDriver* _driver;
-        Matrix _vp;
+        Matrix4 _vp;
 
         virtual void xbegin();
 

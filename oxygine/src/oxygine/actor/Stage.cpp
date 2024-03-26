@@ -138,7 +138,7 @@ namespace oxygine
     }
     */
 
-    void Stage::render(const Color* clearColor, const Rect& viewport, const Matrix& view, const Matrix& proj)
+    void Stage::render(const Color* clearColor, const Rect& viewport, const Matrix4& view, const Matrix4& proj)
     {
 
         IVideoDriver* driver = IVideoDriver::instance;
@@ -147,7 +147,7 @@ namespace oxygine
         if (clearColor)
             driver->clear(*clearColor);
 
-        Matrix vp = view * proj;
+        Matrix4 vp = view * proj;
         STDRenderer::instance->setViewProj(vp);
 
         RenderState rs;
@@ -172,10 +172,9 @@ namespace oxygine
     void Stage::render(const Color& clearColor, const Rect& viewport)
     {
         //initialize projection and view matrix
-        Matrix proj;
-        Matrix::orthoLH(proj, (float)viewport.getWidth(), (float)viewport.getHeight(), 0.2f, 10000);
-        Matrix view = makeViewMatrix(viewport.getWidth(), viewport.getHeight());
-        render(&clearColor, viewport, view, proj);
+        Matrix4 proj = glm::orthoLH(0.0f, (float)viewport.getWidth(), (float)viewport.getHeight(), 0.0f, 0.0f, 100.0f);
+        
+        render(&clearColor, viewport, Matrix4(1.0f), proj);
     }
 
     void Stage::cleanup()

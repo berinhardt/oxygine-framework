@@ -163,7 +163,7 @@ namespace oxygine
         rsCache().reset();
     }
 
-    VideoDriverCache::VideoDriverCache()
+    VideoDriverCache::VideoDriverCache(): wvp(1.0f)
     {
         _batches.push_back(cached_batch());
         rt = new NativeTextureNull;
@@ -250,7 +250,7 @@ namespace oxygine
         addUni(id, cached_batch::uni::uni_float, &v, sizeof(v));
     }
 
-    void VideoDriverCache::setUniform(const char* id, const Matrix* v, int num)
+    void VideoDriverCache::setUniform(const char* id, const Matrix4* v, int num)
     {
         addUni(id, cached_batch::uni::uni_matrix, v, sizeof(*v) * num);
         wvp = *v;
@@ -305,7 +305,7 @@ namespace oxygine
         {
             v = (vertexPCT2*)(&current().vertices.front() + current().vdecl->size * i);
             Vector4 p(v->x, v->y, v->z, 1.0f);
-            p = wvp.transformVec4(p);
+            p = wvp*p;
             p.x /= p.w;
             p.y /= p.w;
             v->x = p.x * getStage()->getWidth();
@@ -399,7 +399,7 @@ namespace oxygine
                         instance->setUniformInt(uni.id.c_str(), *((const int*)&uni.data[0])); break;
                     case cached_batch::uni::uni_matrix:
                     {
-                        Matrix m = STDRenderer::instance->getViewProjection();
+                        Matrix4 m = STDRenderer::instance->getViewProjection();
                         //instance->setUniform(uni.id.c_str(), ((const Matrix*)&uni.data[0]));
                         instance->setUniform(uni.id.c_str(), m);
                         break;

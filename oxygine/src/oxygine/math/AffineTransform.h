@@ -12,7 +12,7 @@ namespace oxygine
 
         typedef VectorT2<T> vector2;
         typedef AffineTransformT<T> affineTransform;
-        typedef MatrixT<T> matrix;
+        typedef Matrix4T<T> matrix;
 
         AffineTransformT() {}
         AffineTransformT(T a_, T b_, T c_, T d_, T x_, T y_): a(a_), b(b_), c(c_), d(d_), x(x_), y(y_) {}
@@ -20,12 +20,12 @@ namespace oxygine
 
         explicit AffineTransformT(const matrix& m)
         {
-            a = m.ml[0];
-            b = m.ml[1];
-            c = m.ml[4];
-            d = m.ml[5];
-            x = m.ml[12];
-            y = m.ml[13];
+            a = m[0][0];
+            b = m[1][0];
+            c = m[0][1];
+            d = m[1][1];
+            x = m[0][3];
+            y = m[1][3];
         }
 
         void identity()

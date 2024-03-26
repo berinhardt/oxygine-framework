@@ -439,7 +439,7 @@ namespace oxygine
         RectF clip = vp.cast<RectF>();
         rs.clip = &clip;
 
-        renderer->initCoordinateSystem(vp.getWidth(), vp.getHeight(), true);
+        renderer->initCoordinateSystem(vp.getWidth(), vp.getHeight());
 
         rs.transform = actor->getParent()->computeGlobalTransform();
 

@@ -9,14 +9,12 @@ public:
 
     spActor _content;
 
-    Camera()
+    Camera(): _transform(1.0f)
     {
         addEventListener(TouchEvent::TOUCH_DOWN, CLOSURE(this, &Camera::onEvent));
         addEventListener(TouchEvent::TOUCH_UP, CLOSURE(this, &Camera::onEvent));
         addEventListener(TouchEvent::MOVE, CLOSURE(this, &Camera::onEvent));
         addEventListener(TouchEvent::WHEEL_DIR, CLOSURE(this, &Camera::onEvent));
-
-        _transform.identity();
     }
 
     void setContent(spActor content)
@@ -59,9 +57,9 @@ public:
             {
                 float scale = te->wheelDirection.y < 0 ? 0.95f : 1.05f;
 
-                _transform.translate(-Vector3(pos.x, pos.y, 0));
-                _transform.scale(Vector3(scale, scale, 1));
-                _transform.translate(Vector3(pos.x, pos.y, 0));
+                _transform = glm::translate(_transform, -Vector3(pos,.0f));
+                _transform = glm::scale(_transform, Vector3(scale, scale, .0f));
+                _transform = glm::translate(_transform, +Vector3(pos,.0f));
             }
         }
 
@@ -75,7 +73,7 @@ public:
             if (_touches.size() == 1)
             {
                 Vector2 offset = t.current - t.previous;
-                _transform.translate(Vector3(offset.x, offset.y, 0));
+                _transform = glm::translate(_transform, Vector3(offset, .0f));
             }
             else
             {
@@ -101,12 +99,12 @@ public:
                 p1->previous = p1->current;
                 p2->previous = p2->current;
 
-                _transform.translate(Vector3(offset.x, offset.y, 0));
+                _transform = glm::translate(_transform, Vector3(offset, .0f));
 
 
-                _transform.translate(-Vector3(center.x, center.y, 0));
-                _transform.scale(Vector3(scale, scale, 1));
-                _transform.translate(Vector3(center.x, center.y, 0));
+                _transform = glm::translate(_transform, -Vector3(center, .0f));
+                _transform = glm::scale(_transform, Vector3(scale, scale, 1.0f));
+                _transform = glm::translate(_transform, Vector3(center, .0f));
             }
         }
 
@@ -124,7 +122,7 @@ public:
         _content->setTransform(tr);
     }
 
-    Matrix _transform;
+    Matrix4 _transform;
 };
 
 

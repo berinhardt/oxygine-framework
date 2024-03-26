@@ -31,7 +31,7 @@ namespace oxygine
         /**use Scissor test for outer Stage area*/
         void setClipOuterArea(bool clip) {_clipOuter = clip;}
         /**Render all actors*/
-        void render(const Color* clearColor, const Rect& viewport, const Matrix& view, const Matrix& proj);
+        void render(const Color* clearColor, const Rect& viewport, const Matrix4& view, const Matrix4& proj);
         /**Render all actors, simplified version*/
         void render(const Color& clearColor, const Rect& viewport);
 
