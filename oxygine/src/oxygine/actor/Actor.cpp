@@ -463,7 +463,7 @@ namespace oxygine
             originalLocalPos = me->localPosition;
             originalLocalScale = me->__localScale;
             me->localPosition = parent2local(originalLocalPos);
-            me->__localScale *= _transform.a;
+            me->__localScale *= _transform._transform[0][0];
 #ifdef OX_HAS_CPP11
             if (me->__localScale == NAN)
             {
@@ -1153,7 +1153,7 @@ namespace oxygine
         if (_flags & flag_fastTransform)
         {
             rs.transform = parentRS.transform;
-            rs.transform.translate(Vector2(tr.x, tr.y));
+            rs.transform.translate(tr._translate);
         }
         else
             Transform::multiply(rs.transform, tr, parentRS.transform);
@@ -1538,13 +1538,12 @@ namespace oxygine
 
     void decompose(const Transform& t, Vector2& pos, float& angle, Vector2& scale)
     {
-        scale.x = sqrtf(t.a * t.a + t.c * t.c);
-        scale.y = sqrtf(t.b * t.b + t.d * t.d);
+        scale.x = glm::length(t._transform[0].xy());
+        scale.y = glm::length(t._transform[1].xy());
 
-        angle = -atan2(t.c, t.a);
+        angle = -atan2(t._transform[1][0], t._transform[0][0]);
         float an = angle / MATH_PI * 180;
-        pos.x = t.x;
-        pos.y = t.y;
+        pos = t._translate;
     }
 
     void setDecomposedTransform(Actor* actor, const Transform& t)

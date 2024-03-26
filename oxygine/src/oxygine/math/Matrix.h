@@ -11,6 +11,8 @@ namespace oxygine
 {
     template <class T>
     using Matrix4T = glm::mat<4,4,T,glm::defaultp>;
+    template <class T>
+    using Matrix2T = glm::mat<2,2,T,glm::defaultp>;
     typedef Matrix4T<float> Matrix4;
     typedef Matrix4T<double> Matrix4D;
 

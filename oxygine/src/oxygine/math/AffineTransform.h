@@ -12,30 +12,22 @@ namespace oxygine
 
         typedef VectorT2<T> vector2;
         typedef AffineTransformT<T> affineTransform;
-        typedef Matrix4T<T> matrix;
+        typedef VectorT4<T> column;
+        typedef Matrix4T<T> matrix4;
+        typedef Matrix2T<T> matrix2;
 
         AffineTransformT() {}
-        AffineTransformT(T a_, T b_, T c_, T d_, T x_, T y_): a(a_), b(b_), c(c_), d(d_), x(x_), y(y_) {}
+        AffineTransformT(T a_, T b_, T c_, T d_, T x_, T y_): _transform(a_, b_, c_,d_), _translate(x_, y_) {}
+        AffineTransformT(const matrix2 &f, const vector2 &l): _transform(f), _translate(l) {}
 
 
-        explicit AffineTransformT(const matrix& m)
-        {
-            a = m[0][0];
-            b = m[1][0];
-            c = m[0][1];
-            d = m[1][1];
-            x = m[0][3];
-            y = m[1][3];
-        }
+        explicit AffineTransformT(const matrix4& m) : _transform(m[0][0],m[0][1],m[1][0],m[1][1]), _translate(m[3][0], m[3][1])
+        { }
 
         void identity()
         {
-            a = T(1);
-            b = T(0);
-            c = T(0);
-            d = T(1);
-            x = T(0);
-            y = T(0);
+            _translate = glm::zero<Vector2>();
+            _transform = matrix2(1.0f);
         }
 
         static affineTransform getIdentity()
@@ -47,8 +39,7 @@ namespace oxygine
 
         void translate(const vector2& v)
         {
-            x += a * v.x + c * v.y;
-            y += b * v.x + d * v.y;
+            _translate += _transform*v;
         }
 
         affineTransform translated(const vector2& v) const
@@ -60,10 +51,10 @@ namespace oxygine
 
         void scale(const vector2& v)
         {
-            a *= v.x;
-            b *= v.x;
-            c *= v.y;
-            d *= v.y;
+            _transform[0][0] *= v.x;
+            _transform[0][1] *= v.x;
+            _transform[1][0] *= v.y;
+            _transform[1][1] *= v.y;
         }
 
         affineTransform scaled(const vector2& v) const
@@ -92,15 +83,8 @@ namespace oxygine
         void invert()
         {
             affineTransform t = *this;
-
-            T det = T(1) / (t.a * t.d - t.b * t.c);
-
-            a = det * t.d;
-            b = -det * t.b;
-            c = -det * t.c;
-            d = det * t.a;
-            x = det * (t.c * t.y - t.d * t.x);
-            y = det * (t.b * t.x - t.a * t.y);
+            _transform = glm::inverse(_transform);
+            _translate = -_transform*t._translate;
         }
 
         affineTransform inverted() const
@@ -110,31 +94,23 @@ namespace oxygine
             return t;
         }
 
-        operator matrix() const
+        operator matrix4() const
         {
             return toMatrix();
         }
 
-        matrix toMatrix() const
+        matrix4 toMatrix() const
         {
-            return matrix(
-                       a, b, 0, 0,
-                       c, d, 0, 0,
-                       0, 0, 1, 0,
-                       x, y, 0, 1
-                   );
+            matrix4 m(_transform);
+            m[3] = column(_translate, .0f, 1.0f);
+            return m;
         }
 
 
         static affineTransform& multiply(affineTransform& out, const affineTransform& t1, const affineTransform& t2)
         {
-            out.a = t1.a * t2.a + t1.b * t2.c;
-            out.b = t1.a * t2.b + t1.b * t2.d;
-            out.c = t1.c * t2.a + t1.d * t2.c;
-            out.d = t1.c * t2.b + t1.d * t2.d;
-            out.x = t1.x * t2.a + t1.y * t2.c + t2.x;
-            out.y = t1.x * t2.b + t1.y * t2.d + t2.y;
-
+            out._transform = t1._transform*t2._transform;
+            out._translate = t2._transform*t1._translate+t2._translate;
             return out;
         }
 
@@ -148,14 +124,12 @@ namespace oxygine
 
         vector2 transform(const vector2& v) const
         {
-            return vector2(
-                       a * v.x + c * v.y + x,
-                       b * v.x + d * v.y + y);
+            return _transform*v+_translate;
         }
 
 
-        T a, b, c, d;
-        T x, y;
+        matrix2 _transform;
+        vector2 _translate;
     };
 
     typedef AffineTransformT<float> AffineTransform;

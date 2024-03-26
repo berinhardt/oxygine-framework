@@ -37,8 +37,7 @@ public:
         Vector2 offset = localPos - local;
 
         Transform tr = getTransform();
-        tr.x = 0;
-        tr.y = 0;
+        tr._translate = glm::zero<Vector2>();
         Vector2 p = tr.transform(offset);
         setPosition(getPosition() + p);
     }
