@@ -73,7 +73,7 @@ public:
         STDMaterial::xapply();
 
         const AffineTransform& tr = STDRenderer::getCurrent()->getTransform();
-        float scale = sqrt(tr._transform[0][0] * tr._transform[0][0] + tr._transform[1][0] * tr._transform[1][0]);
+        float scale = glm::length(tr.getScale());
         float contrast = 3.0f + scale * 8.0f;
 
         Vector4 sdfParams(offset, contrast, outline, contrast);

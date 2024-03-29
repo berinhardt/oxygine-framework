@@ -125,9 +125,9 @@ namespace oxygine
 
 #if 1
         ClipUV clipUV = ClipUV(
-                            world.transform(maskDest.getLeftTop()),
-                            world.transform(maskDest.getRightTop()),
-                            world.transform(maskDest.getLeftBottom()),
+                            world.apply(maskDest.getLeftTop()),
+                            world.apply(maskDest.getRightTop()),
+                            world.apply(maskDest.getLeftBottom()),
                             maskSrc.getLeftTop(),
                             maskSrc.getRightTop(),
                             maskSrc.getLeftBottom());
@@ -206,7 +206,7 @@ namespace oxygine
 
     void STDRenderDelegate::doRender(TextField* tf, const RenderState& rs)
     {
-        float scale = glm::length(rs.transform._transform[0].xy());
+        float scale = glm::length(rs.transform.getScale());
         text::Node* root = tf->getRootNode(scale);
         if (!root)
             return;

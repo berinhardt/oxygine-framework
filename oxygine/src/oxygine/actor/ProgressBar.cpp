@@ -293,9 +293,9 @@ namespace oxygine
                 v1 = v;
 
 
-                p1 = rs.transform.transform(p1);
-                p2 = rs.transform.transform(p2);
-                p3 = rs.transform.transform(p3);
+                p1 = rs.transform.apply(p1);
+                p2 = rs.transform.apply(p2);
+                p3 = rs.transform.apply(p3);
 
 
                 fill_tex_coord(*pv, color, p1, u1, v1);

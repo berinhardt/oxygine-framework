@@ -81,10 +81,10 @@ namespace oxygine
 
         OBBox(const RectF& rect, const AffineTransform& tr)
         {
-            corner[0] = tr.transform(rect.getLeftTop());
-            corner[1] = tr.transform(rect.getRightTop());
-            corner[2] = tr.transform(rect.getRightBottom());
-            corner[3] = tr.transform(rect.getLeftBottom());
+            corner[0] = tr.apply(rect.getLeftTop());
+            corner[1] = tr.apply(rect.getRightTop());
+            corner[2] = tr.apply(rect.getRightBottom());
+            corner[3] = tr.apply(rect.getLeftBottom());
 
             computeAxes();
         }

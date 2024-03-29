@@ -172,7 +172,21 @@ void example_init()
     
 
     Test::instance = new TestActor;
-    Test::instance->attachTo(getStage());
+    //Test::instance->attachTo(getStage());
+    
+    ColorRectSprite* crs = new ColorRectSprite;
+    crs->setColor(0xff0000FF);
+    crs->setAnchor(0.5f, 0.5f);
+    crs->setSize(50,50);
+    crs->setPosition(getStage()->getSize()/2.0f);
+    getStage()->addChild(crs);
+    ColorRectSprite* parent = crs;
+    crs = new ColorRectSprite;
+    crs->setColor(0x00ff00FF);
+    crs->setAnchor(0.5f, 0.0f);
+    crs->setSize(50,100);
+    crs->setRotationDegrees(45);
+    parent->addChild(crs);
 
     //Initialize http requests
     HttpRequestTask::init();

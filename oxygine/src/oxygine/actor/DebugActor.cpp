@@ -445,8 +445,8 @@ namespace oxygine
             if (_dragging)
             {
                 Transform tr = getTransform();
-                tr._translate = glm::zero<Vector2>();
-                Vector2 p = tr.transform(_local);
+                tr.setTranslation(glm::zero<Vector2>());
+                Vector2 p = tr.apply(_local);
                 setPosition(t->localPosition - p);
             }
         }

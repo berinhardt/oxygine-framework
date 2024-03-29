@@ -96,7 +96,7 @@ namespace oxygine
             for (int i = 0; i < num; ++i)
             {
                 const Vector2* pos = (Vector2*)ptr;
-                Vector2 t = rs.transform.transform(*pos);
+                Vector2 t = rs.transform.apply(*pos);
 
                 append(buff, t);
                 buff.insert(buff.end(), ptr + sizeof(t), ptr + sizeof(t) + _vdecl->size - sizeof(t));

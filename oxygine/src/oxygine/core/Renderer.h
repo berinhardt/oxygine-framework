@@ -53,10 +53,10 @@ namespace oxygine
         Vector2 p4(pos.x + size.x, pos.y + size.y);
 
 
-        p1 = transform.transform(p1);
-        p2 = transform.transform(p2);
-        p3 = transform.transform(p3);
-        p4 = transform.transform(p4);
+        p1 = transform.apply(p1);
+        p2 = transform.apply(p2);
+        p3 = transform.apply(p3);
+        p4 = transform.apply(p4);
 
         vt.z = 0;
 
@@ -169,10 +169,10 @@ namespace oxygine
         Vector2 p4(pos.x + size.x, pos.y + size.y);
 
 
-        p1 = transform.transform(p1);
-        p2 = transform.transform(p2);
-        p3 = transform.transform(p3);
-        p4 = transform.transform(p4);
+        p1 = transform.apply(p1);
+        p2 = transform.apply(p2);
+        p3 = transform.apply(p3);
+        p4 = transform.apply(p4);
 
         vt.z = 0;
 

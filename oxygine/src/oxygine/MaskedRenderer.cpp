@@ -10,9 +10,9 @@ namespace oxygine
                                    const Transform& t, bool channelR, IVideoDriver* driver) : STDRenderer(driver)
     {
         ClipUV clipUV = ClipUV(
-                            t.transform(destRect.getLeftTop()),
-                            t.transform(destRect.getRightTop()),
-                            t.transform(destRect.getLeftBottom()),
+                            t.apply(destRect.getLeftTop()),
+                            t.apply(destRect.getRightTop()),
+                            t.apply(destRect.getLeftBottom()),
                             srcRect.getLeftTop(),
                             srcRect.getRightTop(),
                             srcRect.getLeftBottom());

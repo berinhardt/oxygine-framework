@@ -351,7 +351,7 @@ namespace oxygine
         fillQuadT(v,
                   dst,
                   RectF(-1, -1, 2, 2),
-                  AffineTransform::getIdentity(), color.rgba());
+                  AffineTransform(), color.rgba());
 
 
         driver->draw(IVideoDriver::PT_TRIANGLE_STRIP, decl, v, sizeof(v));
@@ -386,10 +386,10 @@ namespace oxygine
         if (_options._flags & PostProcessOptions::flag_fixedBounds)
         {
             const RectF& fb = _options._fixedBounds;
-            bounds.unite(transform.transform(fb.getLeftTop()));
-            bounds.unite(transform.transform(fb.getRightTop()));
-            bounds.unite(transform.transform(fb.getRightBottom()));
-            bounds.unite(transform.transform(fb.getLeftBottom()));
+            bounds.unite(transform.apply(fb.getLeftTop()));
+            bounds.unite(transform.apply(fb.getRightTop()));
+            bounds.unite(transform.apply(fb.getRightBottom()));
+            bounds.unite(transform.apply(fb.getLeftBottom()));
         }
         else
             bounds = actor.computeBounds(transform);
@@ -415,7 +415,7 @@ namespace oxygine
         _rt = getRTManager().get(_rt, _screen.getWidth(), _screen.getHeight(), _format);
 
 
-        _transform = actor->computeGlobalTransform().inverted();
+        _transform = actor->computeGlobalTransform().inverse();
 
 
         Material::null->apply();

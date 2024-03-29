@@ -125,7 +125,7 @@ namespace oxygine
         /**computes global actor transformation*/
         Transform           computeGlobalTransform(Actor* parent = 0) const;
         /**computes actor Bounds rectangle. Iterates children*/
-        RectF               computeBounds(const Transform& transform = Transform::getIdentity()) const;
+        RectF               computeBounds(const Transform& transform = Transform()) const;
         /**computes actor Bounds rectangle in Parent Space. Iterates children*/
         RectF               computeBoundsInParent() const;
         /**computes actor Bounds rectangle in Stage Space. Iterates children*/
