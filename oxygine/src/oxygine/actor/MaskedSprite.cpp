@@ -35,6 +35,10 @@ namespace oxygine
     {
         _mask = mask;
         _useRChannel = useRChannel;
+        if (mask) {
+           mask->setAnchorAffectsOrigin(false);
+           mask->setAnchor(getAnchor());
+        }
     }
 
 

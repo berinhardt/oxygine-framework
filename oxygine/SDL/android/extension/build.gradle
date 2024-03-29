@@ -1,20 +1,9 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
-    }
-}
 apply plugin: 'com.android.library'
 
 android {
-        compileSdkVersion rootProject.android.compileSdkVersion
-        buildToolsVersion rootProject.android.buildToolsVersion
-        
+        namespace 'org.oxygine.lib.extension'
+        compileSdkVersion rootProject.ext.compileSdkVersion
+
         sourceSets {
             main {
                 manifest.srcFile 'AndroidManifest.xml'

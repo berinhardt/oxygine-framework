@@ -5,6 +5,7 @@ import android.os.Bundle;
 import org.libsdl.app.SDLActivity;
 import org.oxygine.lib.extension.ActivityObservable;
 import org.oxygine.lib.extension.ActivityObserver;
+import android.util.Log;
 
 /**
  * OxygineActivity
@@ -18,7 +19,10 @@ public class OxygineActivity extends SDLActivity {
     }
 
     public static native void nativeOxygineInit(OxygineActivity activity, Class c);
-
+    public void cpp_onJNIException(Throwable ex) {
+      this.onJNIException(ex);
+    }
+    public void onJNIException(Throwable ex) { }
     public void addObserver(ActivityObserver l) {
         _observable.addObserver(l);
     }
@@ -32,7 +36,13 @@ public class OxygineActivity extends SDLActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         Utils._context = this;
-        nativeOxygineInit(this, getClass());
+        Log.e("SDL","nativeOxygineInit(this, getClass());");
+        try {
+          nativeOxygineInit(this, getClass());
+        } catch(UnsatisfiedLinkError ule) {
+          loadLibraries();
+          nativeOxygineInit(this, getClass());
+        }
 
         _observable.onCreate();
     }

@@ -5,11 +5,13 @@ import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.provider.Settings;
 import android.app.PendingIntent;
 import android.os.StatFs;
+import android.os.Build;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,8 +26,8 @@ public class Utils {
 
     public static long getFreeSpace(String path) {
         StatFs fs = new StatFs(path);
-        long blocks = fs.getFreeBlocks();
-        long blsize = fs.getBlockSize();
+        long blocks = fs.getFreeBlocksLong();
+        long blsize = fs.getBlockSizeLong();
         return blocks * blsize;
     }
 
@@ -47,8 +49,10 @@ public class Utils {
         if (_context == null)
             return false;
         ConnectivityManager connectivityManager = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
+        Network nw = connectivityManager.getActiveNetwork();
+        if (nw == null) return false;
+        NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+        return actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
     }
 
     public static void exit() {
@@ -69,8 +73,12 @@ public class Utils {
     }
 
     public static void browse(String url) {
-        Intent browseIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        _context.startActivity(browseIntent);
+        if (!url.isEmpty()) {
+          Intent browseIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+          try {
+            _context.startActivity(browseIntent);
+          } catch(android.content.ActivityNotFoundException ex) {}
+        }
     }
 
 

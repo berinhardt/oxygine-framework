@@ -15,7 +15,7 @@ namespace oxygine
         enum {EVENT_TEXT_CHANGED = sysEventID('I', 'T', 'C') };
         enum {EVENT_COMPLETE = Event::COMPLETE};
 
-        InputText();
+        InputText(int cursorSpeed = 400);
         ~InputText();
 
         /**Shows virtual keyboard(if supported on platform) and sends pressed chars to TextField*/
@@ -27,20 +27,23 @@ namespace oxygine
         void setDisallowedSymbols(const std::string& utf8str);
         void setDisallowedSymbols(const std::wstring& str);
         void setMaxTextLength(int);
+        void setNumeric(bool isNumeric);
         void showCursor(bool show);
 
         static void stopAnyInput();
 
-    private:
+    protected:
         spTextField _textActor;
+        spColorRectSprite _cursor;
+        virtual void updateCursor();
 
+    private:
         std::string _allowed;
         std::string _disallowed;
         std::string _txt;
 
-        spColorRectSprite _cursor;
-
         int _maxLength;
+        int _isNumeric;
         void updateText();
         static InputText* _active;
 

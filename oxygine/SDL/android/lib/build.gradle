@@ -1,36 +1,23 @@
-buildscript {
-    repositories {
-        google()
-        mavenLocal()
-        mavenCentral()
-        jcenter()        
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
-    }
-}
-
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
 apply plugin: 'com.android.library'
 
 dependencies {
         implementation project(':oxygine-extension')
+        implementation 'com.android.volley:volley:1.2.1'
+            implementation "androidx.appcompat:appcompat:1.2.0"
+            implementation "androidx.appcompat:appcompat-resources:1.2.0"
+        api project(':SDL') {
+          ext.BUILD_AS_LIBRARY = true
+          ext.EXCLUDE_NATIVE_LIBS = true
+        }
 }
 
 android {
+        namespace 'org.oxygine.lib'
         lintOptions {
             abortOnError false
         }
 
-        compileSdkVersion rootProject.android.compileSdkVersion
-        buildToolsVersion rootProject.android.buildToolsVersion
+        compileSdkVersion rootProject.ext.compileSdkVersion
 
         sourceSets {
             main {
@@ -39,4 +26,8 @@ android {
                 res.srcDirs = ['res']
             }
         }
+}
+tasks.withType(JavaCompile) {
+  options.compilerArgs << '-Xlint:unchecked'
+  options.deprecation = true
 }

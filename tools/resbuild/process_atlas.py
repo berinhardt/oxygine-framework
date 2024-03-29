@@ -193,7 +193,7 @@ def makeAlpha(a):
 
     try:
         asmall = a.resize(
-            (int(a.size[0] / 4), int(a.size[1] / 4)), Image.ANTIALIAS)
+            (int(a.size[0] / 4), int(a.size[1] / 4)), Image.LANCZOS)
     except ValueError:
         return None
 
@@ -448,11 +448,11 @@ def processRS(context, walker):
                 im = Image.new("RGBA", (bx, by))
                 im.paste(frame_image, (0, 0, frame_image.size[
                          0], frame_image.size[1]))
-                frame_image = im.resize((ax, ay), Image.ANTIALIAS)
+                frame_image = im.resize((ax, ay), Image.LANCZOS)
                 frame_image = frame_image.crop(
                     (0, 0, frame_size[0], frame_size[1]))
 
-            resize_filter = Image.ANTIALIAS
+            resize_filter = Image.LANCZOS
             if upscale:
                 resize_filter = Image.BICUBIC
 

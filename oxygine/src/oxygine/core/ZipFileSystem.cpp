@@ -25,9 +25,9 @@ namespace oxygine
 
             fileHandleZip(FileSystem* fs, file_entry* entry): fileHandle(fs), _entry(entry)
             {
-                int r = unzGoToFilePos(entry->zp, const_cast<unz_file_pos*>(&entry->pos));
+                int r = ox_unzGoToFilePos(entry->zp, const_cast<ox_unz_file_pos*>(&entry->pos));
                 OX_ASSERT(r == UNZ_OK);
-                r = unzOpenCurrentFile(entry->zp);
+                r = ox_unzOpenCurrentFile(entry->zp);
                 OX_ASSERT(r == UNZ_OK);
                 _entry->refs++;
             }
@@ -38,7 +38,7 @@ namespace oxygine
                 MutexAutoLock lock(zfs->_zips->getMutex());
                 _entry->refs--;
 
-                int r = unzCloseCurrentFile(_entry->zp);
+                int r = ox_unzCloseCurrentFile(_entry->zp);
                 OX_ASSERT(r == UNZ_OK);
                 delete this;
             }
@@ -57,7 +57,7 @@ namespace oxygine
 
             unsigned int read(void* dest, unsigned int size)
             {
-                return unzReadCurrentFile(_entry->zp, dest, size);
+                return ox_unzReadCurrentFile(_entry->zp, dest, size);
             }
 
             unsigned int write(const void* src, unsigned int size)
@@ -67,8 +67,8 @@ namespace oxygine
 
             unsigned int getSize() const
             {
-                unz_file_info file_info;
-                unzGetCurrentFileInfo(_entry->zp, &file_info, 0, 0, 0, 0, 0, 0);
+                ox_unz_file_info file_info;
+                ox_unzGetCurrentFileInfo(_entry->zp, &file_info, 0, 0, 0, 0, 0, 0);
                 return (unsigned int) file_info.uncompressed_size;
             }
 
@@ -87,15 +87,15 @@ namespace oxygine
             fileHandleZipStreaming(FileSystem* fs, file_entry* entry, const Zips& z): fileHandle(fs), _cpos(0), _entry(entry)
             {
                 int r = 0;
-                r = unzGoToFilePos(entry->zp, const_cast<unz_file_pos*>(&entry->pos));
+                r = ox_unzGoToFilePos(entry->zp, const_cast<ox_unz_file_pos*>(&entry->pos));
                 OX_ASSERT(r == UNZ_OK);
 
-                r = unzOpenCurrentFile(entry->zp);
+                r = ox_unzOpenCurrentFile(entry->zp);
                 OX_ASSERT(r == UNZ_OK);
 
 
                 void* ptr;
-                r = unzRealTell(entry->zp, &_pos, &_size, &ptr);
+                r = ox_unzRealTell(entry->zp, &_pos, &_size, &ptr);
                 OX_ASSERT(r == UNZ_OK);
 
                 zlib_filefunc_def* f = (zlib_filefunc_def*)ptr;
@@ -104,7 +104,7 @@ namespace oxygine
                 _h = file::open(ssss, "rb");
                 file::seek(_h, static_cast<unsigned int>(_pos), SEEK_SET);
 
-                unzCloseCurrentFile(entry->zp);
+                ox_unzCloseCurrentFile(entry->zp);
                 entry->refs++;
             }
 

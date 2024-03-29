@@ -44,8 +44,10 @@ namespace oxygine
 
         bool                    isOn(const Vector2& localPosition, float localScale) override;
 
+        bool                    isUseResAnchor() const {return (_flags & flag_useResAnchor) != 0;}
         bool                    isFlippedX() const {return (_flags & flag_flipX) != 0;}
         bool                    isFlippedY() const {return (_flags & flag_flipY) != 0;}
+        void                    setUseResAnchor(bool UseResAnchor);
         void                    setFlippedX(bool flippedX);
         void                    setFlippedY(bool flippedY);
         void                    setFlipped(bool flippedX, bool flippedY);
@@ -62,7 +64,8 @@ namespace oxygine
         {
             flag_manageResAnim = flag_last << 1,
             flag_flipX = flag_last << 2,
-            flag_flipY = flag_last << 3
+            flag_flipY = flag_last << 3,
+            flag_useResAnchor = flag_last << 4
         };
         virtual void changeAnimFrame(const AnimationFrame& f);
         virtual void animFrameChanged(const AnimationFrame& f);

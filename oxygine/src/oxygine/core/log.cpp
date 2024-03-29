@@ -49,7 +49,7 @@ namespace oxygine
 
         void disable()
         {
-            messageln("***log disabled***");
+            //messageln("***log disabled***");
             _enabled = false;
         }
 
@@ -162,6 +162,7 @@ namespace oxygine
             error_va(format, args);
             va_end(args);
 #ifdef EMSCRIPTEN
+            if (_enabled)
             emscStackTrace();
 #endif
         }

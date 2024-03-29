@@ -117,22 +117,22 @@ namespace oxygine
                 adata.data = &_hitTestBuffer[ad_pos];
             }
 
-
+            std::string fid = id;
 
             if (columns)
             {
+                bool hpc = child_node.attribute("hpc").as_bool(HPC_DEFAULT);
+                bool fpc = child_node.attribute("fpc").as_bool(false);
                 animationFrames frames;
                 int frames_count = rows * columns;
                 frames.reserve(frames_count);
 
                 ResAnim* ra = new ResAnim(this);
 
-
                 OX_ASSERT(meta_frames);
 
 
                 char* frames_data = (char*)meta_frames.first_child().value();
-
 
                 const char* begin = frames_data;
                 while (*frames_data)
@@ -158,15 +158,28 @@ namespace oxygine
 
                         float iw = 1.0f / texture->getWidth();
                         float ih = 1.0f / texture->getHeight();
-
+                        
+                        if (fid == "top-bar") logs::messageln("HPC PRE SRC %d %d %d %d", x, y, bbox_w, bbox_h);
+                        
                         RectF srcRect(x * iw, y * ih, bbox_w * iw, bbox_h * ih);
+                        if (fpc) srcRect.expand2(Vector2(-1.0f*iw, -1.0f*ih));
+                        if (hpc) srcRect.expand2(Vector2(-0.5f*iw, -0.5f*ih));
 
+                        if (fid == "top-bar") {
+                            srcRect.expand2(Vector2(-0.5f*iw, -0.5f*ih));
+                            logs::messageln("HPC POST SRC %f %f %f %f    ",
+                                            srcRect.getX()*texture->getWidth(),
+                                            srcRect.getY()*texture->getHeight(),
+                                            srcRect.getWidth()*texture->getWidth(),
+                                            srcRect.getHeight()*texture->getHeight());
+                        }
+                        
                         float fs = frame_scale;
                         RectF destRect(
                             Vector2((float)bbox_x, (float)bbox_y) * fs,
                             Vector2((float)bbox_w, (float)bbox_h) * fs
                         );
-
+                        
                         AnimationFrame frame;
                         Diffuse df;
                         df.base = texture;

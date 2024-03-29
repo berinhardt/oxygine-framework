@@ -95,8 +95,11 @@ namespace oxygine
         const int BITS = (sizeof(int32_t) * 8);
 
         const unsigned char* buff = ad.data;
-        Vector2 pos = localPosition * _frame.getResAnim()->getAppliedScale();
+
+        Vector2 pos = localPosition*_frame.getResAnim()->getAppliedScale();
         pos = pos/_localScale;
+        pos = -alterOrigin(-pos);
+
         Point lp = pos / (float)HIT_TEST_DOWNSCALE;
         Rect r(0, 0, ad.w, ad.h);
         if (r.pointIn(lp))
@@ -105,12 +108,18 @@ namespace oxygine
 
             int n = lp.x / BITS;
             int b = lp.x % BITS;
-
+            
             return (ints[n] >> b) & 1;
         }
         return false;
     }
 
+    void Sprite::setUseResAnchor(bool useResAnchor) {
+      if (useResAnchor != isUseResAnchor()) {
+        _flags ^= flag_useResAnchor;
+        animFrameChanged(_frame);
+      }
+    }
     void Sprite::setFlippedX(bool flippedX)
     {
         if (flippedX != isFlippedX())
@@ -120,7 +129,6 @@ namespace oxygine
             animFrameChanged(_frame);
         }
     }
-
     void Sprite::setFlippedY(bool flippedY)
     {
         if (flippedY != isFlippedY())
@@ -217,6 +225,18 @@ namespace oxygine
                 rs->getAtlas()->load();
         }
 
+        if (_flags & flag_useResAnchor)
+        {
+            ResAnim* rs = frame.getResAnim();
+            std::istringstream attr(rs->getAttribute("anchor").as_string("0.5 0.5"));
+            if (attr.str() != "")
+            {
+                Vector2 v;
+                attr >> v.x >> v.y;
+                setAnchor(v);
+            }
+        }
+
         bool flipX = (_flags & flag_flipX) != 0;
         bool flipY = (_flags & flag_flipY) != 0;
         if (flipX || flipY)
@@ -288,6 +308,9 @@ namespace oxygine
         RectF r = _frame.getDestRect();
         r.pos = r.pos*_localScale;
         r.size = r.size*_localScale;
+
+        r.pos = alterOrigin(r.pos);
+
         return r;
     }
 
