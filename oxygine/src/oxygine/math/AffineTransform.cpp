@@ -84,9 +84,9 @@ Vector2 AffineTransform::apply(const Vector2& size) const {
    return applyT(applySR(size));
 }
 AffineTransform& AffineTransform::invert() {
-   setTranslation(-getTranslation());
    setScale(Vector2(1/getScale().x, 1/getScale().y));
    setRotation(-getRotation());
+   setTranslation(-applySR(getTranslation()));
    return *this;
 }
 AffineTransform AffineTransform::inverse() const {

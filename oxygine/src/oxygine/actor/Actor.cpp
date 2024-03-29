@@ -33,16 +33,16 @@ std::string div(const std::string& val, const Color& color) {
 
 Actor::Actor() : _extendedIsOn(0),
                  _zOrder(0),
-                 _scale(1, 1),
-                 _rotation(0),
+                 _scale(1.0f, 1.0f),
+                 _rotation(0.0f),
                  _flags(Actor::DEFAULT_FLAGS),
-                 _parent(0),
+                 _parent(nullptr),
                  _alpha(255),
-                 _stage(0),
+                 _stage(nullptr),
                  _rdelegate(STDRenderDelegate::instance),
-        _pos(0),
-        _size(0),
-        _anchor(0,0) {
+                 _pos(0.0f, 0.0f),
+                 _size(0.0f, 0.0f),
+                 _anchor(0.0f, 0.0f) {
    _transform.identity();
    _transformInvert.identity();
    _pressedOvered = 0;
@@ -711,6 +711,7 @@ void Actor::updateTransform() const {
 
 bool Actor::isOn(const Vector2& localPosition, float localScale) {
    RectF r = getDestRect();
+   //logs::messageln("[%f,%f] in [%f,%f][%fx%f]", localPosition.x, localPosition.y, r.pos.x, r.pos.t, r.size.x, r.size.y);
 
    r.expand(Vector2(_extendedIsOn, _extendedIsOn), Vector2(_extendedIsOn, _extendedIsOn));
 
@@ -1042,9 +1043,7 @@ void Actor::render(const RenderState& parentRS) {
 }
 
 RectF Actor::getDestRect() const {
-   Vector2 origin;
-
-   return RectF(alterOrigin(origin), getSize());
+   return RectF(alterOrigin(Vector2(0.0f)), getSize());
 }
 
 spTween Actor::_addTween(spTween tween, bool rel) {
@@ -1225,10 +1224,10 @@ void Actor::deserialize(const deserializedata* data) {
 }
 
 Vector2 convert_global2local_(const Actor* child, const Actor* parent, Vector2 pos) {
+   Vector2 opos = pos;
    if (child->getParent() && (child->getParent() != parent)) pos = convert_global2local_(child->getParent(), parent, pos);
-
    pos = child->parent2local(pos);
-   return pos;
+   return pos; 
 }
 
 Vector2 convert_global2local(spActor child, spActor parent, const Vector2& pos) {

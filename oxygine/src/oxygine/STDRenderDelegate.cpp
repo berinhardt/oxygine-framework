@@ -219,8 +219,6 @@ static std::list<ClipUV> msk_stack;
     {
         sprite->_mat->apply();
         Color color = rs.getFinalColor(sprite->getColor());
-        RectF r = sprite->getDestRect();
-        logs::messageln("RECT[%f,%f] [%fx%f]", r.pos.x, r.pos.y, r.size.x, r.size.y);
         sprite->_mat->render(rs.transform, color, sprite->getAnimFrame().getSrcRect(), sprite->getDestRect());
     }
 

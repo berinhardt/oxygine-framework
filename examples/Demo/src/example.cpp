@@ -181,14 +181,7 @@ void example_init()
     //Load resources in xml file
     resources.loadXML("xmls/res.xml");
     Actor::DEFAULT_FLAGS |= Actor::flag_anchorAffectsOrigin;
-
-    ColorRectSprite* crs = new ColorRectSprite;
-    crs->setColor(0xFF0000FF);
-    crs->setSize(200,200);
-    crs->setPosition(getStage()->getSize()/2.0f);
-    crs->setAnchor(0.5f, 0.5f);
-    crs->attachTo(getStage());
-
+    
     Test::instance = new TestActor;
     Test::instance->attachTo(getStage());
 
