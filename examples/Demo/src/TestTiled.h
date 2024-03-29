@@ -216,10 +216,10 @@ public:
                 Vector2 p4(pos.x + size.x, pos.y + size.y);
 
 
-                p1 = transform.transform(p1);
-                p2 = transform.transform(p2);
-                p3 = transform.transform(p3);
-                p4 = transform.transform(p4);
+                p1 = transform.apply(p1);
+                p2 = transform.apply(p2);
+                p3 = transform.apply(p3);
+                p4 = transform.apply(p4);
 
                 if (flipped_horizontally)
                 {
@@ -293,10 +293,10 @@ public:
         world.invert();
 
         //find top left local position of TiledActor visible on display
-        Vector2 topLeft = world.transform(Vector2(0, 0));
+        Vector2 topLeft = world.apply(Vector2(0, 0));
 
         //find bottom right local position of TiledActor visible on display
-        Vector2 bottomRight = world.transform(getStage()->getSize());
+        Vector2 bottomRight = world.apply(getStage()->getSize());
 
         //we don't want to draw tiles outside of visible area
         int startX = std::max(0,      int(topLeft.x / tileWidth));

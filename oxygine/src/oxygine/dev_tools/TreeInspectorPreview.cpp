@@ -114,9 +114,8 @@ namespace oxygine
         float scale = ns.x / itemRect.size.x;
 
         AffineTransform transform;
-        transform.identity();
-        transform.scale(Vector2(scale, scale));
-        transform.translate(-itemRect.pos);
+        transform.setScale(Vector2(scale, scale));
+        transform.setTranslation(-itemRect.pos);
 
         cache.transform(transform);
 
@@ -365,7 +364,7 @@ namespace oxygine
                 for (size_t i = 0; i != num; ++i)
                 {
                     vertexPCT2* v = (vertexPCT2*)(&modified.front() + b.vdecl->size * i);
-                    Vector2 np = transform.transform(Vector2(v->x, v->y));
+                    Vector2 np = transform.apply(Vector2(v->x, v->y));
                     v->x = np.x;
                     v->y = np.y;
                 }
@@ -445,7 +444,7 @@ namespace oxygine
             for (size_t i = 0; i != num; ++i)
             {
                 vertexPCT2* v = (vertexPCT2*)(&modified.front() + b.vdecl->size * i);
-                Vector2 np = transform.transform(Vector2(v->x, v->y));
+                Vector2 np = transform.apply(Vector2(v->x, v->y));
                 v->x = np.x;
                 v->y = np.y;
             }

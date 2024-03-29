@@ -131,9 +131,9 @@ static std::list<ClipUV> msk_stack;
 
         spNativeTexture oldMask = rsCache().getTexture(UberShaderProgram::SAMPLER_MASK);
         ClipUV clipUV = ClipUV(
-                            world.transform(maskDest.getLeftTop()),
-                            world.transform(maskDest.getRightTop()),
-                            world.transform(maskDest.getLeftBottom()),
+                            world.apply(maskDest.getLeftTop()),
+                            world.apply(maskDest.getRightTop()),
+                            world.apply(maskDest.getLeftBottom()),
                             maskSrc.getLeftTop(),
                             maskSrc.getRightTop(),
                             maskSrc.getLeftBottom());
@@ -195,7 +195,7 @@ static std::list<ClipUV> msk_stack;
 
     void STDRenderDelegate::doRender(TextField* tf, const RenderState& rs)
     {
-        float scale = glm::length(rs.transform._transform[0].xy());
+        float scale = glm::length(rs.transform.getScale());
         text::Node* root = tf->getRootNode(scale);
         if (!root)
             return;

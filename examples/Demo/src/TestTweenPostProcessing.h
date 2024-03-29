@@ -33,8 +33,8 @@ public:
         sprite->setPosition(getStage()->getSize() / 2.0f);
         sprite->addTween(Actor::TweenRotationDegrees(360), 30000, -1);
         sprite->setAnchor(0.5f, 0.5f);
+        
         _test = sprite;
-
 
 
         spSprite anim;
@@ -57,7 +57,6 @@ public:
         anim = createAnim(false);
         anim->setPosition(sprite->getWidth(), sprite->getHeight() / 2);
         anim->attachTo(sprite);
-
 
 
         _fullscreen = false;

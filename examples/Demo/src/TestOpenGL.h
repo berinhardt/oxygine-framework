@@ -99,7 +99,7 @@ public:
 
         CHECKGL();
 
-        Matrix4 m = Matrix4(rs.transform) * STDRenderer::instance->getViewProjection();
+        Matrix4 m =  STDRenderer::instance->getViewProjection();
 
         int projLocation = oxglGetUniformLocation(_program, "projection");
         oxglUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(m));

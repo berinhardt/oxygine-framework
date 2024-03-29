@@ -118,8 +118,8 @@ public:
 
     void update()
     {
-        Transform tr(_transform);
-        _content->setTransform(tr);
+        /*Transform tr(_transform);
+        _content->setTransform(tr);*/
     }
 
     Matrix4 _transform;

@@ -18,9 +18,9 @@ namespace oxygine
         }
 
 
-        if (direction) t._translate = glm::zero<Vector2>();
+        if (direction) t.setTranslation(glm::zero<Vector2>());
 
-        locPos = t.transform(locPos);
+        locPos = t.apply(locPos);
         return locPos;
     }
 
@@ -37,9 +37,9 @@ namespace oxygine
         }
 
 
-        if (direction) t._translate = glm::zero<Vector2>();
+        if (direction) t.setTranslation(glm::zero<Vector2>());
 
-        locPos = t.transform(locPos);
+        locPos = t.apply(locPos);
         return locPos;
     }
 
