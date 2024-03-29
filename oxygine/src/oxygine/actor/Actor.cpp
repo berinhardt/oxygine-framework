@@ -951,19 +951,17 @@ void Actor::update(const UpdateState& parentUS) {
 
 void Actor::doUpdate(const UpdateState& us) {}
 
-    }
+Vector2 Actor::parent2local(const Vector2& global) const
+{
+    const AffineTransform& t = getTransformInvert();
+    return t.apply(global);
+}
 
-    Vector2 Actor::parent2local(const Vector2& global) const
-    {
-        const AffineTransform& t = getTransformInvert();
-        return t.apply(global);
-    }
-
-    Vector2 Actor::local2parent(const Vector2& local) const
-    {
-        const AffineTransform& t = getTransform();
-        return t.apply(local);
-    }
+Vector2 Actor::local2parent(const Vector2& local) const
+{
+    const AffineTransform& t = getTransform();
+    return t.apply(local);
+}
 
 Vector2 Actor::local2stage(const Vector2& pos, Actor* stage) const {
    return convert_local2stage(this, pos, stage);
@@ -1441,13 +1439,12 @@ bool testIntersection(spActor objA, spActor objB, spActor parent, Vector2* conta
 }
 
 Vector2 Actor::alterOrigin(const Vector2& pos) const {
-   Vector2 delta;
-
-   if (_flags & flag_anchorAffectsOrigin && (delta != getAnchor())) {
+   if (_flags & flag_anchorAffectsOrigin) {
+      Vector2 delta;
       if (_flags & flag_anchorInPixels) {
          delta = -getAnchor();
       } else {
-        delta = -getAnchorX() * getSize();
+        delta = -getAnchor() * getSize();
       }
       return pos + delta;
    }

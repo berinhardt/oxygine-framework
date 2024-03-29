@@ -81,6 +81,7 @@ spButton createButtonHelper(spButton button, const std::string& txt, EventCallba
 {
     button->setPriority(10);
     //button->setName(id);
+    button->setAnchorAffectsOrigin(false);
     button->setResAnim(DebugActor::resSystem->getResAnim("button"));
     button->addEventListener(TouchEvent::CLICK, cb);
 

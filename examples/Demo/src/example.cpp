@@ -59,6 +59,15 @@ public:
 
 
 
+        logs::messageln("STAGE SIZE [%f, %f]", getStage()->getWidth(),getStage()->getHeight());
+        spSprite sprite = new Sprite;
+        sprite->setResAnim(resources.getResAnim("t2p"));
+        sprite->attachTo(_content);
+        sprite->setPosition(getStage()->getSize() / 2.0f);
+        sprite->setSize(getStage()->getSize() / 2.0f);
+        sprite->addTween(Actor::TweenRotationDegrees(360), 30000, -1);
+        sprite->setAnchor(0.5f, 0.5f);
+        
         _x = 90;//getStage()->getWidth()/2.0f;
         _y = 80;
 
@@ -105,6 +114,8 @@ public:
         addButton("tiled", "Tiled Map Editor");
 
         //clicked("tiled");
+
+
     }
 
     void showTest(spActor actor)
@@ -169,24 +180,17 @@ void example_init()
 
     //Load resources in xml file
     resources.loadXML("xmls/res.xml");
-    
+    Actor::DEFAULT_FLAGS |= Actor::flag_anchorAffectsOrigin;
+
+    ColorRectSprite* crs = new ColorRectSprite;
+    crs->setColor(0xFF0000FF);
+    crs->setSize(200,200);
+    crs->setPosition(getStage()->getSize()/2.0f);
+    crs->setAnchor(0.5f, 0.5f);
+    crs->attachTo(getStage());
 
     Test::instance = new TestActor;
-    //Test::instance->attachTo(getStage());
-    
-    ColorRectSprite* crs = new ColorRectSprite;
-    crs->setColor(0xff0000FF);
-    crs->setAnchor(0.5f, 0.5f);
-    crs->setSize(50,50);
-    crs->setPosition(getStage()->getSize()/2.0f);
-    getStage()->addChild(crs);
-    ColorRectSprite* parent = crs;
-    crs = new ColorRectSprite;
-    crs->setColor(0x00ff00FF);
-    crs->setAnchor(0.5f, 0.0f);
-    crs->setSize(50,100);
-    crs->setRotationDegrees(45);
-    parent->addChild(crs);
+    Test::instance->attachTo(getStage());
 
     //Initialize http requests
     HttpRequestTask::init();

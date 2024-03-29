@@ -30,6 +30,7 @@ namespace oxygine
         Vector2 applyScale(const Vector2&) const;
         Vector2 applyInverse(const Vector2&) const;
         Vector2 apply(const Vector2&) const;
+        Vector2 applyT(const Vector2&) const;
         Vector2 applySR(const Vector2&) const;
 
         void setTranslation(const Vector2& pos);

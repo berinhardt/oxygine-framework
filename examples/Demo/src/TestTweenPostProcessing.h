@@ -41,21 +41,21 @@ public:
 
         anim = createAnim(false);
         anim->addTween(Actor::TweenRotation(MATH_PI * 2), 15000, -1, true);
-        anim->addTween(Actor::TweenX(sprite->getWidth()), 10000, -1, true);
-        anim->addTween(Actor::TweenY(sprite->getHeight()), 12000, -1, true);
+        anim->addTween(Actor::TweenX(sprite->getWidth()*(1.0f-sprite->getAnchorX())), 10000, -1, true);
+        anim->addTween(Actor::TweenY(sprite->getHeight()*(1.0f-sprite->getAnchorX())), 12000, -1, true);
+        anim->setPosition(-sprite->getSize()*sprite->getAnchor());
         anim->attachTo(sprite);
 
 
         anim = createAnim();
-        anim->setPosition(sprite->getSize() / 2.0f);
         anim->attachTo(sprite);
 
         anim = createAnim(false);
-        anim->setPosition(0, sprite->getHeight() / 2);
+        anim->setPosition(-sprite->getWidth()/2, 0);
         anim->attachTo(sprite);
 
         anim = createAnim(false);
-        anim->setPosition(sprite->getWidth(), sprite->getHeight() / 2);
+        anim->setPosition(+sprite->getWidth()/2, 0);
         anim->attachTo(sprite);
 
 

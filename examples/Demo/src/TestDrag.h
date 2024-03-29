@@ -147,7 +147,8 @@ public:
     void onMouseDown(Event* event)
     {
         spActor actor = safeSpCast<Actor>(event->currentTarget);
-
+        logs::messageln("CLICKED %s", actor->dump(0).c_str());
+        
         //show clicked sprite on top
         actor->setPriority(priority++);
 

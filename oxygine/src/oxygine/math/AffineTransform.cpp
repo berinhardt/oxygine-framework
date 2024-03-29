@@ -74,12 +74,14 @@ Vector2 AffineTransform::applyScale(const Vector2& size) const {
 Vector2 AffineTransform::applyInverse(const Vector2& size) const {
    return size * glm::inverse(getMatrix()) - getTranslation();
 }
-
+Vector2 AffineTransform::applyT(const Vector2& size) const {
+   return size  + getTranslation();
+}
 Vector2 AffineTransform::applySR(const Vector2& size) const {
    return size * getMatrix();
 }
 Vector2 AffineTransform::apply(const Vector2& size) const {
-   return applySR(size) + getTranslation();
+   return applyT(applySR(size));
 }
 AffineTransform& AffineTransform::invert() {
    setTranslation(-getTranslation());
