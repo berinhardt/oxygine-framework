@@ -210,8 +210,7 @@ static std::list<ClipUV> msk_stack;
 
         //renderer->setBlendMode(tf->getBlendMode());
         Transform t = rs.transform;
-        t.x = (int) t.x;
-        t.y = (int) t.y;
+        //TODO: DIRCRETIZE t.pos
         renderer->setTransform(t);
         root->draw(dc);
     }

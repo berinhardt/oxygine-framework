@@ -171,8 +171,10 @@ endif(OX_HAVE_LIBPNG)
 
 if (OX_HAVE_LIBJPEG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG)
-	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)		
-	target_link_libraries(oxygine-framework PUBLIC jpeg)
+	if (NOT EMSCRIPTEN)
+		target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)		
+		target_link_libraries(oxygine-framework PUBLIC jpeg)
+	endif(NOT EMSCRIPTEN)
 endif(OX_HAVE_LIBJPEG)
 
 

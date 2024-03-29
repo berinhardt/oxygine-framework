@@ -275,7 +275,7 @@ text::Node* TextField::getRootNode(float globalScale) {
 
       Point origin = rd.bounds.pos;
       rd.bounds.pos.x = 0;
-      rd.bounds.pos  += offset.cast<Point>() * rd.getScale();
+      rd.bounds.pos  += offset * rd.getScale();
 
       _root->finalPass(rd);
       rd.bounds.pos.x += origin.x;

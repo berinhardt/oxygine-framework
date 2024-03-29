@@ -1464,10 +1464,9 @@ Vector2 Actor::alterOrigin(const Vector2& pos) const {
 
    if (_flags & flag_anchorAffectsOrigin && (delta != getAnchor())) {
       if (_flags & flag_anchorInPixels) {
-         delta = getAnchor() * -1;
+         delta = -getAnchor();
       } else {
-         delta.x = -getAnchorX() * getSize().x;
-         delta.y = -getAnchorY() * getSize().y;
+        delta = -getAnchorX() * getSize();
       }
       return pos + delta;
    }
