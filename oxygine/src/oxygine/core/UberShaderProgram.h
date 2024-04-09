@@ -19,6 +19,7 @@ namespace oxygine
         ~UberShaderProgramBase();
 
         void init(const std::vector<unsigned char>& baseShader, const char* prepend = "", const char* append = "");
+        void init(const std::string& baseShader, const char* prepend = "", const char* append = "");
 
         void release();
 

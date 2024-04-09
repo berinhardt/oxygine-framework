@@ -77,13 +77,15 @@ namespace oxygine
 
     void VideoDriverGLES20::setShaderProgram(ShaderProgram* prog_)
     {
-        CHECKGL();
-        ShaderProgramGL* prog = safeCast<ShaderProgramGL*>(prog_);
-        unsigned int id = prog->getID();
-        oxglUseProgram(id);
-        _programID = id;
-        _p = prog_;
-        CHECKGL();
+        if (prog_ && prog_->getID() != 0) {
+            CHECKGL();
+            ShaderProgramGL* prog = safeCast<ShaderProgramGL*>(prog_);
+            unsigned int id = prog->getID();
+            oxglUseProgram(id);
+            _programID = id;
+            _p = prog_;
+            CHECKGL();
+        }
     }
 
     void VideoDriverGLES20::setTexture(int sampler, spNativeTexture t)

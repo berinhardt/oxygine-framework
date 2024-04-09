@@ -255,9 +255,11 @@ int initGLExtensions(myGetProcAdress func)
 
 namespace oxygine
 {
+    #if 0
     void checkGLError()
     {
 #ifdef OX_DEBUG
+    /*
         int gl_error = glGetError();
         if (gl_error != GL_NO_ERROR)
         {
@@ -267,6 +269,8 @@ namespace oxygine
                 exit(0);
             }
         }
+    */
 #endif
     }
+#endif
 }

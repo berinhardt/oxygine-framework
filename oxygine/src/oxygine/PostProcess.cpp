@@ -19,6 +19,7 @@ namespace oxygine
 
     void PostProcess::initShaders()
     {
+        /*
         if (_ppBuilt)
             return;
         _ppBuilt = true;
@@ -26,26 +27,7 @@ namespace oxygine
 
 
         IVideoDriver* driver = IVideoDriver::instance;
-
-
-
-        file::Zips zp;
-        zp.add(system_data, system_size);
-
-
         const VertexDeclarationGL* decl = static_cast<const VertexDeclarationGL*>(IVideoDriver::instance->getVertexDeclaration(vertexPCT2::FORMAT));
-
-        file::buffer vs_h;
-        file::buffer vs_v;
-        file::buffer fs_blur;
-        zp.read("system/pp_hblur_vs.glsl", vs_h);
-        zp.read("system/pp_vblur_vs.glsl", vs_v);
-        zp.read("system/pp_rast_fs.glsl", fs_blur);
-
-        vs_h.push_back(0);
-        vs_v.push_back(0);
-        fs_blur.push_back(0);
-
 
         unsigned int h = ShaderProgramGL::createShader(GL_VERTEX_SHADER, (const char*)&vs_h.front());
         unsigned int v = ShaderProgramGL::createShader(GL_VERTEX_SHADER, (const char*)&vs_v.front());
@@ -80,10 +62,12 @@ namespace oxygine
         shaderBlit = new ShaderProgramGL(ShaderProgramGL::createProgram(vs, fs, decl, true));
         driver->setShaderProgram(shaderBlit);
         driver->setUniformInt("s_texture", 0);
+        */
     }
 
     void PostProcess::freeShaders()
     {
+        /*
         delete shaderBlit;
         shaderBlit = 0;
 
@@ -92,6 +76,8 @@ namespace oxygine
 
         delete shaderBlurV;
         shaderBlurV = 0;
+
+        */
     }
 
     const int ALIGN_SIZE = 256;

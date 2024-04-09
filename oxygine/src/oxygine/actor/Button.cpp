@@ -22,9 +22,6 @@ namespace oxygine
         addEventListener(TouchEvent::OVER, ncb);
         addEventListener(TouchEvent::OUTX, ncb);
         addEventListener(TouchEvent::CLICK, ncb);
-
-        if (DebugActor::resSystem)
-            setResAnim(DebugActor::resSystem->getResAnim("button"));
     }
 
     Button::~Button()

@@ -22,6 +22,16 @@ namespace oxygine
         reg(CLOSURE(this, &UberShaderProgramBase::_restore), 0);
     }
 
+    void UberShaderProgramBase::init(const std::string& baseShader, const char* prepend, const char* append)
+    {
+        _data = std::vector<unsigned char>(baseShader.begin(), baseShader.end());
+
+        _data.insert(_data.begin(), prepend, prepend + strlen(prepend));
+        _data.insert(_data.end(), append, append + strlen(append));
+        _data.push_back(0);
+
+        reg(CLOSURE(this, &UberShaderProgramBase::_restore), 0);
+    }
     UberShaderProgramBase::~UberShaderProgramBase()
     {
         releaseShaders();

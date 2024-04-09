@@ -180,9 +180,9 @@ extern "C"
 //#undef PASTER
 //#undef EVALUATOR
 
-namespace oxygine {void checkGLError();}
-#define CHECKGL() checkGLError()
-//#define CHECKGL() {}
+//namespace oxygine {void checkGLError();}
+//#define CHECKGL() checkGLError()
+#define CHECKGL() 
 
 typedef void*  (*myGetProcAdress)(const char*);
 /**returns number of missing functions/extensions*/

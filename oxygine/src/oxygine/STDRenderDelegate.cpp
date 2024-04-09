@@ -161,7 +161,7 @@ static std::list<ClipUV> msk_stack;
 
         renderer->pushShaderSetHook(&hook);
         renderer->setBaseShaderFlags(baseShaderFlags);
-        hook.hook();
+        //hook.hook();
 
         sprite->Sprite::render(parentRS);
 

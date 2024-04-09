@@ -76,13 +76,20 @@ spTextField createText(const std::string& txt)
 
     return text;
 }
-
+static intrusive_ptr<ResAnim> btnRA = nullptr;
 spButton createButtonHelper(spButton button, const std::string& txt, EventCallback cb)
 {
     button->setPriority(10);
     //button->setName(id);
     button->setAnchorAffectsOrigin(false);
-    button->setResAnim(DebugActor::resSystem->getResAnim("button"));
+
+    if (!btnRA) {
+        btnRA = new ResAnim();
+        btnRA->init(STDRenderer::white, {1,1});
+    }
+
+    button->setResAnim(btnRA.get());
+    button->setSize(166,44);
     button->addEventListener(TouchEvent::CLICK, cb);
 
     //Create Actor with Text and add it to button as child

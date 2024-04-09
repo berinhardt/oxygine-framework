@@ -51,7 +51,7 @@ Box9Sprite::Box9Sprite() :
    _uvY[0]    = 0.0f;
    _uvY[1]    = 0.0f;
 
-   if (DebugActor::resSystem) Sprite::setResAnim(DebugActor::resSystem->getResAnim("btn"));
+   //if (DebugActor::resSystem) Sprite::setResAnim(DebugActor::resSystem->getResAnim("btn"));
 }
 
 oxygine::RectF Box9Sprite::getInnerArea() const {

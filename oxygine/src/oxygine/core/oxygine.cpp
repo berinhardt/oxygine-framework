@@ -440,8 +440,8 @@ void init2() {
 
 #ifdef OX_DEBUG
 # ifndef OXYGINE_EDITOR
-   DebugActor::initialize();
-   TextField::setDefaultFont(DebugActor::resSystem->getResFont("system"));
+   //DebugActor::initialize();
+   //TextField::setDefaultFont(DebugActor::resSystem->getResFont("system"));
 # endif // ifndef OXYGINE_EDITOR
 #endif  // ifdef OX_DEBUG
    Point ds = getDisplaySize();
@@ -815,7 +815,7 @@ void release() {
    Input::instance.cleanup();
 
 
-   DebugActor::release();
+   //DebugActor::release();
 
    if (Stage::instance) Stage::instance->cleanup();
    Stage::instance = 0;

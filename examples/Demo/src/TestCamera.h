@@ -143,7 +143,7 @@ public:
         spButton button = new Button;
 
         button->setPosition(map->getSize() / 2.0f);
-        button->setResAnim(DebugActor::resSystem->getResAnim("button"));
+        button->setResAnim(Test::_resources.getResAnim("button"));
         button->attachTo(map);
         button->setAnchor(0.5f, 0.5f);
         button->addEventListener(TouchEvent::CLICK, CLOSURE(this, &TestCamera::testClick));

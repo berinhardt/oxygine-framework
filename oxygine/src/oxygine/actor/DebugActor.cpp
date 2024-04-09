@@ -53,8 +53,8 @@ namespace oxygine
 
         logs::messageln("DebugActor::initialize");
 
-        zp.setPrefix("system/");
-        zp.add(system_data, system_size);
+        //zp.setPrefix("system/");
+        //zp.add(system_data, system_size);
 
         file::mount(&zp);
         resSystem = new Resources;

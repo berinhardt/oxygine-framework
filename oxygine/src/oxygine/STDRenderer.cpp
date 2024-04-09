@@ -194,19 +194,8 @@ namespace oxygine
         }
 
         maxVertices = indices16.size() / 3 * 2;
-
-        file::buffer shaderBody;
-        file::read("shader.glsl", shaderBody, ep_ignore_error);
-        uberShaderBody = shaderBody.data;
-        if (!shaderBody.getSize())
-        {
-            file::Zips zp;
-            zp.add(system_data, system_size);
-            zp.read("system/shader.glsl", shaderBody);
-            uberShaderBody = shaderBody.data;
-        }
-
-        uberShader.init(uberShaderBody);
+        
+        uberShader.init(SHADER_GLSL);
 
         restore();
     }
