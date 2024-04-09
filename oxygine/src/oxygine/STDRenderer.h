@@ -1,165 +1,155 @@
 #pragma once
-#include "oxygine-include.h"
-#include "Material.h"
-#include "core/Renderer.h"
 #include <functional>
 
-namespace oxygine
-{
-    class RenderStateCache
-    {
-    public:
-        RenderStateCache();
+#include "Material.h"
+#include "core/Renderer.h"
+#include "oxygine-include.h"
 
-        void setDriver(IVideoDriver* d);
+namespace oxygine {
+class RenderStateCache {
+  public:
+   RenderStateCache();
 
-        const spNativeTexture& getTexture(int sampler) { return _textures[sampler]; }
+   void setDriver(IVideoDriver* d);
 
-        void setTexture(int sampler, const spNativeTexture& t);
-        void setBlendMode(blend_mode blend);
-        bool setShader(ShaderProgram* prog);
+   const spNativeTexture& getTexture(int sampler) { return _textures[sampler]; }
 
-        void reset();
-        void resetTextures();
+   void setTexture(int sampler, const spNativeTexture& t);
+   void setBlendMode(blend_mode blend);
+   bool setShader(ShaderProgram* prog);
 
-        void changeDriver(IVideoDriver* d);//used for DebugActor
+   void reset();
+   void resetTextures();
 
-    protected:
-        enum { MAX_TEXTURES = 8 };
+   void changeDriver(IVideoDriver* d);  // used for DebugActor
 
-        spNativeTexture _textures[MAX_TEXTURES];
-        ShaderProgram*  _program;
-        IVideoDriver*   _driver;
-        blend_mode      _blend;
-    };
+  protected:
+   enum { MAX_TEXTURES = 8 };
 
-    RenderStateCache& rsCache();
+   spNativeTexture _textures[MAX_TEXTURES];
+   ShaderProgram* _program;
+   IVideoDriver* _driver;
+   blend_mode _blend;
+};
 
-    class ShaderProgramChangedHook
-    {
-    public:
-        ShaderProgramChangedHook(): prev(0), next(0) {}
+RenderStateCache& rsCache();
 
-        ShaderProgramChangedHook* prev;
-        ShaderProgramChangedHook* next;
+class ShaderProgramChangedHook {
+  public:
+   ShaderProgramChangedHook() : prev(0), next(0) {}
 
-        std::function< void() > hook;
-    };
+   ShaderProgramChangedHook* prev;
+   ShaderProgramChangedHook* next;
 
-    class STDRenderer : public ShaderProgramChangedHook
-    {
-    public:
+   std::function<void()> hook;
+};
 
-        static STDRenderer* current;
-        static STDRenderer* instance;
-        /**Initializes internal classes. Called automatically from oxygine::init();*/
-        static void initialize();
-        /**Clears internal data*/
-        static void release();
-        /**for lost context*/
-        static void reset();
-        /**is Renderer was restored and ready to be used*/
-        static bool isReady();
-        /**restore after lost context*/
-        static void restore();
+class STDRenderer : public ShaderProgramChangedHook {
+  public:
+   static STDRenderer* current;
+   static STDRenderer* instance;
+   /**Initializes internal classes. Called automatically from oxygine::init();*/
+   static void initialize();
+   /**Clears internal data*/
+   static void release();
+   /**for lost context*/
+   static void reset();
+   /**is Renderer was restored and ready to be used*/
+   static bool isReady();
+   /**restore after lost context*/
+   static void restore();
 
-        /**returns activated renderer with STDRenderer::begin*/
-        static STDRenderer* getCurrent();
+   /**returns activated renderer with STDRenderer::begin*/
+   static STDRenderer* getCurrent();
 
-        /**White 4x4 Texture*/
-        static spNativeTexture white;
-        static spNativeTexture invisible;
+   /**White 4x4 Texture*/
+   static spNativeTexture white;
+   static spNativeTexture invisible;
 
-        static UberShaderProgram uberShader;
-        static std::vector<unsigned char> uberShaderBody;
-        static std::vector<unsigned short> indices16;
-        static size_t maxVertices;
+   static UberShaderProgram uberShader;
+   static std::vector<unsigned short> indices16;
+   static size_t maxVertices;
 
+   STDRenderer(IVideoDriver* driver = 0);
+   virtual ~STDRenderer();
 
+   const Matrix4& getViewProjection() const;
+   IVideoDriver* getDriver();
+   const AffineTransform& getTransform() const { return _transform; }
+   const VertexDeclaration* getVertexDeclaration() const { return _vdecl; }
+   unsigned int getBaseShaderFlags() const { return _baseShaderFlags; }
 
-        STDRenderer(IVideoDriver* driver = 0);
-        virtual ~STDRenderer();
+   void setShaderFlags(unsigned int);
+   void setViewProj(const Matrix4& viewProj);
+   void setVertexDeclaration(const VertexDeclaration* decl);
+   void setUberShaderProgram(UberShaderProgram* pr);
+   void setBaseShaderFlags(unsigned int fl);
 
-        const Matrix4&               getViewProjection() const;
-        IVideoDriver*               getDriver();
-        const AffineTransform&      getTransform() const { return _transform; }
-        const VertexDeclaration*    getVertexDeclaration() const { return _vdecl; }
-        unsigned int                getBaseShaderFlags() const { return _baseShaderFlags; }
+   /**Sets World transformation.*/
+   void setTransform(const Transform& world);
+   void addQuad(const Color&, const RectF& srcRect, const RectF& destRect);
 
-        void setShaderFlags(unsigned int);
-        void setViewProj(const Matrix4& viewProj);
-        void setVertexDeclaration(const VertexDeclaration* decl);
-        void setUberShaderProgram(UberShaderProgram* pr);
-        void setBaseShaderFlags(unsigned int fl);
+   /**Begins rendering into RenderTexture or into primary framebuffer if rt is null*/
+   void begin();
+   void begin(spNativeTexture renderTarget, const Rect* viewport = 0);
+   /**Completes started rendering and restores previous Frame Buffer.*/
+   void end();
+   /**initializes View + Projection matrices where TopLeft is (0,0) and RightBottom is (width, height). use flipU = true for render to texture*/
+   void initCoordinateSystem(int width, int height);
 
-        /**Sets World transformation.*/
-        void setTransform(const Transform& world);
-        void addQuad(const Color&, const RectF& srcRect, const RectF& destRect);
+   /**Draws existing batch immediately.*/
+   void flush();
 
-        /**Begins rendering into RenderTexture or into primary framebuffer if rt is null*/
-        void begin();
-        void begin(spNativeTexture renderTarget, const Rect* viewport = 0);
-        /**Completes started rendering and restores previous Frame Buffer.*/
-        void end();
-        /**initializes View + Projection matrices where TopLeft is (0,0) and RightBottom is (width, height). use flipU = true for render to texture*/
-        void initCoordinateSystem(int width, int height);
+   virtual void addVertices(const void* data, unsigned int size);
 
-        /**Draws existing batch immediately.*/
-        void flush();
-
-        virtual void addVertices(const void* data, unsigned int size);
-
-
-        //debug utils
+   // debug utils
 #ifdef OXYGINE_DEBUG_T2P
-        static void showTexel2PixelErrors(bool show);
+   static void showTexel2PixelErrors(bool show);
 #endif
 
-        void swapVerticesData(std::vector<unsigned char>& data);
-        void swapVerticesData(STDRenderer& r);
+   void swapVerticesData(std::vector<unsigned char>& data);
+   void swapVerticesData(STDRenderer& r);
 
-        OXYGINE_DEPRECATED
-        void setViewProjTransform(const Matrix4& viewProj);
+   OXYGINE_DEPRECATED
+   void setViewProjTransform(const Matrix4& viewProj);
 
-        void pushShaderSetHook(ShaderProgramChangedHook* hook);
-        void popShaderSetHook();
+   void pushShaderSetHook(ShaderProgramChangedHook* hook);
+   void popShaderSetHook();
 
-        bool isEmpty() const { return _verticesData.empty(); }
+   bool isEmpty() const { return _verticesData.empty(); }
 
-    protected:
-        virtual void shaderProgramChanged() {}
+  protected:
+   virtual void shaderProgramChanged() {}
 
-        Transform _transform;
+   Transform _transform;
 
-        void setShader(ShaderProgram* prog);
+   void setShader(ShaderProgram* prog);
 
-        void xdrawBatch();
+   void xdrawBatch();
 
+   void xaddVertices(const void* data, unsigned int size);
+   void checkDrawBatch();
 
-        void xaddVertices(const void* data, unsigned int size);
-        void checkDrawBatch();
+   std::vector<unsigned char> _verticesData;
 
-        std::vector<unsigned char> _verticesData;
+   const VertexDeclaration* _vdecl;
 
-        const VertexDeclaration* _vdecl;
+   IVideoDriver* _driver;
+   Matrix4 _vp;
 
-        IVideoDriver* _driver;
-        Matrix4 _vp;
+   virtual void xbegin();
 
-        virtual void xbegin();
+   ShaderProgramChangedHook* _sphookFirst;
+   ShaderProgramChangedHook* _sphookLast;
 
-        ShaderProgramChangedHook* _sphookFirst;
-        ShaderProgramChangedHook* _sphookLast;
+   UberShaderProgram* _uberShader;
 
-        UberShaderProgram* _uberShader;
+   unsigned int _baseShaderFlags;
 
-        unsigned int _baseShaderFlags;
+   spNativeTexture _prevRT;
+};
 
-        spNativeTexture _prevRT;
-    };
-
-
-    typedef void(*render_texture_hook)(const spNativeTexture& nt);
-    void set_render_texture_hook(render_texture_hook);
-    render_texture_hook get_render_texture_hook();
-}
+typedef void (*render_texture_hook)(const spNativeTexture& nt);
+void set_render_texture_hook(render_texture_hook);
+render_texture_hook get_render_texture_hook();
+}  // namespace oxygine

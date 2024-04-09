@@ -1,201 +1,167 @@
 #include "ShaderProgramGL.h"
+
 #include "SDL.h"
 #include "VertexDeclarationGL.h"
 #include "oxgl.h"
 
-namespace oxygine
-{
-    ShaderProgramGL::ShaderProgramGL(GLuint p) : _program(p)
-    {
+namespace oxygine {
+ShaderProgramGL::ShaderProgramGL(GLuint p) : _program(p) {
+}
 
-    }
+ShaderProgramGL::ShaderProgramGL(GLuint vs, GLuint ps, const VertexDeclarationGL* decl) {
+   _program = createProgram(vs, ps, decl);
+}
 
+ShaderProgramGL::~ShaderProgramGL() {
+   if (_program)
+      oxglDeleteProgram(_program);
+   CHECKGL();
+}
 
-    ShaderProgramGL::ShaderProgramGL(GLuint vs, GLuint ps, const VertexDeclarationGL* decl)
-    {
-        _program = createProgram(vs, ps, decl);
-    }
+unsigned int ShaderProgramGL::getID() const {
+   return _program;
+}
 
-    ShaderProgramGL::~ShaderProgramGL()
-    {
-        if (_program)
-            oxglDeleteProgram(_program);
-        CHECKGL();
-    }
+int ShaderProgramGL::getUniformLocation(const char* id) const {
+   int i = oxglGetUniformLocation(_program, id);
+   // if (i == -1)
+   CHECKGL();
+   return i;
+}
 
-    unsigned int ShaderProgramGL::getID() const
-    {
-        return _program;
-    }
+bool ShaderProgramGL::getShaderBuildLog(GLuint shader, std::string& str) {
+   GLint length = 0;
+   GLint success = GL_TRUE;
+   oxglGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+   if (length) {
+      str.resize(length);
+      oxglGetShaderInfoLog(shader, (int)str.size(), NULL, &str[0]);
+   } else
+      str.clear();
 
-    int ShaderProgramGL::getUniformLocation(const char* id) const
-    {
-        int i = oxglGetUniformLocation(_program, id);
-        //if (i == -1)
-        CHECKGL();
-        return i;
-    }
+   GLint status = GL_TRUE;
+   oxglGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
-    bool ShaderProgramGL::getShaderBuildLog(GLuint shader, std::string& str)
-    {
-        GLint length = 0;
-        GLint success = GL_TRUE;
-        oxglGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-        if (length)
-        {
-            str.resize(length);
-            oxglGetShaderInfoLog(shader, (int)str.size(), NULL, &str[0]);
-        }
-        else
-            str.clear();
+   return status == GL_TRUE;
+}
 
-        GLint status = GL_TRUE;
-        oxglGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+bool ShaderProgramGL::getProgramBuildLog(GLuint program, std::string& str) {
+   GLint length = 0;
+   GLint success = GL_TRUE;
+   oxglGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+   if (length) {
+      str.resize(length);
+      oxglGetProgramInfoLog(program, (int)str.size(), NULL, &str[0]);
+   } else
+      str.clear();
 
-        return status == GL_TRUE;
-    }
+   GLint status = GL_TRUE;
+   oxglGetProgramiv(program, GL_LINK_STATUS, &status);
 
+   return status == GL_TRUE;
+}
 
-    bool ShaderProgramGL::getProgramBuildLog(GLuint program, std::string& str)
-    {
-        GLint length = 0;
-        GLint success = GL_TRUE;
-        oxglGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-        if (length)
-        {
-            str.resize(length);
-            oxglGetProgramInfoLog(program, (int)str.size(), NULL, &str[0]);
-        }
-        else
-            str.clear();
+unsigned int ShaderProgramGL::createShader(unsigned int type, const char* data, const char* prepend, const char* append, error_policy ep) {
+   GLuint shader = oxglCreateShader(type);
 
-        GLint status = GL_TRUE;
-        oxglGetProgramiv(program, GL_LINK_STATUS, &status);
+   // checkGLError();
 
-        return status == GL_TRUE;
+   const char* sources[16];
+   const char** ptr = &sources[0];
 
-    }
-
-    unsigned int ShaderProgramGL::createShader(unsigned int type, const char* data, const char* prepend, const char* append, error_policy ep)
-    {
-        GLuint shader = oxglCreateShader(type);
-
-        //checkGLError();
-
-        const char* sources[16];
-        const char** ptr = &sources[0];
-
-        bool gles = false;
-
+   bool gles = false;
 
 #ifdef OXYGINE_SDL
-        int profile = 0;
-        SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile);
-        gles = profile == SDL_GL_CONTEXT_PROFILE_ES;
+   int profile = 0;
+   SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile);
+   gles = profile == SDL_GL_CONTEXT_PROFILE_ES;
 #endif
 
+#ifndef EMSCRIPTEN
+   if (!gles) {
+      // logs::messageln("not gles version");
 
-#ifndef   EMSCRIPTEN
-        if (!gles)
-        {
-            //logs::messageln("not gles version");
+      static const char nonGLES[] =
+          "#define lowp\n"
+          "#define mediump\n"
+          "#define highp\n";
 
-            static const char nonGLES[] =
-                "#define lowp\n"
-                "#define mediump\n"
-                "#define highp\n";
-
-            *ptr = nonGLES;
-            ptr++;
-        }
+      *ptr = nonGLES;
+      ptr++;
+   }
 #endif
 
 #ifdef __ANDROID__
-        *ptr = "#define ANDROID 1\n";
-        ptr++;
+   *ptr = "#define ANDROID 1\n";
+   ptr++;
 #endif
 
+   if (prepend) {
+      *ptr = prepend;
+      ptr++;
+   }
 
+   *ptr = data;
+   ptr++;
 
+   if (append) {
+      *ptr = append;
+      ptr++;
+   }
 
-        if (prepend)
-        {
-            *ptr = prepend;
-            ptr++;
-        }
+   int num = (int)(ptr - sources);
+   oxglShaderSource(shader, num, sources, 0);
+   oxglCompileShader(shader);
 
-        *ptr = data;
-        ptr++;
+   std::string log;
+   bool success = getShaderBuildLog(shader, log);
 
-        if (append)
-        {
-            *ptr = append;
-            ptr++;
-        }
+   if (success) {
+      logs::messageln("compiled shader: %s", log.c_str());
+   } else {
+      handleErrorPolicy(ep, "can't compile shader: %s", log.c_str());
+      logs::error("can't compile shader: %s", log.c_str());
 
-        int num = (int)(ptr - sources);
-        oxglShaderSource(shader, num, sources, 0);
-        oxglCompileShader(shader);
+      logs::messageln("shader source code:");
+      for (int i = 0; i < num; ++i)
+         logs::messageln(sources[i]);
+      logs::messageln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+   }
 
-        std::string log;
-        bool success = getShaderBuildLog(shader, log);
+   // checkGLError();
 
-        if (success)
-        {
-            logs::messageln("compiled shader: %s", log.c_str());
-        }
-        else
-        {
-            handleErrorPolicy(ep, "can't compile shader: %s", log.c_str());
-
-            logs::messageln("shader source code:");
-            for (int i = 0; i < num; ++i)
-                logs::messageln(sources[i]);
-            logs::messageln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-        }
-
-        //checkGLError();
-
-        return shader;
-    }
-
-
-    unsigned int ShaderProgramGL::createProgram(int vs, int fs, const VertexDeclarationGL* decl, bool deleteAttachedShaders)
-    {
-        int p = oxglCreateProgram();
-        oxglAttachShader(p, vs);
-        oxglAttachShader(p, fs);
-
-        for (int i = 0; i < decl->numElements; ++i)
-            oxglBindAttribLocation(p, decl->elements[i].index, decl->elements[i].name);
-
-        oxglLinkProgram(p);
-
-
-        std::string log;
-        bool success = getProgramBuildLog(p, log);
-
-        if (success)
-        {
-            //logs::messageln("compiled shader: %s", log.c_str());
-            oxglDetachShader(p, vs);
-            oxglDetachShader(p, fs);
-            if (deleteAttachedShaders)
-            {
-                oxglDeleteShader(vs);
-                oxglDeleteShader(fs);
-            }
-        }
-        else
-        {
-            logs::error("can't link gl program: %s", log.c_str());
-            oxglDeleteProgram(p);
-            p = 0;
-        }
-
-        CHECKGL();
-
-        return p;
-    }
+   return shader;
 }
+
+unsigned int ShaderProgramGL::createProgram(int vs, int fs, const VertexDeclarationGL* decl, bool deleteAttachedShaders) {
+   int p = oxglCreateProgram();
+   oxglAttachShader(p, vs);
+   oxglAttachShader(p, fs);
+
+   for (int i = 0; i < decl->numElements; ++i)
+      oxglBindAttribLocation(p, decl->elements[i].index, decl->elements[i].name);
+
+   oxglLinkProgram(p);
+
+   std::string log;
+   bool success = getProgramBuildLog(p, log);
+
+   if (success) {
+      // logs::messageln("compiled shader: %s", log.c_str());
+      oxglDetachShader(p, vs);
+      oxglDetachShader(p, fs);
+      if (deleteAttachedShaders) {
+         oxglDeleteShader(vs);
+         oxglDeleteShader(fs);
+      }
+   } else {
+      logs::error("can't link gl program: %s", log.c_str());
+      oxglDeleteProgram(p);
+      p = 0;
+   }
+
+   CHECKGL();
+
+   return p;
+}
+}  // namespace oxygine

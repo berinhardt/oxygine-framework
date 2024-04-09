@@ -51,7 +51,9 @@ foreach(ITEM ${FOLDERS})
 endforeach(ITEM)
 
 add_library(oxygine-framework STATIC ${SOURCES})
+
 target_link_libraries(oxygine-framework PUBLIC glm)
+
 target_include_directories(oxygine-framework PRIVATE ${OXYGINE_SRC})
 target_include_directories(oxygine-framework PUBLIC ${OXYGINE_ROOT}/src)
 if (EMSCRIPTEN)
