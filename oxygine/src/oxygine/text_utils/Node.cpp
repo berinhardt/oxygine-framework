@@ -142,14 +142,15 @@ namespace oxygine
 
             const char* utfstr = v;
             int code = 0;
-            utfstr = getNextCode(code, utfstr);
+            int len = strlen(utfstr);
+            utfstr = getNextCode(code, utfstr, len);
             while (code)
             {
                 Symbol s;
                 s.code = code;
                 _data.push_back(s);
 
-                utfstr = getNextCode(code, utfstr);
+                utfstr = getNextCode(code, utfstr, strlen(utfstr));
             }
         }
 

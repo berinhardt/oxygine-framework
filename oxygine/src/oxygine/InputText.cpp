@@ -1,4 +1,5 @@
 #include "InputText.h"
+
 #include "SDL_events.h"
 #include "SDL_keyboard.h"
 #include "actor/ColorRectSprite.h"
@@ -62,7 +63,7 @@ void InputText::stop() {
    core::getDispatcher()->removeEventListeners(this);
 
    _cursor->detach();
-   _active    = 0;
+   _active = 0;
    _textActor = 0;
 
    // logs::messageln("InputText::stop  %x", this);
@@ -110,55 +111,49 @@ void InputText::updateText() {
    dispatchEvent(&evnt);
 }
 
-bool findCode(const char* str, int c) {
-   while (*str)
-   {
+bool findCode(const char* str, int c, size_t length) {
+   while (*str) {
       int code = 0;
-      str = getNextCode(code, str);
+      str = getNextCode(code, str, length);
 
       if (code == c) return true;
    }
    return false;
 }
 
-int getLen(const char* str) {
+int getLen(const char* str, size_t length) {
    int i = 0;
 
-   while (*str)
-   {
+   while (*str) {
       ++i;
       int code = 0;
-      str = getNextCode(code, str);
+      str = getNextCode(code, str, length);
    }
    return i;
 }
 
-int getLastPos(const char* str) {
+int getLastPos(const char* str, size_t length) {
    const char* begin = str;
-   const char* prev  = str;
+   const char* prev = str;
 
-   while (*str)
-   {
+   while (*str) {
       prev = str;
       int code = 0;
-      str = getNextCode(code, str);
+      str = getNextCode(code, str, length);
    }
    return (int)(prev - begin);
 }
 
 int InputText::_onSDLEvent(SDL_Event* event) {
-   switch (event->type)
-   {
-      case SDL_TEXTEDITING:
-      {
+   switch (event->type) {
+      case SDL_TEXTEDITING: {
          // SDL_TextEditingEvent &te = event->edit;
          // int q=0;
          break;
       }
-      case SDL_TEXTINPUT:
-      {
+      case SDL_TEXTINPUT: {
          if (_maxLength) {
-            if (getLen(_txt.c_str()) >= _maxLength) return 0;
+            if (getLen(_txt.c_str(), _txt.length()) >= _maxLength) return 0;
          }
 
          SDL_TextInputEvent& te = event->text;
@@ -166,44 +161,39 @@ int InputText::_onSDLEvent(SDL_Event* event) {
          // logs::messageln("text: %d %d %d %d", (int)(te.text[0]), (int)(te.text[1]), (int)(te.text[2]), (int)(te.text[3]));
 
          int newCode = 0;
-         getNextCode(newCode, te.text);
+         getNextCode(newCode, te.text, SDL_TEXTINPUTEVENT_TEXT_SIZE);
 
          if (_isNumeric && ((newCode < 48) || (newCode > 57))) return 0;
 
          if (!_disallowed.empty()) {
-            if (findCode(_disallowed.c_str(), newCode)) newCode = 0;
+            if (findCode(_disallowed.c_str(), newCode, _disallowed.length())) newCode = 0;
          }
 
          if (!newCode) return 0;
 
          if (!_allowed.empty()) {
-            if (!findCode(_allowed.c_str(), newCode)) newCode = 0;
+            if (!findCode(_allowed.c_str(), newCode, _allowed.length())) newCode = 0;
          }
 
          if (!newCode) return 0;
-
 
          _txt.append(te.text, te.text + strlen(te.text));
          updateText();
          break;
       }
-      case SDL_KEYDOWN:
-      {
+      case SDL_KEYDOWN: {
          // logs::messageln("SDL_KEYDOWN");
-         switch (event->key.keysym.sym)
-         {
-            case SDLK_BACKSPACE:
-            {
+         switch (event->key.keysym.sym) {
+            case SDLK_BACKSPACE: {
                if (!_txt.empty()) {
-                  int pos = getLastPos(_txt.c_str());
+                  int pos = getLastPos(_txt.c_str(), _txt.length());
                   _txt.erase(_txt.begin() + pos, _txt.end());
                }
                updateText();
                break;
             }
             case SDLK_KP_ENTER:
-            case SDLK_RETURN:
-            {
+            case SDLK_RETURN: {
                Event evnt(EVENT_COMPLETE);
                dispatchEvent(&evnt);
                break;
@@ -214,4 +204,4 @@ int InputText::_onSDLEvent(SDL_Event* event) {
    }
    return 0;
 }
-}
+}  // namespace oxygine
