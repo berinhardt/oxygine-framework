@@ -1,34 +1,49 @@
+// clang-formater off
 #include "Aligner.h"
-#include "../Font.h"
-#include "../res/ResFont.h"
+
 #include <assert.h>
 
+#include <sstream>
+
+#include "../Font.h"
+#include "../res/ResFont.h"
+
 namespace oxygine {
+extern uint32_t decodeSymbol(int sym);
 namespace text {
 #define GSCALE 1
 
 Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, float gscale, const Vector2& size) : width((int)size.x),
-   height((int)size.y), _x(0), _y(0), _lineWidth(0),
-   bounds(0, 0, 0, 0), style(Style), _scale(gscale), _font(font), mat(mt) {
-   // logs::messageln("gscale %f, adjScale %f globscale %f, %d %f", gscale, _globalScale, _fontSize, fs);
+                                                                                                                  height((int)size.y),
+                                                                                                                  _x(0),
+                                                                                                                  _y(0),
+                                                                                                                  _lineWidth(0),
+                                                                                                                  bounds(0, 0, 0, 0),
+                                                                                                                  style(Style),
+                                                                                                                  _scale(gscale),
+                                                                                                                  _font(font),
+                                                                                                                  mat(mt) {
+   // logs::messageln("gscale %f, styleFontSize <%d> baselineScale <%f>, %d", gscale, style.fontSize,style.baselineScale, font->getSize());
    trimTopLine = true;
    _line.reserve(50);
    _lineSkip = (int)(_font->getBaselineDistance() * style.baselineScale) + style.linesOffset;
-   _offY     = _lineSkip;
-   options   = Style.options;
+   _offY = _lineSkip;
+   options = Style.options;
 }
 
 Aligner::~Aligner() {}
 
 int Aligner::offsetY() const {
-   return trimTopLine ? _offY : 0;
+   if (!trimTopLine || _offY < 0)
+      return 0;
+   else
+      return _offY;
 }
 
 int Aligner::_alignX(int rx) {
    int tx = 0;
 
-   switch (getStyle().hAlign)
-   {
+   switch (getStyle().hAlign) {
       case TextStyle::HALIGN_LEFT:
       case TextStyle::HALIGN_DEFAULT:
          tx = 0;
@@ -46,8 +61,7 @@ int Aligner::_alignX(int rx) {
 int Aligner::_alignY(int ry) {
    int ty = 0;
 
-   switch (getStyle().vAlign)
-   {
+   switch (getStyle().vAlign) {
       case TextStyle::VALIGN_BASELINE:
          ty = -getLineSkip();
          break;
@@ -69,7 +83,7 @@ void Aligner::begin() {
    _x = 0;
    _y = 0;
 
-   width  = int(width * _scale);
+   width = int(width * _scale);
    height = int(height * _scale);
 
    bounds = Rect(_alignX(0), _alignY(0), 0, 0);
@@ -78,15 +92,15 @@ void Aligner::begin() {
 
 void Aligner::end() {
    int ry = _y;
-
    if (getStyle().multiline) {
       nextLine();
-      _y -=  getLineSkip();
+      _y -= getLineSkip();
    } else {
       _alignLine(_line);
    }
 
    ry -= offsetY();
+
    bounds.setY(_alignY(ry));
    bounds.setHeight(ry);
 }
@@ -102,6 +116,7 @@ int Aligner::getLineSkip() const {
 void Aligner::_alignLine(line& ln) {
    if (!ln.empty()) {
       if (_font->BiDiPass(ln)) {
+         uint8_t ws_off = ((getStyle().options >> 12) & 0x0F) + ((getStyle().options >> 10) & 0x03);
          int ox = 0;
          int oy = ln[0]->y - ln[0]->gl.offset_y;
 
@@ -114,21 +129,22 @@ void Aligner::_alignLine(line& ln) {
                if (gl) s->gl = *gl;
                s->y = oy + s->gl.offset_y;
             }
-            s->x = ox + s->gl.offset_x;
-            ox  +=  s->gl.advance_x;
+            s->x = ox + s->gl.offset_x - ws_off;
+            ox += s->gl.advance_x + ws_off;
          }
       }
 
-
       // calculate real text width
       int rx = 0;
+      int ox = 0;
 
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
-         rx    = std::max(s.x + s.gl.advance_x, rx);
+         if (ox > s.x) ox = s.x;
+         rx = std::max(s.x + s.gl.advance_x, rx);
          _offY = std::min((int)s.y, _offY);
       }
-
+      rx -= ox;
       int tx = _alignX(rx);
 
       for (size_t i = 0; i < ln.size(); ++i) {
@@ -146,7 +162,6 @@ void Aligner::_alignLine(line& ln) {
 void Aligner::_nextLine(line& ln) {
    _y += getLineSkip();
    _alignLine(ln);
-
 
    _lineWidth = 0;
 
@@ -172,12 +187,13 @@ int Aligner::putSymbol(Symbol& s) {
    // optional.. remove?
    // if ((_line.size() == 1) && (s.gl.offset_x < 0)) _x -= s.gl.offset_x;
 
-   s.x = _x + s.gl.offset_x;
+   uint8_t ws_off = ((getStyle().options >> 12) & 0x0F) + ((getStyle().options >> 10) & 0x03);
+
+   s.x = _x + s.gl.offset_x - ws_off;
    s.y = _y + s.gl.offset_y;
-   _x += s.gl.advance_x + getStyle().kerning;
+   _x += s.gl.advance_x + getStyle().kerning + ws_off;
 
-   int rx = s.x + s.gl.advance_x;
-
+   int rx = s.x + s.gl.advance_x + ws_off;
 
    _lineWidth = std::max(rx, _lineWidth);
 
@@ -190,12 +206,13 @@ int Aligner::putSymbol(Symbol& s) {
       }
 
       if (!lastWordPos) {
-         if (style.breakLongWords) lastWordPos = (int)_line.size() - 1;
-         else return 0;
+         if (style.breakLongWords)
+            lastWordPos = (int)_line.size() - 1;
+         else
+            return 0;
       }
 
-
-      int  delta = (int)_line.size() - lastWordPos;
+      int delta = (int)_line.size() - lastWordPos;
       line leftPart;
       leftPart.resize(delta + 1);
       leftPart.assign(_line.begin() + lastWordPos, _line.end());
@@ -215,5 +232,5 @@ int Aligner::putSymbol(Symbol& s) {
 
    return 0;
 }
-}
-}
+}  // namespace text
+}  // namespace oxygine

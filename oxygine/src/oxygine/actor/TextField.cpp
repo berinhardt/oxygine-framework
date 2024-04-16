@@ -1,5 +1,7 @@
 #include "TextField.h"
-#include "DebugActor.h"
+
+#include <sstream>
+
 #include "../Font.h"
 #include "../RenderDelegate.h"
 #include "../RenderState.h"
@@ -9,7 +11,7 @@
 #include "../text_utils/Node.h"
 #include "../text_utils/TextBuilder.h"
 #include "../utils/stringUtils.h"
-#include <sstream>
+#include "DebugActor.h"
 
 namespace oxygine {
 static ResFont* _defaultFont = 0;
@@ -21,11 +23,10 @@ ResFont* TextField::getDefaultFont() {
    return _defaultFont;
 }
 
-TextField::TextField() :
-   _root(0),
-   _textRect(0, 0, 0, 0),
-   _rtscale(1.0f) {
-   _flags     |= flag_rebuild;
+TextField::TextField() : _root(0),
+                         _textRect(0, 0, 0, 0),
+                         _rtscale(1.0f) {
+   _flags |= flag_rebuild;
    _style.font = _defaultFont;
 }
 
@@ -36,12 +37,12 @@ TextField::~TextField() {
 
 void TextField::copyFrom(const TextField& src, cloneOptions opt) {
    inherited::copyFrom(src, opt);
-   _text    = src._text;
-   _style   = src._style;
-   _root    = 0;
+   _text = src._text;
+   _style = src._style;
+   _root = 0;
    _rtscale = 1.0f;
 
-   _flags   |= flag_rebuild;
+   _flags |= flag_rebuild;
    _textRect = src._textRect;
 }
 
@@ -130,8 +131,8 @@ void TextField::setAlign(TextStyle::VerticalAlign vAlign, TextStyle::HorizontalA
 
 void TextField::setStyle(const TextStyle& st) {
    TextStyle::HorizontalAlign halign = _style.hAlign;
-   TextStyle::VerticalAlign   valign = _style.vAlign;
-   int size                          = _style.fontSize;
+   TextStyle::VerticalAlign valign = _style.vAlign;
+   int size = _style.fontSize;
 
    _style = st;
 
@@ -242,14 +243,13 @@ bool TextField::getBounds(RectF& r) const {
 text::Node* TextField::getRootNode(float globalScale) {
    if (!_style.font) return _root;
 
-
    globalScale = scalar::abs(globalScale);
 
-   float scale      = 1.0f;
+   float scale = 1.0f;
    const Font* font = _style.font->getClosestFont(globalScale, _style.fontSize, scale);
 
    if (font && (_flags & flag_rebuild || (_rtscale != scale) || (font->getHash() != _fonthash))) {
-      _rtscale  = scale;
+      _rtscale = scale;
       _fonthash = font->getHash();
 
       // _realFontSize = fontSize;
@@ -275,7 +275,7 @@ text::Node* TextField::getRootNode(float globalScale) {
 
       Point origin = rd.bounds.pos;
       rd.bounds.pos.x = 0;
-      rd.bounds.pos  += offset * rd.getScale();
+      rd.bounds.pos += offset * rd.getScale();
 
       _root->finalPass(rd);
       rd.bounds.pos.x += origin.x;
@@ -292,8 +292,7 @@ text::Node* TextField::getRootNode(float globalScale) {
 }
 
 const char* get_valign(TextStyle::VerticalAlign v) {
-   switch (v)
-   {
+   switch (v) {
       case TextStyle::VALIGN_BASELINE:
          return "baseline";
       case TextStyle::VALIGN_TOP:
@@ -309,8 +308,7 @@ const char* get_valign(TextStyle::VerticalAlign v) {
 }
 
 const char* get_halign(TextStyle::HorizontalAlign v) {
-   switch (v)
-   {
+   switch (v) {
       case TextStyle::HALIGN_DEFAULT:
          return "default";
       case TextStyle::HALIGN_LEFT:
@@ -375,7 +373,8 @@ std::string TextField::dump(const dumpOptions& options) const {
    Rect r = const_cast<TextField*>(this)->getTextRect();
    stream << " textRect=(" << r.pos.x << ", " << r.pos.y << ", " << r.size.x << ", " << r.size.y << ")";
 
-   stream << "\n" << Actor::dump(options);
+   stream << "\n"
+          << Actor::dump(options);
 
    return stream.str();
 }
@@ -391,13 +390,13 @@ void TextField::serialize(serializedata* data) {
    TextStyle def;
 
    if (!_text.empty()) node.append_attribute("text").set_value(_text.c_str());
-   setAttr(node, "fontsize2scale", _style.fontSize,       def.fontSize);
-   setAttr(node, "linesOffset",    _style.linesOffset,    def.linesOffset);
-   setAttr(node, "kerning",        _style.kerning,        def.kerning);
-   setAttr(node, "valign",         _style.vAlign,         def.vAlign);
-   setAttr(node, "halign",         _style.hAlign,         def.hAlign);
-   setAttr(node, "multiline",      _style.multiline,      def.multiline);
-   setAttr(node, "baselineScale",  _style.baselineScale,  def.baselineScale);
+   setAttr(node, "fontsize2scale", _style.fontSize, def.fontSize);
+   setAttr(node, "linesOffset", _style.linesOffset, def.linesOffset);
+   setAttr(node, "kerning", _style.kerning, def.kerning);
+   setAttr(node, "valign", _style.vAlign, def.vAlign);
+   setAttr(node, "halign", _style.hAlign, def.hAlign);
+   setAttr(node, "multiline", _style.multiline, def.multiline);
+   setAttr(node, "baselineScale", _style.baselineScale, def.baselineScale);
    setAttr(node, "breakLongWords", _style.breakLongWords, def.breakLongWords);
 
    if (_style.font) node.append_attribute("font").set_value(_style.font->getName().c_str());
@@ -410,14 +409,14 @@ void TextField::deserialize(const deserializedata* data) {
 
    TextStyle def;
 
-   _style.vAlign         = (TextStyle::VerticalAlign)node.attribute("valign").as_int(def.vAlign);
-   _style.hAlign         = (TextStyle::HorizontalAlign)node.attribute("halign").as_int(def.hAlign);
-   _style.multiline      = node.attribute("multiline").as_bool(def.multiline);
+   _style.vAlign = (TextStyle::VerticalAlign)node.attribute("valign").as_int(def.vAlign);
+   _style.hAlign = (TextStyle::HorizontalAlign)node.attribute("halign").as_int(def.hAlign);
+   _style.multiline = node.attribute("multiline").as_bool(def.multiline);
    _style.breakLongWords = node.attribute("breakLongWords").as_bool(def.breakLongWords);
-   _style.fontSize       = node.attribute("fontsize2scale").as_int(def.fontSize);
-   _style.linesOffset    = node.attribute("linesOffset").as_int(def.linesOffset);
-   _style.kerning        = node.attribute("kerning").as_int(def.kerning);
-   _style.baselineScale  = node.attribute("baselineScale").as_float(def.baselineScale);
+   _style.fontSize = node.attribute("fontsize2scale").as_int(def.fontSize);
+   _style.linesOffset = node.attribute("linesOffset").as_int(def.linesOffset);
+   _style.kerning = node.attribute("kerning").as_int(def.kerning);
+   _style.baselineScale = node.attribute("baselineScale").as_float(def.baselineScale);
    const char* fnt = node.attribute("font").as_string(0);
 
    if (fnt && *fnt) {
@@ -429,4 +428,4 @@ void TextField::deserialize(const deserializedata* data) {
    needRebuild();
    setText(node.attribute("text").as_string());
 }
-}
+}  // namespace oxygine

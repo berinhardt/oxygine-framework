@@ -1,4 +1,5 @@
 #include "Font.h"
+
 #include "core/NativeTexture.h"
 
 namespace oxygine {
@@ -8,8 +9,8 @@ Font::~Font() {}
 
 void Font::init(const char* name, int realSize, int baselineDistance, int lineHeight, bool sdf) {
    setName(name);
-   _sdf              = sdf;
-   _size             = realSize;
+   _sdf = sdf;
+   _size = realSize;
    _baselineDistance = baselineDistance;
 }
 
@@ -32,10 +33,9 @@ bool glyphsComparePred(const glyph& ob1, const glyph& ob2) {
 const glyph* Font::findGlyph(int code, const glyphOptions& opt) const {
    glyph g;
 
-   g.ch  = code;
+   g.ch = code;
    g.opt = _ignoreOptions ? 0 : opt;
    glyphs::const_iterator it = _glyphs.find(g);
-
    if (it != _glyphs.end()) {
       return &(*it);
    }
@@ -71,4 +71,4 @@ int Font::getSize() const {
 float Font::getScale() const {
    return _scale;
 }
-}
+}  // namespace oxygine
