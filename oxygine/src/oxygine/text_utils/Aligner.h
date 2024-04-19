@@ -1,79 +1,73 @@
 #pragma once
-#include "../oxygine-include.h"
+#include <vector>
+
 #include "../Font.h"
 #include "../Material.h"
 #include "../TextStyle.h"
 #include "../core/NativeTexture.h"
 #include "../math/Color.h"
 #include "../math/Rect.h"
-#include <vector>
+#include "../oxygine-include.h"
 
-namespace oxygine
-{
-    struct glyph;
-    class Font;
+namespace oxygine {
+struct glyph;
+class Font;
 
+namespace text {
+struct Symbol {
+   Symbol() : x(0), y(0), code(0) {}
 
-    namespace text
-    {
-        struct Symbol
-        {
-            Symbol(): x(0), y(0), code(0) {}
+   short x, y;
+   int code;
+   glyph gl;
+   RectF destRect;
+   spSTDMaterial mat;
+};
 
-            short x, y;
-            int code;
-            glyph gl;
-            RectF destRect;
-            spSTDMaterial mat;
-        };
+class Aligner {
+  public:
+   Aligner(const TextStyle& style, spSTDMaterial mat, const Font* font, float gscale, const Vector2& size);
+   ~Aligner();
 
-        class Aligner
-        {
-        public:
-            Aligner(const TextStyle& style, spSTDMaterial mat, const Font* font, float gscale, const Vector2& size);
-            ~Aligner();
+   const TextStyle& getStyle() const { return style; }
+   float getScale() const;
 
+   void begin();
+   void end();
 
-            const TextStyle& getStyle() const {return style;}
-            float getScale() const;
+   int putSymbol(Symbol& s);
+   void nextLine();
 
-            void begin();
-            void end();
+   TextStyle style;
+   Rect bounds;
+   int width;
+   int height;
+   size_t options;
+   bool trimTopLine;
 
-            int putSymbol(Symbol& s);
-            void nextLine();
+   spSTDMaterial mat;
 
+   const Font* _font;
+   int offsetY() const;
 
-            TextStyle style;
-            Rect bounds;
-            int width;
-            int height;
-            size_t options;
-            bool trimTopLine;
+  private:
+   int getLineWidth() const;
+   int getLineSkip() const;
 
-            spSTDMaterial mat;
+   typedef std::vector<Symbol*> line;
 
-            const Font* _font;
-            int offsetY() const;
+   void _alignLine(line& ln);
+   int _alignX(int rx);
+   int _alignY(int ry);
+   void _nextLine(line& ln);
 
-        private:
-            int getLineWidth()const;
-            int getLineSkip()const;
-
-
-            typedef std::vector<Symbol*> line;
-
-            void _alignLine(line& ln);
-            int _alignX(int rx);
-            int _alignY(int ry);
-            void _nextLine(line& ln);
-
-            float _scale;
-            int _offY;
-            int _x, _y;
-            line _line;
-            int _lineWidth;
-            int _lineSkip;
-        };
-    }
-}
+   float _scale;
+   int _offY;
+   int _x, _y;
+   line _line;
+   int _lineWidth;
+   int _lineSkip;
+   int _padding;
+};
+}  // namespace text
+}  // namespace oxygine

@@ -107,16 +107,13 @@ class STDRenderer : public ShaderProgramChangedHook {
    static void showTexel2PixelErrors(bool show);
 #endif
 
-   void swapVerticesData(std::vector<unsigned char>& data);
-   void swapVerticesData(STDRenderer& r);
-
    OXYGINE_DEPRECATED
    void setViewProjTransform(const Matrix4& viewProj);
 
    void pushShaderSetHook(ShaderProgramChangedHook* hook);
    void popShaderSetHook();
 
-   bool isEmpty() const { return _verticesData.empty(); }
+   bool isEmpty() const { return _verticesData == _verticesDataPtr; }
 
   protected:
    virtual void shaderProgramChanged() {}
@@ -128,9 +125,10 @@ class STDRenderer : public ShaderProgramChangedHook {
    void xdrawBatch();
 
    void xaddVertices(const void* data, unsigned int size);
-   void checkDrawBatch();
+   void checkDrawBatch(unsigned int size);
 
-   std::vector<unsigned char> _verticesData;
+   uint8_t* _verticesData;
+   uint8_t* _verticesDataPtr;
 
    const VertexDeclaration* _vdecl;
 

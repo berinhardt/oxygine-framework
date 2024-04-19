@@ -66,6 +66,7 @@ class Font : public ObjectBase {
    const glyph* getGlyph(int code, const glyphOptions& opt) const;
    int getBaselineDistance() const;
    int getSize() const;
+   virtual int getPadding() const { return 0; }
    float getScale() const;
 
    virtual bool BiDiPass(std::vector<text::Symbol*>&) const {

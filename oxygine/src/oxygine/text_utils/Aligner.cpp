@@ -12,7 +12,11 @@ namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
 #define GSCALE 1
-
+#if 0
+#define DBG_LOG(...) logs::messageln(__VA_ARGS__)
+#else
+#define DBG_LOG(...)
+#endif
 Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, float gscale, const Vector2& size) : width((int)size.x),
                                                                                                                   height((int)size.y),
                                                                                                                   _x(0),
@@ -23,10 +27,11 @@ Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, flo
                                                                                                                   _scale(gscale),
                                                                                                                   _font(font),
                                                                                                                   mat(mt) {
-   // logs::messageln("gscale %f, styleFontSize <%d> baselineScale <%f>, %d", gscale, style.fontSize,style.baselineScale, font->getSize());
-   trimTopLine = true;
+   trimTopLine = style.trimLineHeight;
    _line.reserve(50);
    _lineSkip = (int)(_font->getBaselineDistance() * style.baselineScale) + style.linesOffset;
+   DBG_LOG("_lineSkip [%d] = %d x %f + %d", _lineSkip, _font->getBaselineDistance(), style.baselineScale, style.linesOffset);
+   _padding = _font->getPadding();
    _offY = _lineSkip;
    options = Style.options;
 }
@@ -34,10 +39,10 @@ Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, flo
 Aligner::~Aligner() {}
 
 int Aligner::offsetY() const {
-   if (!trimTopLine || _offY < 0)
-      return 0;
-   else
-      return _offY;
+   /*if (!trimTopLine)
+      return _padding;
+   else*/
+   return _offY + _padding;
 }
 
 int Aligner::_alignX(int rx) {
@@ -82,7 +87,7 @@ int Aligner::_alignY(int ry) {
 void Aligner::begin() {
    _x = 0;
    _y = 0;
-
+   DBG_LOG("Aligner::begin(_y = %d)", _y);
    width = int(width * _scale);
    height = int(height * _scale);
 
@@ -95,11 +100,14 @@ void Aligner::end() {
    if (getStyle().multiline) {
       nextLine();
       _y -= getLineSkip();
+      DBG_LOG("Aligner::end MULTILINE(_y = %d)", _y);
    } else {
       _alignLine(_line);
    }
 
+   DBG_LOG("Aligner::end %s I(%d - %d)", trimTopLine ? "TRIM" : "NO TRIM", ry, offsetY());
    ry -= offsetY();
+   DBG_LOG("Aligner::end %s F(%d - %d)", trimTopLine ? "TRIM" : "NO TRIM", ry, offsetY());
 
    bounds.setY(_alignY(ry));
    bounds.setHeight(ry);
@@ -115,8 +123,10 @@ int Aligner::getLineSkip() const {
 
 void Aligner::_alignLine(line& ln) {
    if (!ln.empty()) {
+      int ws_off = ((options >> 12) & 0xF) +
+                   ((options >> 8) & 0xF);
+
       if (_font->BiDiPass(ln)) {
-         uint8_t ws_off = ((getStyle().options >> 12) & 0x0F) + ((getStyle().options >> 10) & 0x03);
          int ox = 0;
          int oy = ln[0]->y - ln[0]->gl.offset_y;
 
@@ -129,8 +139,8 @@ void Aligner::_alignLine(line& ln) {
                if (gl) s->gl = *gl;
                s->y = oy + s->gl.offset_y;
             }
-            s->x = ox + s->gl.offset_x - ws_off;
-            ox += s->gl.advance_x + ws_off;
+            s->x = ox + s->gl.offset_x + ws_off / 2;
+            ox += s->gl.advance_x + ws_off / 2;
          }
       }
 
@@ -140,8 +150,8 @@ void Aligner::_alignLine(line& ln) {
 
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
-         if (ox > s.x) ox = s.x;
-         rx = std::max(s.x + s.gl.advance_x, rx);
+         ox = std::min(ox, (int)s.x);
+         rx = std::max(s.x + s.gl.advance_x + ws_off, rx);
          _offY = std::min((int)s.y, _offY);
       }
       rx -= ox;
@@ -161,7 +171,9 @@ void Aligner::_alignLine(line& ln) {
 
 void Aligner::_nextLine(line& ln) {
    _y += getLineSkip();
+   DBG_LOG("Aligner::_nextLine 1(_y = %d)", _y);
    _alignLine(ln);
+   DBG_LOG("Aligner::_nextLine 2(_y = %d)", _y);
 
    _lineWidth = 0;
 
@@ -187,11 +199,13 @@ int Aligner::putSymbol(Symbol& s) {
    // optional.. remove?
    // if ((_line.size() == 1) && (s.gl.offset_x < 0)) _x -= s.gl.offset_x;
 
-   uint8_t ws_off = ((getStyle().options >> 12) & 0x0F) + ((getStyle().options >> 10) & 0x03);
+   int ws_off = ((options >> 12) & 0xF) +
+                ((options >> 8) & 0xF);
 
-   s.x = _x + s.gl.offset_x - ws_off;
-   s.y = _y + s.gl.offset_y;
-   _x += s.gl.advance_x + getStyle().kerning + ws_off;
+   s.x = _x + s.gl.offset_x + ws_off / 2;
+   s.y = _y + s.gl.offset_y - ws_off / 2;
+   DBG_LOG("SYMBOL [%d, %d] x [%d] OFF[%d]", s.x, s.y, s.gl.advance_x, ws_off);
+   _x += s.gl.advance_x + getStyle().kerning + ws_off / 2;
 
    int rx = s.x + s.gl.advance_x + ws_off;
 

@@ -64,15 +64,9 @@ unsigned int VideoDriverGL::getBT(IVideoDriver::BLEND_TYPE pt) {
 }
 
 bool VideoDriverGL::getScissorRect(Rect& r) const {
-   GLboolean scrTest = glIsEnabled(GL_SCISSOR_TEST);
-
-   GLint box[4];
-   glGetIntegerv(GL_SCISSOR_BOX, box);
-   r = Rect(box[0], box[1], box[2], box[3]);
-
-   CHECKGL();
-
-   return scrTest ? true : false;
+   if (clipRect.empty()) return false;
+   r = clipRect.top();
+   return true;
 }
 
 spNativeTexture VideoDriverGL::getRenderTarget() const {

@@ -255,12 +255,13 @@ void STDRenderer::setShader(ShaderProgram* prog) {
 }
 
 void STDRenderer::xdrawBatch() {
-   size_t count = _verticesData.size() / _vdecl->size;
+   size_t count = (_verticesDataPtr - _verticesData) / _vdecl->size;
+   logs::messageln("STDRenderer::xdrawBatch %d", count);
    size_t indices = (count * 3) / 2;
 
-   getDriver()->draw(IVideoDriver::PT_TRIANGLES, _vdecl, &_verticesData.front(), (unsigned int)count, &indices16.front(), (unsigned int)indices);
+   getDriver()->draw(IVideoDriver::PT_TRIANGLES, _vdecl, _verticesData, (unsigned int)count, &indices16.front(), (unsigned int)indices);
 
-   _verticesData.clear();
+   _verticesDataPtr = _verticesData;
 }
 
 void STDRenderer::initCoordinateSystem(int width, int height) {
@@ -297,8 +298,7 @@ void STDRenderer::popShaderSetHook() {
 }
 
 void STDRenderer::begin() {
-   OX_ASSERT(_verticesData.empty() == true);
-   _verticesData.clear();
+   OX_ASSERT(_verticesData == _verticesDataPtr);
    _transform.identity();
 
    Material::null->apply();
@@ -324,16 +324,18 @@ void STDRenderer::setVertexDeclaration(const VertexDeclaration* decl) {
 }
 
 void STDRenderer::addVertices(const void* data, unsigned int size) {
+   checkDrawBatch(size);
    xaddVertices(data, size);
-   checkDrawBatch();
 }
 
 void STDRenderer::xaddVertices(const void* data, unsigned int size) {
-   _verticesData.insert(_verticesData.end(), (const unsigned char*)data, (const unsigned char*)data + size);
+   std::memcpy(_verticesDataPtr, data, size);
+   _verticesDataPtr += size;
 }
 
-void STDRenderer::checkDrawBatch() {
-   if (_verticesData.size() / sizeof(_vdecl->size) >= maxVertices)
+void STDRenderer::checkDrawBatch(unsigned int size) {
+   size_t dataSize = _verticesDataPtr - _verticesData + size;
+   if ((dataSize > 8 * maxVertices) || (dataSize / _vdecl->size) > maxVertices)
       flush();
 }
 
@@ -386,6 +388,9 @@ STDRenderer::STDRenderer(IVideoDriver* driver) : _driver(driver), _vdecl(0), _ub
 
    _vdecl = _driver->getVertexDeclaration(vertexPCT2::FORMAT);
 
+   _verticesData = new uint8_t[maxVertices * 8];
+   _verticesDataPtr = _verticesData;
+
    _uberShader = &uberShader;
    _transform.identity();
    _baseShaderFlags = 0;
@@ -411,14 +416,6 @@ void STDRenderer::showTexel2PixelErrors(bool show) {
    _showTexel2PixelErrors = show;
 }
 #endif
-
-void STDRenderer::swapVerticesData(STDRenderer& r) {
-   std::swap(_verticesData, r._verticesData);
-}
-
-void STDRenderer::swapVerticesData(std::vector<unsigned char>& data) {
-   std::swap(data, _verticesData);
-}
 
 void STDRenderer::setTransform(const Transform& tr) {
    _transform = tr;
@@ -475,15 +472,15 @@ void STDRenderer::setShaderFlags(unsigned int flags) {
 }
 
 void STDRenderer::flush() {
-   size_t indices = (_verticesData.size() / sizeof(vertexPCT2) * 3) / 2;
+   size_t indices = ((_verticesDataPtr - _verticesData) / sizeof(vertexPCT2) * 3) / 2;
    if (!indices)
       return;
 
    _driver->draw(IVideoDriver::PT_TRIANGLES, _vdecl,
-                 &_verticesData.front(), (unsigned int)_verticesData.size(),
+                 _verticesData, (unsigned int)(_verticesDataPtr - _verticesData),
                  &STDRenderer::indices16.front(), (unsigned int)indices);
 
-   _verticesData.clear();
+   _verticesDataPtr = _verticesData;
 }
 
 void STDRenderer::setUberShaderProgram(UberShaderProgram* pr) {

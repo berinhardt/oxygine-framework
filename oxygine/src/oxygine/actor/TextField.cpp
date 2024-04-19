@@ -249,6 +249,12 @@ text::Node* TextField::getRootNode(float globalScale) {
    const Font* font = _style.font->getClosestFont(globalScale, _style.fontSize, scale);
 
    if (font && (_flags & flag_rebuild || (_rtscale != scale) || (font->getHash() != _fonthash))) {
+      /*
+         if (_flags & flag_rebuild) logs::messageln("FLAG_REBUILD");
+         if (_rtscale != scale) logs::messageln("_rtscale %f != %f ",_rtscale, scale);
+         if (font->getHash() != _fonthash) logs::messageln("FONTHASH");
+         logs::messageln("REQUESTED %d = %f x %f", _style.fontSize, globalScale, scale);
+      */
       _rtscale = scale;
       _fonthash = font->getHash();
 
