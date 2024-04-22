@@ -1,8 +1,9 @@
 #include "AffineTransform.h"
 
+#include <sstream>
 namespace oxygine {
 AffineTransform::AffineTransform() : translation(0, 0), scale(1, 1), rotation(0), matrix(1), dirty(false) {}
-AffineTransform::AffineTransform(const Vector2 &t, const Vector2 &s, float r) : translation(t), scale(s), rotation(r), matrix(1), dirty(true) {}
+AffineTransform::AffineTransform(const Vector2& t, const Vector2& s, float r) : translation(t), scale(s), rotation(r), matrix(1), dirty(true) {}
 AffineTransform::AffineTransform(const AffineTransform& t) : translation(t.translation), scale(t.scale), rotation(t.rotation), dirty(t.dirty) {
    if (!t.dirty) matrix = t.matrix;
 }
@@ -18,7 +19,7 @@ void AffineTransform::translate(const Vector2& pos) {
    translation += pos;
 }
 void AffineTransform::rescale(const Vector2& s) {
-   setScale({s.x * scale.x, s.y * scale.y});
+   setScale(s * scale);
 }
 void AffineTransform::rotate(float r) {
    setRotation(rotation + r);
@@ -46,8 +47,8 @@ void AffineTransform::updateMatrix() const {
    if (dirty) {
       dirty = false;
       glm::vec2 cs(glm::cos(rotation), glm::sin(rotation));
-      matrix = {cs.x * scale.x, -cs.y,
-                cs.y, cs.x * scale.y};
+      matrix = {cs.x * scale.x, -cs.y * scale.x,
+                +cs.y * scale.y, cs.x * scale.y};
    }
 }
 AffineTransform& AffineTransform::compose(const AffineTransform& t) {
@@ -58,24 +59,32 @@ AffineTransform& AffineTransform::compose(const AffineTransform& t) {
 }
 AffineTransform& AffineTransform::identity() {
    setTranslation(glm::zero<Vector2>());
-   setScale(Vector2(1.0f,1.0f));
+   setScale(Vector2(1.0f, 1.0f));
    setRotation(0.0f);
    return *this;
 }
+std::string AffineTransform::dump() const {
+   std::stringstream str;
+   auto m = getMatrix();
+   str << "T[" << getTranslation().x << ", " << getTranslation().y << "] R[" << getRotation() << "] S[" << getScale().x << ", " << getScale().y << "] " << std::endl
+       << "M[" << m[0][0] << "|" << m[1][0] << "]" << std::endl
+       << "[" << m[0][1] << "|" << m[1][1] << "]";
+   return str.str();
+}
 AffineTransform AffineTransform::operator*(const AffineTransform& t) const {
-   AffineTransform at(*this);   
+   AffineTransform at(*this);
    at.compose(t);
    return at;
 }
 Vector2 AffineTransform::applyScale(const Vector2& size) const {
-   return {getScale().x * size.x, getScale().y * size.y};
+   return getScale() * size;
 }
 
 Vector2 AffineTransform::applyInverse(const Vector2& size) const {
    return size * glm::inverse(getMatrix()) - getTranslation();
 }
 Vector2 AffineTransform::applyT(const Vector2& size) const {
-   return size  + getTranslation();
+   return size + getTranslation();
 }
 Vector2 AffineTransform::applySR(const Vector2& size) const {
    return size * getMatrix();
@@ -84,7 +93,7 @@ Vector2 AffineTransform::apply(const Vector2& size) const {
    return applyT(applySR(size));
 }
 AffineTransform& AffineTransform::invert() {
-   setScale(Vector2(1/getScale().x, 1/getScale().y));
+   setScale(Vector2(1 / getScale().x, 1 / getScale().y));
    setRotation(-getRotation());
    setTranslation(-applySR(getTranslation()));
    return *this;
@@ -94,4 +103,4 @@ AffineTransform AffineTransform::inverse() const {
    t.invert();
    return t;
 }
-}
+}  // namespace oxygine

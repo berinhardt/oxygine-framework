@@ -17,7 +17,6 @@
 
 namespace oxygine {
 STDRenderDelegate* STDRenderDelegate::instance = 0;
-
 void RenderDelegate::render(Actor* parent, const RenderState& parentRS) {
    RenderState rs;
    if (!parent->internalRender(rs, parentRS))
@@ -43,13 +42,11 @@ void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS
 
    Rect scissorRect(0, 0, 0, 0);
 
-   bool scissorEnabled = driver->getScissorRect(scissorRect);
-
    bool vis = true;
    if (actor->getClipping()) {
       renderer->flush();
 
-      RectF ss_rect = getActorTransformedDestRect(actor, actor->getTransform() * parentRS.transform);
+      RectF ss_rect = getActorTransformedDestRect(actor, parentRS.transform * actor->getTransform());
 
       clippedRect.clip(ss_rect);
       if (!clippedRect.isEmpty()) {
@@ -141,7 +138,7 @@ void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS
 
    renderer->pushShaderSetHook(&hook);
    renderer->setBaseShaderFlags(baseShaderFlags);
-   // hook.hook();
+   hook.hook();
 
    sprite->Sprite::render(parentRS);
 
@@ -154,6 +151,7 @@ void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS
    clipMask_stack.pop_back();
    if (!clipMask_stack.empty())
       IVideoDriver::instance->setUniform("clip_mask", clipMask_stack.back());
+
    msk_stack.pop_back();
    if (!msk_stack.empty()) {
       msk_stack.back().get(msk);

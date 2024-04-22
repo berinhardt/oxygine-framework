@@ -150,15 +150,14 @@ void Actor::calcBounds2(RectF& bounds, const Transform& transform) const {
       calcChildrenBounds(bounds, transform);
    }
 
-        RectF rect;
-        if (getBounds(rect))
-        {
-            bounds.unite(transform.apply(rect.getLeftTop()));
-            bounds.unite(transform.apply(rect.getRightTop()));
-            bounds.unite(transform.apply(rect.getRightBottom()));
-            bounds.unite(transform.apply(rect.getLeftBottom()));
-        }
-    }
+   RectF rect;
+   if (getBounds(rect)) {
+      bounds.unite(transform.apply(rect.getLeftTop()));
+      bounds.unite(transform.apply(rect.getRightTop()));
+      bounds.unite(transform.apply(rect.getRightBottom()));
+      bounds.unite(transform.apply(rect.getLeftBottom()));
+   }
+}
 
 RectF Actor::computeBounds(const Transform& transform) const {
    RectF bounds = RectF::invalidated();
@@ -175,15 +174,13 @@ RectF Actor::computeBoundsInParent() const {
 oxygine::RectF Actor::computeStageBounds() const {
    return computeBounds(computeGlobalTransform());
 }
-
 Transform Actor::computeGlobalTransform(Actor* parent) const {
    Transform t;
 
    t.identity();
    const Actor* actor = this;
-
    while (actor && actor != parent) {
-      t = t * actor->getTransform();
+      t = actor->getTransform() * t;
       actor = actor->getParent();
    }
 
@@ -424,13 +421,12 @@ void Actor::handleEvent(Event* event) {
    Vector2 originalLocalPos;
    float originalLocalScale;
 
-        if (touchEvent)
-        {
-            TouchEvent* me = safeCast<TouchEvent*>(event);
-            originalLocalPos = me->localPosition;
-            originalLocalScale = me->__localScale;
-            me->localPosition = parent2local(originalLocalPos);
-            me->__localScale *= _transform.getScale().x;
+   if (touchEvent) {
+      TouchEvent* me = safeCast<TouchEvent*>(event);
+      originalLocalPos = me->localPosition;
+      originalLocalScale = me->__localScale;
+      me->localPosition = parent2local(originalLocalPos);
+      me->__localScale *= _transform.getScale().x;
 #ifdef OX_HAS_CPP11
 
       if (me->__localScale == NAN) {
@@ -684,10 +680,10 @@ const spClock& Actor::getClock() const {
 void Actor::updateTransform() const {
    if (!(_flags & flag_transformDirty)) return;
 
-        AffineTransform tr;
-        tr.setScale(_scale);
-        tr.setRotation(_rotation);
-        tr.setTranslation(_pos);
+   AffineTransform tr;
+   tr.setScale(_scale);
+   tr.setRotation(_rotation);
+   tr.setTranslation(_pos);
 
    if (!(_flags & flag_anchorAffectsOrigin)) {
       Vector2 offset;
@@ -711,7 +707,7 @@ void Actor::updateTransform() const {
 
 bool Actor::isOn(const Vector2& localPosition, float localScale) {
    RectF r = getDestRect();
-   //logs::messageln("[%f,%f] in [%f,%f][%fx%f]", localPosition.x, localPosition.y, r.pos.x, r.pos.t, r.size.x, r.size.y);
+   // logs::messageln("[%f,%f] in [%f,%f][%fx%f]", localPosition.x, localPosition.y, r.pos.x, r.pos.t, r.size.x, r.size.y);
 
    r.expand(Vector2(_extendedIsOn, _extendedIsOn), Vector2(_extendedIsOn, _extendedIsOn));
 
@@ -952,16 +948,14 @@ void Actor::update(const UpdateState& parentUS) {
 
 void Actor::doUpdate(const UpdateState& us) {}
 
-Vector2 Actor::parent2local(const Vector2& global) const
-{
-    const AffineTransform& t = getTransformInvert();
-    return t.apply(global);
+Vector2 Actor::parent2local(const Vector2& global) const {
+   const AffineTransform& t = getTransformInvert();
+   return t.apply(global);
 }
 
-Vector2 Actor::local2parent(const Vector2& local) const
-{
-    const AffineTransform& t = getTransform();
-    return t.apply(local);
+Vector2 Actor::local2parent(const Vector2& local) const {
+   const AffineTransform& t = getTransform();
+   return t.apply(local);
 }
 
 Vector2 Actor::local2stage(const Vector2& pos, Actor* stage) const {
@@ -990,18 +984,17 @@ bool Actor::prepareRender(RenderState& rs, const RenderState& parentRS) {
    rs = parentRS;
    rs.alpha = alpha;
 
-        const Transform& tr = getTransform();
-        rs.transform = parentRS.transform;
-        rs.transform.compose(tr);
-        
-        if (_flags & flag_cull)
-        {
-            RectF ss_rect = getActorTransformedDestRect(this, rs.transform);
-            RectF intersection = ss_rect;
-            intersection.clip(*rs.clip);
-            if (intersection.isEmpty())
-                return false;
-        }
+   const Transform& tr = getTransform();
+   rs.transform = parentRS.transform;
+   rs.transform.compose(tr);
+
+   if (_flags & flag_cull) {
+      RectF ss_rect = getActorTransformedDestRect(this, rs.transform);
+      RectF intersection = ss_rect;
+      intersection.clip(*rs.clip);
+      if (intersection.isEmpty())
+         return false;
+   }
 
    return true;
 }
@@ -1227,7 +1220,7 @@ Vector2 convert_global2local_(const Actor* child, const Actor* parent, Vector2 p
    Vector2 opos = pos;
    if (child->getParent() && (child->getParent() != parent)) pos = convert_global2local_(child->getParent(), parent, pos);
    pos = child->parent2local(pos);
-   return pos; 
+   return pos;
 }
 
 Vector2 convert_global2local(spActor child, spActor parent, const Vector2& pos) {
@@ -1319,13 +1312,11 @@ void changeParentAndSavePosition(spActor mutualParent, spActor actor, spActor ne
    actor->attachTo(newParent);
 }
 
-
-    void decompose(const Transform& t, Vector2& pos, float& angle, Vector2& scale)
-    {
-        scale = t.getScale();
-        angle = t.getRotation();
-        pos = t.getTranslation();
-    }
+void decompose(const Transform& t, Vector2& pos, float& angle, Vector2& scale) {
+   scale = t.getScale();
+   angle = t.getRotation();
+   pos = t.getTranslation();
+}
 
 void setDecomposedTransform(Actor* actor, const Transform& t) {
    Vector2 pos;
@@ -1361,8 +1352,8 @@ RectF getActorTransformedDestRect(Actor* actor, const Transform& tr) {
    Vector2 tl = rect.pos;
    Vector2 br = rect.pos + rect.size;
 
-        tl = tr.apply(tl);
-        br = tr.apply(br);
+   tl = tr.apply(tl);
+   br = tr.apply(br);
 
    Vector2 size = Vector2(
        abs(br.x - tl.x),
@@ -1425,7 +1416,7 @@ bool testIntersection(spActor objA, spActor objB, spActor parent, Vector2* conta
 
          if (!objA->isOn(posA)) continue;
 
-                Vector2 posB = n.apply(posA);
+         Vector2 posB = n.apply(posA);
 
          if (!objB->isOn(posB)) continue;
 
@@ -1443,7 +1434,7 @@ Vector2 Actor::alterOrigin(const Vector2& pos) const {
       if (_flags & flag_anchorInPixels) {
          delta = -getAnchor();
       } else {
-        delta = -getAnchor() * getSize();
+         delta = -getAnchor() * getSize();
       }
       return pos + delta;
    }

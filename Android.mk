@@ -69,6 +69,7 @@ OXYGINE_SRC := $(LOCAL_PATH)/oxygine/src
 
 LOCAL_C_INCLUDES := $(OXYGINE_SRC)/ \
 					$(LOCAL_PATH)/../SDL/include/ \
+					$(LOCAL_PATH)/../glm/ \
 					$(THIRD_PARTY)/libjpeg/ \
 					$(THIRD_PARTY)/libpng/
 
