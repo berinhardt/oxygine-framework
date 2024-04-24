@@ -12,7 +12,8 @@ namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
 #define GSCALE 1
-#if 0
+// #define ALIGNER_LOG
+#ifdef ALIGNER_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
 #else
 #define DBG_LOG(...)
@@ -34,15 +35,17 @@ Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, flo
    _padding = _font->getPadding();
    _offY = _lineSkip;
    options = Style.options;
+
+   DBG_LOG("ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
 }
 
 Aligner::~Aligner() {}
 
 int Aligner::offsetY() const {
-   /*if (!trimTopLine)
-      return _padding;
-   else*/
-   return _offY + _padding;
+   if (!trimTopLine)
+      return 0;
+   else
+      return _offY + _padding;
 }
 
 int Aligner::_alignX(int rx) {
@@ -92,6 +95,7 @@ void Aligner::begin() {
    height = int(height * _scale);
 
    bounds = Rect(_alignX(0), _alignY(0), 0, 0);
+   DBG_LOG("ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
    nextLine();
 }
 
@@ -124,7 +128,7 @@ int Aligner::getLineSkip() const {
 void Aligner::_alignLine(line& ln) {
    if (!ln.empty()) {
       int ws_off = ((options >> 12) & 0xF) +
-                   ((options >> 8) & 0xF);
+                   ((options >> 8) & 0xF) * 2.0f;
 
       if (_font->BiDiPass(ln)) {
          int ox = 0;
@@ -166,6 +170,7 @@ void Aligner::_alignLine(line& ln) {
 
       bounds.setX(std::min(tx, bounds.getX()));
       bounds.setWidth(std::max(_lineWidth, bounds.getWidth()));
+      DBG_LOG("BOUNDS WIDTH %d :: %d", _lineWidth, bounds.getWidth());
    }
 }
 
@@ -200,11 +205,15 @@ int Aligner::putSymbol(Symbol& s) {
    // if ((_line.size() == 1) && (s.gl.offset_x < 0)) _x -= s.gl.offset_x;
 
    int ws_off = ((options >> 12) & 0xF) +
-                ((options >> 8) & 0xF);
-
+                ((options >> 8) & 0xF) * 2.0f;
+#ifdef ALIGNER_LOG
+   std::string code;
+   charCode2Bytes(code, s.gl.ch);
+#endif
+   DBG_LOG("SYMBOL %s PRE _xy [%d, %d] OFFSET [%d,%d]", code.c_str(), _x, _y, s.gl.offset_x, s.gl.offset_y);
    s.x = _x + s.gl.offset_x + ws_off / 2;
    s.y = _y + s.gl.offset_y - ws_off / 2;
-   DBG_LOG("SYMBOL [%d, %d] x [%d] OFF[%d]", s.x, s.y, s.gl.advance_x, ws_off);
+   DBG_LOG("SYMBOL %s [%d, %d] x [%d] OFF[%d]", code.c_str(), s.x, s.y, s.gl.advance_x, ws_off);
    _x += s.gl.advance_x + getStyle().kerning + ws_off / 2;
 
    int rx = s.x + s.gl.advance_x + ws_off;
