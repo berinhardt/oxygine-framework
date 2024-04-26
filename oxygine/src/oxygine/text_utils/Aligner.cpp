@@ -134,14 +134,27 @@ void Aligner::_alignLine(line& ln) {
          int ox = 0;
          int oy = ln[0]->y - ln[0]->gl.offset_y;
 
+         spSTDMaterial mat = nullptr;
          for (size_t i = 0; i < ln.size(); ++i) {
             Symbol* s = ln[i];
 
             if (s->code != s->gl.ch) {
                const glyph* gl = _font->getGlyph(s->code, options);
 
-               if (gl) s->gl = *gl;
-               s->y = oy + s->gl.offset_y;
+               if (gl) {
+                  s->gl = *gl;
+                  s->y = oy + s->gl.offset_y;
+
+                  if (s->mat->_base != gl->texture) {
+                     if (mat && mat->_base == gl->texture)
+                        s->mat = mat;
+                     else {
+                        mat = s->mat->clone();
+                        mat->_base = gl->texture;
+                        s->mat = mat;
+                     }
+                  }
+               }
             }
             s->x = ox + s->gl.offset_x + style.kerning + ws_off / 2;
             ox += s->gl.advance_x + ws_off / 2;
