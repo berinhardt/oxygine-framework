@@ -85,16 +85,24 @@ void VideoDriverGL::getViewport(Rect& r) const {
    // logs::messageln("vp %d %d %d %d", vp[0], vp[1], vp[2], vp[3]);
    CHECKGL();
 }
-
+extern bool DEBUG_FRAME;
 void VideoDriverGL::setScissorRect(const Rect* rect) {
    if (rect) {
       glEnable(GL_SCISSOR_TEST);
       glScissor(rect->getX(), rect->getY(), rect->getWidth(), rect->getHeight());
+      if (DEBUG_FRAME) logs::messageln("ENABLE SCISSOR %d [%d, %d]x[%d, %d]", clipRect.size() + 1, rect->getX(), rect->getY(), rect->getWidth(), rect->getHeight());
       clipRect.push(*rect);
    } else {
-      glDisable(GL_SCISSOR_TEST);
+      if (!clipRect.empty()) clipRect.pop();
       if (!clipRect.empty()) {
-         clipRect.pop();
+         Rect r = clipRect.top();
+         glEnable(GL_SCISSOR_TEST);
+         glScissor(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+         if (DEBUG_FRAME) logs::messageln("ENABLE SCISSOR %d [%d, %d]x[%d, %d]", clipRect.size(), r.getX(), r.getY(), r.getWidth(), r.getHeight());
+
+      } else {
+         glDisable(GL_SCISSOR_TEST);
+         if (DEBUG_FRAME) logs::messageln("DISABLE SCISSOR %d", clipRect.size());
       }
    }
    CHECKGL();

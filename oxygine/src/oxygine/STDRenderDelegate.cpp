@@ -14,10 +14,28 @@
 #include "core/oxygine.h"
 #include "res/ResFont.h"
 #include "text_utils/Node.h"
-
 namespace oxygine {
 STDRenderDelegate* STDRenderDelegate::instance = 0;
+extern bool DEBUG_FRAME;
+class STDRDDebugTrace {
+  public:
+   STDRDDebugTrace(Actor* a, std::string c) : actor(a), caller(c) {
+      if (DEBUG_FRAME) logs::messageln("WILL RENDER %p::%s (%s)", actor, actor->getName().c_str(), caller.c_str());
+   }
+   ~STDRDDebugTrace() {
+      if (DEBUG_FRAME) logs::messageln("DID RENDER %p::%s (%s)", actor, actor->getName().c_str(), caller.c_str());
+   }
+   Actor* actor;
+   std::string caller;
+};
+#if 1
+#define STDRDDBG_TRACE(a, caller) STDRDDebugTrace __TRACE_##a(a, caller)
+#else
+#define STDRDDBG_TRACE(a, caller)
+#endif
 void RenderDelegate::render(Actor* parent, const RenderState& parentRS) {
+   STDRDDBG_TRACE(parent, "Actor");
+
    RenderState rs;
    if (!parent->internalRender(rs, parentRS))
       return;
@@ -29,8 +47,8 @@ void RenderDelegate::render(Actor* parent, const RenderState& parentRS) {
       actor = actor->getNextSibling().get();
    }
 }
-
 void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS) {
+   STDRDDBG_TRACE(actor, "ClipRectActor");
    STDRenderer* renderer = STDRenderer::getCurrent();
    IVideoDriver* driver = renderer->getDriver();
 
@@ -60,24 +78,27 @@ void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS
             Point vp_size = core::getDisplaySize();
             gl_rect.pos.y = vp_size.y - gl_rect.getBottom();
          }
-
+         if (DEBUG_FRAME) logs::messageln("PUSH SCISSOR %s", actor->dump(0).c_str());
          driver->setScissorRect(&gl_rect);
       } else {
          vis = false;
       }
    }
 
-   if (vis)
+   if (vis) {
       actor->Actor::render(rs);
 
-   if (actor->getClipping()) {
-      renderer->flush();
-      driver->setScissorRect(0);
+      if (actor->getClipping()) {
+         renderer->flush();
+         if (DEBUG_FRAME) logs::messageln("POP SCISSOR %s", actor->dump(0).c_str());
+         driver->setScissorRect(0);
+      }
    }
 }
 static std::list<Vector4> clipMask_stack;
 static std::list<ClipUV> msk_stack;
 void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS) {
+   STDRDDBG_TRACE(sprite, "MaskedSprite");
    spSprite maskSprite = sprite->getMask();
    if (!maskSprite) {
       sprite->Sprite::render(parentRS);
@@ -160,6 +181,7 @@ void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS
 }
 
 void STDRenderDelegate::doRender(Sprite* sprite, const RenderState& rs) {
+   STDRDDBG_TRACE(sprite, "Sprite");
    if (!sprite->getAnimFrame().getDiffuse().base)
       return;
 
@@ -170,6 +192,7 @@ void STDRenderDelegate::doRender(Sprite* sprite, const RenderState& rs) {
 }
 
 void STDRenderDelegate::doRender(TextField* tf, const RenderState& rs) {
+   STDRDDBG_TRACE(tf, "TextField");
    float scale = glm::length(rs.transform.getScale());
    text::Node* root = tf->getRootNode(scale);
    if (!root)
@@ -190,6 +213,7 @@ void STDRenderDelegate::doRender(TextField* tf, const RenderState& rs) {
 }
 
 void STDRenderDelegate::doRender(ColorRectSprite* sprite, const RenderState& rs) {
+   STDRDDBG_TRACE(sprite, "ColorRectSprite");
    sprite->_mat->apply();
    Color color = rs.getFinalColor(sprite->getColor());
    sprite->_mat->render(rs.transform, color, sprite->getAnimFrame().getSrcRect(), sprite->getDestRect());

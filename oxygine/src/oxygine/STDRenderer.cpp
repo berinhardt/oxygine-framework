@@ -17,6 +17,7 @@
 // #define EXP_SORT
 
 namespace oxygine {
+bool DEBUG_FRAME = false;
 bool _restored = false;
 STDRenderer* STDRenderer::instance = 0;
 STDRenderer* STDRenderer::current = 0;

@@ -143,7 +143,7 @@ void Aligner::_alignLine(line& ln) {
                if (gl) s->gl = *gl;
                s->y = oy + s->gl.offset_y;
             }
-            s->x = ox + s->gl.offset_x + ws_off / 2;
+            s->x = ox + s->gl.offset_x + style.kerning + ws_off / 2;
             ox += s->gl.advance_x + ws_off / 2;
          }
       }
