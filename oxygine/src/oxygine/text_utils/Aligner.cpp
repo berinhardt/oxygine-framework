@@ -7,6 +7,7 @@
 
 #include "../Font.h"
 #include "../res/ResFont.h"
+#include "../utils/stringUtils.h"
 
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
@@ -14,6 +15,7 @@ namespace text {
 #define GSCALE 1
 // #define ALIGNER_LOG
 #ifdef ALIGNER_LOG
+// #define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
 #else
 #define DBG_LOG(...)
@@ -219,14 +221,16 @@ int Aligner::putSymbol(Symbol& s) {
 
    int ws_off = ((options >> 12) & 0xF) +
                 ((options >> 8) & 0xF) * 2.0f;
-#ifdef ALIGNER_LOG
+#ifdef ALIGNER_SYM_LOG
    std::string code;
    charCode2Bytes(code, s.gl.ch);
-#endif
    DBG_LOG("SYMBOL %s PRE _xy [%d, %d] OFFSET [%d,%d]", code.c_str(), _x, _y, s.gl.offset_x, s.gl.offset_y);
+#endif
    s.x = _x + s.gl.offset_x + ws_off / 2;
    s.y = _y + s.gl.offset_y - ws_off / 2;
+#ifdef ALIGNER_SYM_LOG
    DBG_LOG("SYMBOL %s [%d, %d] x [%d] OFF[%d]", code.c_str(), s.x, s.y, s.gl.advance_x, ws_off);
+#endif
    _x += s.gl.advance_x + getStyle().kerning + ws_off / 2;
 
    int rx = s.x + s.gl.advance_x + ws_off;

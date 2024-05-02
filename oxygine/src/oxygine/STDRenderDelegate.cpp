@@ -193,7 +193,7 @@ void STDRenderDelegate::doRender(Sprite* sprite, const RenderState& rs) {
 
 void STDRenderDelegate::doRender(TextField* tf, const RenderState& rs) {
    STDRDDBG_TRACE(tf, "TextField");
-   float scale = glm::length(rs.transform.getScale());
+   float scale = rs.transform.getScale().y;
    text::Node* root = tf->getRootNode(scale);
    if (!root)
       return;
