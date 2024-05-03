@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1314,6 +1314,7 @@
 					../../../src,
 					"$(THIRD_PARTY)/libpng",
 					"$(THIRD_PARTY)/libjpeg",
+					"$(SDL)/../glm",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
@@ -1340,6 +1341,7 @@
 					../../../src,
 					"$(THIRD_PARTY)/libpng",
 					"$(THIRD_PARTY)/libjpeg",
+					"$(SDL)/../glm",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
