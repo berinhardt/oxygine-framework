@@ -1139,7 +1139,7 @@ void Actor::serialize(serializedata* data) {
 }
 
 Vector2 attr2Vector2(const char* data) {
-   Vector2 v;
+   Vector2 v(0, 0);
 
    sscanf(data, "%f,%f", &v.x, &v.y);
    return v;
