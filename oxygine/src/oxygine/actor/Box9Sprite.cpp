@@ -1,5 +1,7 @@
 #include "Box9Sprite.h"
-#include "DebugActor.h"
+
+#include <sstream>
+
 #include "../RenderState.h"
 #include "../STDRenderDelegate.h"
 #include "../STDRenderer.h"
@@ -7,7 +9,7 @@
 #include "../math/ScalarMath.h"
 #include "../res/ResAnim.h"
 #include "../res/Resources.h"
-#include <sstream>
+#include "DebugActor.h"
 
 namespace oxygine {
 bool dbg = true;
@@ -37,21 +39,20 @@ void Box9Sprite::copyFrom(const Box9Sprite& src, cloneOptions opt) {
    customUVS = src.customUVS;
 }
 
-Box9Sprite::Box9Sprite() :
-   _prepared(false),
-   customUVS(false),
-   _vertMode(STRETCHING),
-   _horzMode(STRETCHING) {
+Box9Sprite::Box9Sprite() : _prepared(false),
+                           customUVS(false),
+                           _vertMode(STRETCHING),
+                           _horzMode(STRETCHING) {
    _guideX[0] = 0.0f;
    _guideX[1] = 0.0f;
    _guideY[0] = 0.0f;
    _guideY[1] = 0.0f;
-   _uvX[0]    = 0.0f;
-   _uvX[1]    = 0.0f;
-   _uvY[0]    = 0.0f;
-   _uvY[1]    = 0.0f;
+   _uvX[0] = 0.0f;
+   _uvX[1] = 0.0f;
+   _uvY[0] = 0.0f;
+   _uvY[1] = 0.0f;
 
-   //if (DebugActor::resSystem) Sprite::setResAnim(DebugActor::resSystem->getResAnim("btn"));
+   // if (DebugActor::resSystem) Sprite::setResAnim(DebugActor::resSystem->getResAnim("btn"));
 }
 
 oxygine::RectF Box9Sprite::getInnerArea() const {
@@ -60,9 +61,8 @@ oxygine::RectF Box9Sprite::getInnerArea() const {
    RectF rect;
    rect.pos = Vector2(_guideX[0], _guideY[0]);
 
-   Vector2 rb;
-   rb.x = getWidth() - (_frame.getWidth() - _guideX[1]);
-   rb.y = getHeight() - (_frame.getHeight() - _guideY[1]);
+   Vector2 rb(getWidth() - (_frame.getWidth() - _guideX[1]),
+              getHeight() - (_frame.getHeight() - _guideY[1]));
 
    rect.setSize(rb - rect.pos);
 
@@ -84,19 +84,19 @@ void Box9Sprite::setGuides(float x1, float x2, float y1, float y2) {
    _guideX[1] = x2;
    _guideY[0] = y1;
    _guideY[1] = y2;
-   _prepared  = false;
+   _prepared = false;
 }
 
 void Box9Sprite::setVerticalGuides(float x1, float x2) {
    _guideX[0] = x1;
    _guideX[1] = x2;
-   _prepared  = false;
+   _prepared = false;
 }
 
 void Box9Sprite::setHorizontalGuides(float y1, float y2) {
    _guideY[0] = y1;
    _guideY[1] = y2;
-   _prepared  = false;
+   _prepared = false;
 }
 
 void Box9Sprite::setCustomUVS(bool v) {
@@ -107,19 +107,23 @@ void Box9Sprite::setCustomUVS(bool v) {
 }
 
 void Box9Sprite::setUV(float x1, float x2, float y1, float y2) {
-   _uvX[0] = x1; _uvX[1] = x2;
-   _uvY[0] = y1; _uvY[1] = y2;
+   _uvX[0] = x1;
+   _uvX[1] = x2;
+   _uvY[0] = y1;
+   _uvY[1] = y2;
    setCustomUVS(true);
    _prepared = false;
 }
 
 void Box9Sprite::setVerticalUV(float x1, float x2) {
-   _uvX[0]   = x1; _uvX[1] = x2;
+   _uvX[0] = x1;
+   _uvX[1] = x2;
    _prepared = false;
 }
 
 void Box9Sprite::setHorizontalUV(float y1, float y2) {
-   _uvY[0]   = y1; _uvY[1] = y2;
+   _uvY[0] = y1;
+   _uvY[1] = y2;
    _prepared = false;
 }
 
@@ -137,7 +141,7 @@ void Box9Sprite::animFrameChanged(const AnimationFrame& f) {
 
    if (resanim) {
       std::istringstream attr(resanim->getAttribute("offsets").as_string("0 0 0 0"));
-      Vector4 offsets;
+      Vector4 offsets(0, 0, 0, 0);
       attr >> offsets.x >> offsets.y >> offsets.z >> offsets.w;
       this->setGuides(offsets.x, offsets.y, offsets.z, offsets.w);
    }
@@ -159,10 +163,10 @@ void Box9Sprite::prepare() const {
    _pointsX.clear();
    _pointsY.clear();
 
-   float fFrameWidth  = _frame.getWidth();
+   float fFrameWidth = _frame.getWidth();
    float fFrameHeight = _frame.getHeight();
 
-   float fActorWidth  = getSize().x;
+   float fActorWidth = getSize().x;
    float fActorHeight = getSize().y;
 
    float X1, X2, Y1, Y2;
@@ -191,9 +195,9 @@ void Box9Sprite::prepare() const {
    }
    RectF srcFrameRect = _frame.getSrcRect();
 
-   _guidesX[0] = srcFrameRect.getLeft();                                         // these guides contains floats from 0.0 to 1.0, compared
-                                                                                 // to original guides which contain floats in px
-   _guidesX[1] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), _uvX[0]); // lerp is needed here cuz the frame might be in an atlas
+   _guidesX[0] = srcFrameRect.getLeft();                                          // these guides contains floats from 0.0 to 1.0, compared
+                                                                                  // to original guides which contain floats in px
+   _guidesX[1] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), _uvX[0]);  // lerp is needed here cuz the frame might be in an atlas
    _guidesX[2] = lerp(srcFrameRect.getLeft(), srcFrameRect.getRight(), 1 - _uvX[1]);
    _guidesX[3] = srcFrameRect.getRight();
 
@@ -211,15 +215,14 @@ void Box9Sprite::prepare() const {
       _pointsX.push_back(fActorWidth - X2);
       _pointsX.push_back(fActorWidth);
    } else if ((_horzMode == TILING) || (_horzMode == TILING_FULL)) {
-      float curX       = X1;
-      float rightB     = fActorWidth - X2;
-      float centerPart = (1 - _uvX[1] - _uvX[0]) * fFrameWidth; // length of the center piece (in px)
+      float curX = X1;
+      float rightB = fActorWidth - X2;
+      float centerPart = (1 - _uvX[1] - _uvX[0]) * fFrameWidth;  // length of the center piece (in px)
 
       // now we add a new center piece every time until we reach right bound
       bool done = false;
 
-      while (!done && centerPart > 0)
-      {
+      while (!done && centerPart > 0) {
          curX += centerPart;
 
          if (curX <= rightB) {
@@ -228,7 +231,8 @@ void Box9Sprite::prepare() const {
             if (_horzMode == TILING_FULL) {
                _pointsX.push_back(rightB);
                _pointsX.push_back(fActorWidth);
-            } else _pointsX.push_back(curX - centerPart + (fFrameWidth - X2));
+            } else
+               _pointsX.push_back(curX - centerPart + (fFrameWidth - X2));
             done = true;
          }
       }
@@ -242,15 +246,14 @@ void Box9Sprite::prepare() const {
       _pointsY.push_back(fActorHeight - Y2);
       _pointsY.push_back(fActorHeight);
    } else if ((_vertMode == TILING) || (_vertMode == TILING_FULL)) {
-      float curY       = Y1;
-      float bottomB    = fActorHeight - Y2;
-      float centerPart = (1 - _uvY[1] - _uvY[0]) * fFrameHeight; // length of the center piece (in px)
+      float curY = Y1;
+      float bottomB = fActorHeight - Y2;
+      float centerPart = (1 - _uvY[1] - _uvY[0]) * fFrameHeight;  // length of the center piece (in px)
 
       // now we add a new center piece every time until we reach right bound
       bool done = false;
 
-      while (!done && centerPart > 0)
-      {
+      while (!done && centerPart > 0) {
          curY += centerPart;
 
          if (curY <= bottomB) {
@@ -259,19 +262,19 @@ void Box9Sprite::prepare() const {
             if (_vertMode == TILING_FULL) {
                _pointsY.push_back(bottomB);
                _pointsY.push_back(fActorHeight);
-            } else _pointsY.push_back(curY - centerPart + (fFrameHeight - Y2));
+            } else
+               _pointsY.push_back(curY - centerPart + (fFrameHeight - Y2));
             done = true;
          }
       }
    }
 
    _prepared = true;
-   dbg       = true;
+   dbg = true;
 }
 
 std::string stretchMode2String(Box9Sprite::StretchMode s) {
-   switch (s)
-   {
+   switch (s) {
       case Box9Sprite::TILING:
          return "tiling";
       case Box9Sprite::TILING_FULL:
@@ -302,7 +305,6 @@ std::string Box9Sprite::dump(const dumpOptions& options) const {
 
    stream << "\n";
 
-
    stream << inherited::dump(options);
    return stream.str();
 }
@@ -330,19 +332,24 @@ void Box9Sprite::doRender(const RenderState& rs) {
          // number of horizontal blocks
          int hc = (int)_pointsY.size() - 1;
 
-         int xgi = 0; // x guide index
+         int xgi = 0;  // x guide index
          int ygi = 0;
 
          for (int yc = 0; yc < hc; yc++) {
             for (int xc = 0; xc < vc; xc++) {
-               if (xc == 0) // select correct index for _guides% arrays
+               if (xc == 0)  // select correct index for _guides% arrays
                   xgi = 0;
-               else if (xc == (int)_pointsX.size() - 2) xgi = 2;
-               else xgi = 1;
+               else if (xc == (int)_pointsX.size() - 2)
+                  xgi = 2;
+               else
+                  xgi = 1;
 
-               if (yc == 0) ygi = 0;
-               else if (yc == (int)_pointsY.size() - 2) ygi = 2;
-               else ygi = 1;
+               if (yc == 0)
+                  ygi = 0;
+               else if (yc == (int)_pointsY.size() - 2)
+                  ygi = 2;
+               else
+                  ygi = 1;
 
                RectF srcRect(_guidesX[xgi], _guidesY[ygi], _guidesX[xgi + 1] - _guidesX[xgi], _guidesY[ygi + 1] - _guidesY[ygi]);
                RectF destRect(_pointsX[xc], _pointsY[yc], _pointsX[xc + 1] - _pointsX[xc], _pointsY[yc + 1] - _pointsY[yc]);
@@ -371,9 +378,9 @@ void Box9Sprite::serialize(serializedata* data) {
 
 Vector2 attr2Vector2(const char* data);
 
-void    Box9Sprite::deserialize(const deserializedata* data) {
+void Box9Sprite::deserialize(const deserializedata* data) {
    inherited::deserialize(data);
 
    setSize(attr2Vector2(data->node.attribute("size").as_string()));
 }
-}
+}  // namespace oxygine

@@ -316,7 +316,7 @@ void Sprite::serialize(serializedata* data) {
 Vector2 attr2Vector2(const pugi::xml_attribute& attr, const Vector2& def) {
    if (!attr)
       return def;
-   Vector2 v;
+   Vector2 v(0, 0);
    sscanf(attr.as_string(""), "%f,%f", &v.x, &v.y);
    return v;
 }

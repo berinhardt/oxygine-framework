@@ -418,7 +418,7 @@ void Actor::handleEvent(Event* event) {
       if ((getAlpha() == 0) && !(_flags & flag_clickableWithZeroAlpha)) return;
    }
 
-   Vector2 originalLocalPos;
+   Vector2 originalLocalPos(0, 0);
    float originalLocalScale;
 
    if (touchEvent) {
@@ -1359,9 +1359,7 @@ RectF getActorTransformedDestRect(Actor* actor, const Transform& tr) {
        abs(br.x - tl.x),
        abs(br.y - tl.y));
 
-   Vector2 ntl;
-   ntl.x = std::min(tl.x, br.x);
-   ntl.y = std::min(tl.y, br.y);
+   Vector2 ntl(std::min(tl.x, br.x), std::min(tl.y, br.y));
 
    return RectF(ntl, size);
 }
@@ -1430,11 +1428,9 @@ bool testIntersection(spActor objA, spActor objB, spActor parent, Vector2* conta
 
 Vector2 Actor::alterOrigin(const Vector2& pos) const {
    if (_flags & flag_anchorAffectsOrigin) {
-      Vector2 delta;
-      if (_flags & flag_anchorInPixels) {
-         delta = -getAnchor();
-      } else {
-         delta = -getAnchor() * getSize();
+      Vector2 delta = -getAnchor();
+      if (!(_flags & flag_anchorInPixels)) {
+         delta *= getSize();
       }
       return pos + delta;
    }
