@@ -248,10 +248,6 @@ void ThreadDispatcher::_pushMessageWaitReply(message& msg, bool highPriority) {
 
 void ThreadDispatcher::_pushMessage(message& msg) {
    msg._id = ++_id;
-   if (this == _DEBUG_TD) {
-      _events_size = _events.size();
-      _events_max_size = _events.size();
-   }
    _events.push_back(msg);
 #ifndef OX_NO_MT
    pthread_cond_signal(&_cond);
