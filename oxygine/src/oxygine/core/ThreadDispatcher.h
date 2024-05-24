@@ -2,6 +2,7 @@
 #include "../oxygine-include.h"
 #include <functional>
 #include <vector>
+#include <list>
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 typedef struct pthread_mutex_t_* pthread_mutex_t;
@@ -115,7 +116,7 @@ namespace oxygine
         //void post(TDMessage&);
         //void send(TDMessage&);
 
-        std::vector<message>& lockMessages();
+        std::list<message>& lockMessages();
         void unlockMessages();
 
     private:
@@ -133,7 +134,7 @@ namespace oxygine
         pthread_mutex_t _mutex;
         pthread_cond_t _cond;
 
-        typedef std::vector<message> messages;
+        typedef std::list<message> messages;
         messages _events;
         message _last;
 
