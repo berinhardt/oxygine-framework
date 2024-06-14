@@ -587,10 +587,12 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
       switch (event.type) {
          case SDL_APP_WILLENTERBACKGROUND:
             active = false;
+            _renderEnabled = false;
             glFlush();
             break;
          case SDL_APP_DIDENTERFOREGROUND:
             active = true;
+            _renderEnabled = true;
             glFlush();
             break;
          case SDL_QUIT:
