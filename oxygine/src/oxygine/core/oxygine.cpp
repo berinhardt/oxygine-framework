@@ -550,7 +550,7 @@ void swapDisplayBuffers(window w) {
       if (status) {
          logs::error("SDL_GL_MakeCurrent(): %s", SDL_GetError());
       }
-      SDL_GL_SwapWindow(wnd);
+      if (_renderEnabled) SDL_GL_SwapWindow(wnd);
    }
 #endif  // ifdef OXYGINE_SDL
    CHECKGL();
