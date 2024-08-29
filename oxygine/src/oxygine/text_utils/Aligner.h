@@ -57,7 +57,7 @@ class Aligner {
    typedef std::vector<Symbol*> line;
 
    void _alignLine(line& ln);
-   int _alignX(int rx);
+   int _alignX(int rx, int ox);
    int _alignY(int ry);
    void _nextLine(line& ln);
 

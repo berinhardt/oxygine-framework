@@ -12,10 +12,9 @@
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
-#define GSCALE 1
-// #define ALIGNER_LOG
+#define ALIGNER_LOG
 #ifdef ALIGNER_LOG
-// #define ALIGNER_SYM_LOG
+#define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
 #else
 #define DBG_LOG(...)
@@ -37,8 +36,8 @@ Aligner::Aligner(const TextStyle& Style, spSTDMaterial mt, const Font* font, flo
    _padding = _font->getPadding();
    _offY = _lineSkip;
    options = Style.options;
-
-   DBG_LOG("ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
+   DBG_LOG("SCALE  %f", _scale);
+   DBG_LOG("CTR ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
 }
 
 Aligner::~Aligner() {}
@@ -50,7 +49,7 @@ int Aligner::offsetY() const {
       return _offY + _padding;
 }
 
-int Aligner::_alignX(int rx) {
+int Aligner::_alignX(int rx, int ox) {
    int tx = 0;
 
    switch (getStyle().hAlign) {
@@ -59,12 +58,13 @@ int Aligner::_alignX(int rx) {
          tx = 0;
          break;
       case TextStyle::HALIGN_MIDDLE:
-         tx = width / 2 - rx / 2;
+         tx = (1+width - rx + (ox+1) / 2)/2;
          break;
       case TextStyle::HALIGN_RIGHT:
-         tx = width - rx;
+         tx = width - rx + ox;
          break;
    }
+   DBG_LOG("Aligner::alignX(%d): W:%d -> %d", rx, width, tx);
    return tx;
 }
 
@@ -86,6 +86,7 @@ int Aligner::_alignY(int ry) {
          ty = height - ry;
          break;
    }
+   DBG_LOG("Aligner::alignY(%d): H:%d -> %d", ry, height, ty);
    return ty;
 }
 
@@ -93,11 +94,13 @@ void Aligner::begin() {
    _x = 0;
    _y = 0;
    DBG_LOG("Aligner::begin(_y = %d)", _y);
+   DBG_LOG("Aligner::preScaleW %d", width);
+   DBG_LOG("Aligner::preScaleH %d", height);
    width = int(width * _scale);
    height = int(height * _scale);
 
-   bounds = Rect(_alignX(0), _alignY(0), 0, 0);
-   DBG_LOG("ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
+   bounds = Rect(_alignX(0, 0), _alignY(0), 0, 0);
+   DBG_LOG("BEG ALIGN BOUNDS [%d, %d]x[%d, %d]", bounds.pos.x, bounds.pos.y, bounds.size.x, bounds.size.y);
    nextLine();
 }
 
@@ -172,16 +175,17 @@ void Aligner::_alignLine(line& ln) {
          ox = std::min(ox, (int)s.x);
          rx = std::max(s.x + s.gl.advance_x + ws_off, rx);
          _offY = std::min((int)s.y, _offY);
+
+         DBG_LOG("SYM o:%d r:%d Y:%d", ox, rx, _offY);
       }
-      rx -= ox;
-      int tx = _alignX(rx);
+      int tx = _alignX(rx, ox);
 
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
          s.x += tx;
       }
 
-      _lineWidth = rx;
+      _lineWidth = rx-ox+ws_off;
 
       bounds.setX(std::min(tx, bounds.getX()));
       bounds.setWidth(std::max(_lineWidth, bounds.getWidth()));
