@@ -12,7 +12,7 @@
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
-#define ALIGNER_LOG
+//#define ALIGNER_LOG
 #ifdef ALIGNER_LOG
 #define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
