@@ -12,7 +12,7 @@
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
-//#define ALIGNER_LOG
+// #define ALIGNER_LOG
 #ifdef ALIGNER_LOG
 #define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
@@ -58,13 +58,13 @@ int Aligner::_alignX(int rx, int ox) {
          tx = 0;
          break;
       case TextStyle::HALIGN_MIDDLE:
-         tx = (1+width - rx + (ox+1) / 2)/2;
+         tx = (width - rx + ox) / 2;
          break;
       case TextStyle::HALIGN_RIGHT:
          tx = width - rx + ox;
          break;
    }
-   DBG_LOG("Aligner::alignX(%d): W:%d -> %d", rx, width, tx);
+   DBG_LOG("Aligner::alignX(%d, %d): W:%d -> %d", rx, ox, width, tx);
    return tx;
 }
 
@@ -168,24 +168,24 @@ void Aligner::_alignLine(line& ln) {
 
       // calculate real text width
       int rx = 0;
-      int ox = 0;
-
+      int lx = 0;
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
-         ox = std::min(ox, (int)s.x);
-         rx = std::max(s.x + s.gl.advance_x + ws_off, rx);
+         lx = std::min(lx, (int)(s.x - s.gl.offset_x));
+         rx = std::max(s.x - s.gl.offset_x + s.gl.advance_x, rx);
          _offY = std::min((int)s.y, _offY);
 
-         DBG_LOG("SYM o:%d r:%d Y:%d", ox, rx, _offY);
+         DBG_LOG("SYM o:%d r:%d Y:%d", lx, rx, _offY);
       }
-      int tx = _alignX(rx, ox);
+      int tx = _alignX(rx, lx);
 
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
          s.x += tx;
+         DBG_LOG("SYM x:%d ", s.x);
       }
 
-      _lineWidth = rx-ox+ws_off;
+      _lineWidth = rx - lx;
 
       bounds.setX(std::min(tx, bounds.getX()));
       bounds.setWidth(std::max(_lineWidth, bounds.getWidth()));
@@ -195,6 +195,7 @@ void Aligner::_alignLine(line& ln) {
 
 void Aligner::_nextLine(line& ln) {
    _y += getLineSkip();
+   DBG_LOG("Aligner::_nextLine(#%d)", ln.size());
    DBG_LOG("Aligner::_nextLine 1(_y = %d)", _y);
    _alignLine(ln);
    DBG_LOG("Aligner::_nextLine 2(_y = %d)", _y);
