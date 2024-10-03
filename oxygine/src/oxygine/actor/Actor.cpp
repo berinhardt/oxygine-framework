@@ -1031,8 +1031,8 @@ bool Actor::getBounds(RectF& bounds) const {
    return false;
 }
 
-void Actor::render(const RenderState& parentRS) {
-   _rdelegate->render(this, parentRS);
+void Actor::render(const RenderState& parentRS, RenderState& rs) {
+   _rdelegate->render(this, parentRS, rs);
 }
 
 RectF Actor::getDestRect() const {

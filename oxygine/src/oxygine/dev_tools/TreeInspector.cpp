@@ -77,7 +77,7 @@ void getDescendants(spActor actor, std::vector<spActor>& actors) {
 TreeInspector::~TreeInspector() {
 }
 
-void TreeInspector::render(const RenderState& rs_) {
+void TreeInspector::render(const RenderState& rs_, RenderState& nrs) {
    RenderState rs = rs_;
    IVideoDriver::instance->setScissorRect(0);
 
@@ -86,7 +86,7 @@ void TreeInspector::render(const RenderState& rs_) {
    RectF clip = vp.cast<RectF>();
    rs.clip = &clip;
 
-   ClipRectActor::render(rs);
+   ClipRectActor::render(rs, nrs);
 }
 
 void TreeInspector::init(const Vector2& size, spActor actor) {

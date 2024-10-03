@@ -143,8 +143,9 @@ void Stage::render(const Color* clearColor, const Rect& viewport, const Matrix4&
       driver->setScissorRect(&_viewport);
       clip = _viewport.cast<RectF>();
    }
-
-   Actor::render(rs);
+   RenderState nrs;
+   Actor::render(rs, nrs);
+   Actor::postRender(nrs);
    STDRenderer::getCurrent()->flush();
 
    if (_clipOuter) {

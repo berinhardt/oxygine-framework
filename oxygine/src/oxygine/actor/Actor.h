@@ -300,9 +300,10 @@ class Actor : public EventDispatcher, public intrusive_list_item<spActor>, publi
    /**Updates this actor, children and all tweens.*/
    virtual void update(const UpdateState& us);
    /**Renders this actor and children.*/
-   virtual void render(const RenderState& rs);
+   virtual void render(const RenderState& rs, RenderState& inner);
    virtual void handleEvent(Event* event);
    virtual void doRender(const RenderState& rs) {}
+   virtual void postRender(const RenderState& rs) {}
 
    // converts position in parent space to local space
    virtual Vector2 parent2local(const Vector2& pos) const;

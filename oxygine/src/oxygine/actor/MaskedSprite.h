@@ -2,34 +2,33 @@
 #include "../oxygine-include.h"
 #include "Sprite.h"
 
-namespace oxygine
-{
-    DECLARE_SMART(MaskedSprite, spMaskedSprite);
-    class MaskedSprite: public Sprite
-    {
-        INHERITED(Sprite);
-    public:
-        DECLARE_COPYCLONE_NEW(MaskedSprite);
+namespace oxygine {
+DECLARE_SMART(MaskedSprite, spMaskedSprite);
+class MaskedSprite : public Sprite {
+   INHERITED(Sprite);
 
-        MaskedSprite();
-        ~MaskedSprite();
+  public:
+   DECLARE_COPYCLONE_NEW(MaskedSprite);
 
-        spSprite    getMask() const;
-        bool        getUseRChannel() const;
+   MaskedSprite();
+   ~MaskedSprite();
 
-        void setMask(spSprite, bool useRChannel = false);
+   spSprite getMask() const;
+   bool getUseRChannel() const;
 
-        void serialize(serializedata* data) override;
-        void deserialize(const deserializedata* data) override;
-        void deserializeLink(const deserializeLinkData*) override;
+   void setMask(spSprite, bool useRChannel = false);
 
-    protected:
-        void render(const RenderState& parentRS) override;
+   void serialize(serializedata* data) override;
+   void deserialize(const deserializedata* data) override;
+   void deserializeLink(const deserializeLinkData*) override;
 
-    private:
-        spSprite _mask;
-        bool _useRChannel;
-    };
-}
+  protected:
+   void render(const RenderState& parentRS, RenderState& rs) override;
+
+  private:
+   spSprite _mask;
+   bool _useRChannel;
+};
+}  // namespace oxygine
 
 EDITOR_INCLUDE(MaskedSprite);

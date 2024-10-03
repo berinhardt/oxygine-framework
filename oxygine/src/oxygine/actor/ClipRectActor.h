@@ -2,37 +2,34 @@
 #include "../oxygine-include.h"
 #include "Actor.h"
 
-namespace oxygine
-{
-    DECLARE_SMART(ClipRectActor, spClipRectActor);
-    /**
-    ClipRectActor clips all out of bound children. Rotation is not supported
-    */
-    class ClipRectActor : public Actor
-    {
-        INHERITED(Actor);
-    public:
-        DECLARE_COPYCLONE_NEW(ClipRectActor);
-        ClipRectActor();
-        ~ClipRectActor();
+namespace oxygine {
+DECLARE_SMART(ClipRectActor, spClipRectActor);
+/**
+ClipRectActor clips all out of bound children. Rotation is not supported
+*/
+class ClipRectActor : public Actor {
+   INHERITED(Actor);
 
-        bool getClipping() const { return _clipping; }
+  public:
+   DECLARE_COPYCLONE_NEW(ClipRectActor);
+   ClipRectActor();
+   ~ClipRectActor();
 
-        /**Enables clipping for children. By default is on*/
-        void setClipping(bool enable) {_clipping = enable;}
+   bool getClipping() const { return _clipping; }
 
-        void render(const RenderState& rs) override;
+   /**Enables clipping for children. By default is on*/
+   void setClipping(bool enable) { _clipping = enable; }
 
+   void render(const RenderState& parentRs, RenderState& rs) override;
 
-        void handleEvent(Event* event) override;
+   void handleEvent(Event* event) override;
 
-        void serialize(serializedata* data) override;
-        void deserialize(const deserializedata* data) override;
+   void serialize(serializedata* data) override;
+   void deserialize(const deserializedata* data) override;
 
-    protected:
-
-        bool _clipping;
-    };
-}
+  protected:
+   bool _clipping;
+};
+}  // namespace oxygine
 
 EDITOR_INCLUDE(ClipRectActor);

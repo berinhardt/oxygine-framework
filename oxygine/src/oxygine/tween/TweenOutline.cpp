@@ -1,77 +1,66 @@
 #include "TweenOutline.h"
+
 #include "../RenderState.h"
 #include "../STDRenderDelegate.h"
 #include "../actor/Actor.h"
 #include "../core/gl/VertexDeclarationGL.h"
 
-namespace oxygine
-{
-    class TweenOutlineImpl : public TweenPostProcess
-    {
-    public:
-        Color _color;
-        int _downsample;
-        spSTDMaterial _matx;
+namespace oxygine {
+class TweenOutlineImpl : public TweenPostProcess {
+  public:
+   Color _color;
+   int _downsample;
+   spSTDMaterial _matx;
 
-        TweenOutlineImpl(const Color& c, const PostProcessOptions& opt) : TweenPostProcess(opt), _color(c), _downsample(1)
-        {
-            _matx = new STDMaterial;
-            _matx->_blend = blend_premultiplied_alpha;
-        }
+   TweenOutlineImpl(const Color& c, const PostProcessOptions& opt) : TweenPostProcess(opt), _color(c), _downsample(1) {
+      _matx = new STDMaterial;
+      _matx->_blend = blend_premultiplied_alpha;
+   }
 
-        void render(Actor* actor, const RenderState& rs) override
-        {
-            if (!_pp._rt)
-                return;
+   void render(Actor* actor, const RenderState& rs, RenderState& krs) override {
+      if (!_pp._rt)
+         return;
 
-            spNativeTexture rt = _pp._rt;
+      spNativeTexture rt = _pp._rt;
 
-            _matx->_base = rt;
-            _matx->apply();
+      _matx->_base = rt;
+      _matx->apply();
 
-            STDRenderer* renderer = STDRenderer::getCurrent();
+      STDRenderer* renderer = STDRenderer::getCurrent();
 
+      RectF src(0, 0,
+                _pp._screen.getWidth() / (float)rt->getWidth(),
+                _pp._screen.getHeight() / (float)rt->getHeight());
+      RectF dest = _pp._screen.cast<RectF>();
 
-            RectF src(0, 0,
-                      _pp._screen.getWidth() / (float)rt->getWidth(),
-                      _pp._screen.getHeight() / (float)rt->getHeight());
-            RectF dest = _pp._screen.cast<RectF>();
+      AffineTransform tr = _pp._transform * _actor->computeGlobalTransform();
+      renderer->setTransform(tr);
 
+      Color color = Color(Color::White).withAlpha(255).premultiplied();
+      renderer->addQuad(color.rgba(), src, dest);
 
-            AffineTransform tr = _pp._transform * _actor->computeGlobalTransform();
-            renderer->setTransform(tr);
+      RenderState r = rs;
+      actor->setRenderDelegate(_prevMaterial);
+      actor->render(r, krs);
+      actor->setRenderDelegate(this);
+   }
 
+   void _renderPP() override {
+      PostProcess::initShaders();
 
-            Color color = Color(Color::White).withAlpha(255).premultiplied();
-            renderer->addQuad(color.rgba(), src, dest);
+      int w = _pp._screen.size.x;
+      int h = _pp._screen.size.y;
 
+      if (w < 0 || h < 0)
+         return;
 
-            RenderState r = rs;
-            actor->setRenderDelegate(_prevMaterial);
-            actor->render(r);
-            actor->setRenderDelegate(this);
-        }
+      IVideoDriver* driver = IVideoDriver::instance;
+      const VertexDeclarationGL* decl = static_cast<const VertexDeclarationGL*>(IVideoDriver::instance->getVertexDeclaration(vertexPCT2::FORMAT));
 
-        void _renderPP() override
-        {
-            PostProcess::initShaders();
+      _downsample = 1;
 
-            int w = _pp._screen.size.x;
-            int h = _pp._screen.size.y;
-
-            if (w < 0 || h < 0)
-                return;
-
-
-
-            IVideoDriver* driver = IVideoDriver::instance;
-            const VertexDeclarationGL* decl = static_cast<const VertexDeclarationGL*>(IVideoDriver::instance->getVertexDeclaration(vertexPCT2::FORMAT));
-
-            _downsample = 1;
-
-
-            spNativeTexture rt = _pp._rt;
-            spNativeTexture rt2 = getRTManager().get(0, w, h, _pp._format);
+      spNativeTexture rt = _pp._rt;
+      spNativeTexture rt2 = getRTManager().get(0, w, h, _pp._format);
 
 #if 0
             driver->setShaderProgram(PostProcess::shaderBlit);
@@ -93,33 +82,28 @@ namespace oxygine
             _downsample *= 2;
 #endif
 
+      Rect rc(0, 0, w, h);
 
-            Rect rc(0, 0, w, h);
+      driver->setShaderProgram(PostProcess::shaderBlurH);
+      driver->setUniform("step", 1.0f / rt->getWidth());
+      pass(rt, rc, rt2, rc);
 
+      int alpha = lerp(0, 255, _progress);
+      // logs::messageln("tween alpha %d", alpha);
 
-            driver->setShaderProgram(PostProcess::shaderBlurH);
-            driver->setUniform("step", 1.0f / rt->getWidth());
-            pass(rt, rc, rt2, rc);
+      Color c;
+      if (_pp._options._flags & PostProcessOptions::flag_singleR2T)
+         c = _color;
+      else
+         c = _color.withAlpha(alpha).premultiplied();
 
+      driver->setShaderProgram(PostProcess::shaderBlurV);
+      driver->setUniform("step", 1.0f / rt2->getHeight());
 
-            int alpha = lerp(0, 255, _progress);
-            //logs::messageln("tween alpha %d", alpha);
+      pass(rt2, rc, rt, rc, c);
+   }
+};
 
-            Color c;
-            if (_pp._options._flags & PostProcessOptions::flag_singleR2T)
-                c = _color;
-            else
-                c = _color.withAlpha(alpha).premultiplied();
-
-            driver->setShaderProgram(PostProcess::shaderBlurV);
-            driver->setUniform("step", 1.0f / rt2->getHeight());
-
-            pass(rt2, rc, rt, rc, c);
-        }
-    };
-
-
-    TweenOutline::TweenOutline(const Color& color, const PostProcessOptions& opt) : TweenProxy(new TweenOutlineImpl(color, opt))
-    {
-    }
+TweenOutline::TweenOutline(const Color& color, const PostProcessOptions& opt) : TweenProxy(new TweenOutlineImpl(color, opt)) {
 }
+}  // namespace oxygine

@@ -33,21 +33,22 @@ class STDRDDebugTrace {
 #else
 #define STDRDDBG_TRACE(a, caller)
 #endif
-void RenderDelegate::render(Actor* parent, const RenderState& parentRS) {
+void RenderDelegate::render(Actor* parent, const RenderState& parentRS, RenderState& rs) {
    STDRDDBG_TRACE(parent, "Actor");
 
-   RenderState rs;
    if (!parent->internalRender(rs, parentRS))
       return;
 
    Actor* actor = parent->getFirstChild().get();
    while (actor) {
       OX_ASSERT(actor->getParent());
-      actor->render(rs);
+      RenderState krs;
+      actor->render(rs, krs);
+      actor->postRender(krs);
       actor = actor->getNextSibling().get();
    }
 }
-void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS) {
+void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS, RenderState& krs) {
    STDRDDBG_TRACE(actor, "ClipRectActor");
    STDRenderer* renderer = STDRenderer::getCurrent();
    IVideoDriver* driver = renderer->getDriver();
@@ -86,7 +87,7 @@ void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS
    }
 
    if (vis) {
-      actor->Actor::render(rs);
+      actor->Actor::render(rs, krs);
 
       if (actor->getClipping()) {
          renderer->flush();
@@ -97,17 +98,17 @@ void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS
 }
 static std::list<Vector4> clipMask_stack;
 static std::list<ClipUV> msk_stack;
-void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS) {
+void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS, RenderState& krs) {
    STDRDDBG_TRACE(sprite, "MaskedSprite");
    spSprite maskSprite = sprite->getMask();
    if (!maskSprite) {
-      sprite->Sprite::render(parentRS);
+      sprite->Sprite::render(parentRS, krs);
       return;
    }
 
    const Diffuse& df = maskSprite->getAnimFrame().getDiffuse();
    if (!df.base) {
-      sprite->Sprite::render(parentRS);
+      sprite->Sprite::render(parentRS, krs);
       return;
    }
 
@@ -161,7 +162,7 @@ void STDRenderDelegate::render(MaskedSprite* sprite, const RenderState& parentRS
    renderer->setBaseShaderFlags(baseShaderFlags);
    hook.hook();
 
-   sprite->Sprite::render(parentRS);
+   sprite->Sprite::render(parentRS, krs);
 
    Material::null->apply();
 
