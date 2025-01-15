@@ -144,9 +144,9 @@ int getLastPos(const char* str, size_t length) {
    return (int)(prev - begin);
 }
 
-static std::string KeyPadTable[] = { "1", "2", "3","4", "5", "6", "7", "8", "9", "0" };
+static std::string KeyPadTable[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"};
 static const std::string& DecodeKeyPad(size_t point) {
-   return KeyPadTable[point-SDLK_KP_1];
+   return KeyPadTable[point - SDLK_KP_1];
 }
 
 int InputText::_onSDLEvent(SDL_Event* event) {
@@ -212,10 +212,12 @@ int InputText::_onSDLEvent(SDL_Event* event) {
             case SDLK_KP_7:
             case SDLK_KP_8:
             case SDLK_KP_9: {
-               _txt += DecodeKeyPad(event->key.keysym.sym);
-               updateText();
+               if (getLen(_txt.c_str(), _txt.length()) < _maxLength) {
+                  _txt += DecodeKeyPad(event->key.keysym.sym);
+                  updateText();
+               }
                break;
-            }            
+            }
          }
          break;
       }

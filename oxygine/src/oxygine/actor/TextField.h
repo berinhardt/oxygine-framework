@@ -47,6 +47,7 @@ class TextField : public VStyleActor {
    text::Symbol* getSymbolAt(int pos) const;
    const Color& getStyleColor() const;
    float getBaselineScale() const;
+   float getRTScale() const { return _rtscale; }
    size_t getOptions() const;
 
    bool getBounds(RectF&) const override;
