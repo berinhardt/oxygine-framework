@@ -1,15 +1,17 @@
 #include "WebImage.h"
-#include "Sprite.h"
+
+#include <vector>
+
 #include "../HttpRequestTask.h"
 #include "../Image.h"
 #include "../Serialize.h"
 #include "../res/ResAnim.h"
-#include <vector>
+#include "Sprite.h"
 
 namespace oxygine {
 void WebImage::copyFrom(const WebImage& src, cloneOptions opt) {
    inherited::copyFrom(src, opt);
-   _http  = 0;
+   _http = 0;
    _image = getChildT<Sprite>("_child_");
 }
 
@@ -54,13 +56,16 @@ void WebImage::_load(spHttpRequestTask task) {
       return;
    }
 
-
-   addRef(); // protect actor from delete
+   addRef();  // protect actor from delete
    _http->addEventListener(AsyncTask::COMPLETE, CLOSURE(this, &WebImage::loaded));
-   _http->addEventListener(AsyncTask::ERROR,    CLOSURE(this, &WebImage::error));
+   _http->addEventListener(AsyncTask::ERROR, CLOSURE(this, &WebImage::error));
 }
 
 void WebImage::error(Event* e) {
+   if (_ref_counter <= 1) {  // if it is already dead
+      releaseRef();
+      return;
+   }
    dispatchEvent(e);
    releaseRef();
    _http = 0;
@@ -88,11 +93,10 @@ void WebImage::init() {
 }
 
 void WebImage::loaded(Event* e) {
-   if (_ref_counter <= 1) {   // if it is already dead
+   if (_ref_counter <= 1) {  // if it is already dead
       releaseRef();
       return;
    }
-
 
    dispatchEvent(e);
 
@@ -113,7 +117,7 @@ void WebImage::fit() {
    if (!keepSize()) {
       float sx = getWidth() / _rs.getWidth();
       float sy = getHeight() / _rs.getHeight();
-      float s  = std::min(sx, sy);
+      float s = std::min(sx, sy);
       _image->setScale(s);
    } else {
       setSize(_image->getSize());
@@ -132,4 +136,4 @@ void WebImage::serialize(serializedata* data) {
 void WebImage::deserialize(const deserializedata* data) {
    inherited::deserialize(data);
 }
-}
+}  // namespace oxygine
