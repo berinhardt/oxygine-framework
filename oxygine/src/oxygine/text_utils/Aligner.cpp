@@ -12,7 +12,7 @@
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
-// #define ALIGNER_LOG
+//#define ALIGNER_LOG
 #ifdef ALIGNER_LOG
 #define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
@@ -175,14 +175,14 @@ void Aligner::_alignLine(line& ln) {
          rx = std::max(s.x - s.gl.offset_x + s.gl.advance_x, rx);
          _offY = std::min((int)s.y, _offY);
 
-         DBG_LOG("SYM o:%d r:%d Y:%d", lx, rx, _offY);
+         // DBG_LOG("SYM o:%d r:%d Y:%d", lx, rx, _offY);
       }
       int tx = _alignX(rx, lx);
 
       for (size_t i = 0; i < ln.size(); ++i) {
          Symbol& s = *ln[i];
          s.x += tx;
-         DBG_LOG("SYM x:%d ", s.x);
+         // DBG_LOG("SYM x:%d ", s.x);
       }
 
       _lineWidth = rx - lx;
@@ -233,15 +233,19 @@ int Aligner::putSymbol(Symbol& s) {
 #endif
    s.x = _x + s.gl.offset_x + ws_off / 2;
    s.y = _y + s.gl.offset_y - ws_off / 2;
-#ifdef ALIGNER_SYM_LOG
-   DBG_LOG("SYMBOL %s [%d, %d] x [%d] OFF[%d]", code.c_str(), s.x, s.y, s.gl.advance_x, ws_off);
-#endif
+
    _x += s.gl.advance_x + getStyle().kerning + ws_off / 2;
 
-   int rx = s.x + s.gl.advance_x + ws_off;
+   // 2025-03-07: Darta - estaba mal el rx aca, por lo que quedaba con lineas mas grandes de lo esperado
+   //                     dejo el comentario porque puede ser que quitar ws_off de aca rompa la medicion 
+   //                     con las sombras de sdf
+   //int rx = s.x + s.gl.advance_x + ws_off; 
+   int rx = s.x - s.gl.offset_x + s.gl.advance_x;
 
    _lineWidth = std::max(rx, _lineWidth);
-
+#ifdef ALIGNER_SYM_LOG
+   DBG_LOG("LINE WIDTH %d", _lineWidth);
+#endif
    //
    if ((_lineWidth > width) && getStyle().multiline && (width > 0) && (_line.size() > 1)) {
       int lastWordPos = (int)_line.size() - 1;
