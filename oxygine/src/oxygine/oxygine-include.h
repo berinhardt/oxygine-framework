@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <stdexcept>
+
 #include "glm-config.h"
 #if __APPLE__
 #include <TargetConditionals.h>
@@ -106,7 +108,9 @@ namespace ox = oxygine;
 #define OX_ASSERT_NL(x)
 #else
 #define OX_ASSERT_NL(x) \
-   { assert(x); }
+   {                    \
+      assert(x);        \
+   }
 #endif
 
 #if OXYGINE_ASSERT2LOG
@@ -116,8 +120,10 @@ namespace ox = oxygine;
       OX_ASSERT_NL(x); \
    }
 #else
-#define OX_ASSERT(x) \
-   { OX_ASSERT_NL(x); }
+#define OX_ASSERT(x)   \
+   {                   \
+      OX_ASSERT_NL(x); \
+   }
 #endif
 
 #define OXYGINE_HAS_RESTORE
