@@ -55,8 +55,13 @@ void STDRenderDelegate::render(ClipRectActor* actor, const RenderState& parentRS
 
    RenderState rs = parentRS;
 
-   const RectF* parentClippedRect = parentRS.clip;
-   RectF clippedRect = *parentClippedRect;
+   RectF clippedRect;
+   if (parentRS.clip) {
+      const RectF* parentClippedRect = parentRS.clip;
+      clippedRect = *parentClippedRect;
+   } else {
+      clippedRect = RectF::huge();
+   }
    rs.clip = &clippedRect;
 
    Rect scissorRect(0, 0, 0, 0);
