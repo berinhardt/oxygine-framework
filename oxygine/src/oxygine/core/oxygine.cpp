@@ -394,7 +394,7 @@ void init2() {
 
 #ifdef OXYGINE_EDITOR
 
-      // setlocale(LC_ALL, "POSIX");
+   // setlocale(LC_ALL, "POSIX");
 #endif  // ifdef OXYGINE_EDITOR
 
    file::init(desc.companyName, desc.appName);
@@ -620,8 +620,8 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
             if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) newFocus = true;
 #ifdef __ANDROID__
 
-               // if (event.window.event == SDL_WINDOWEVENT_ENTER)
-               //   newFocus = true;
+         // if (event.window.event == SDL_WINDOWEVENT_ENTER)
+         //   newFocus = true;
 #endif  // ifdef __ANDROID__
 
             if (focus != newFocus) {
@@ -946,3 +946,15 @@ void sleep(timeMS time) {
 #endif  // ifdef OXYGINE_SDL
 }
 }  // namespace oxygine
+
+void* x86_64_alignedNew(std::size_t count) {
+   void* ptr = nullptr;
+   int rc = posix_memalign(&ptr, 16, count);
+   if (rc != 0 || ptr == nullptr) {
+      throw std::bad_alloc();
+   }
+   return ptr;
+}
+void x86_64_alignedFree(void* ptr) {
+   if (ptr) free(ptr);
+}

@@ -1,121 +1,119 @@
 #pragma once
-#include "oxygine-include.h"
-#include "AsyncTask.h"
-#include "core/file.h"
 #include <string>
 #include <vector>
 
-namespace oxygine
-{
-    DECLARE_SMART(HttpRequestTask, spHttpRequestTask);
-    class HttpRequestTask: public AsyncTask
-    {
-    public:
-        static spHttpRequestTask create();
-        typedef HttpRequestTask* (*createHttpRequestCallback)();
-        typedef std::function< bool(int) > responseCodeChecker;
-        static void setCustomRequests(createHttpRequestCallback);
-        static void init();
-        static void release();
+#include "AsyncTask.h"
+#include "core/file.h"
+#include "oxygine-include.h"
 
+namespace oxygine {
+DECLARE_SMART(HttpRequestTask, spHttpRequestTask);
+class HttpRequestTask : public AsyncTask {
+   FIX_x86_64_ALIGNMENT();
 
-        /**dispatching AsyncTask events*/
-        enum
-        {
-            ERROR = AsyncTask::ERROR,
-            PROGRESS = AsyncTask::PROGRESS,
-            COMPLETE = AsyncTask::COMPLETE,
-        };
+  public:
+   static spHttpRequestTask create();
+   typedef HttpRequestTask* (*createHttpRequestCallback)();
+   typedef std::function<bool(int)> responseCodeChecker;
+   static void setCustomRequests(createHttpRequestCallback);
+   static void init();
+   static void release();
 
-        class ProgressEvent : public Event
-        {
-        public:
-            enum {EVENT = PROGRESS};
-            ProgressEvent(size_t Delta, size_t Loaded, size_t Total, bool First) : Event(PROGRESS), delta(Delta), loaded(Loaded), total(Total), first(First) {};
+   /**dispatching AsyncTask events*/
+   enum {
+      ERROR = AsyncTask::ERROR,
+      PROGRESS = AsyncTask::PROGRESS,
+      COMPLETE = AsyncTask::COMPLETE,
+   };
 
-            size_t delta;
-            size_t loaded;
-            size_t total;
-            bool first;
-        };
+   class ProgressEvent : public Event {
+     public:
+      enum { EVENT = PROGRESS };
+      ProgressEvent(size_t Delta, size_t Loaded, size_t Total, bool First) : Event(PROGRESS), delta(Delta), loaded(Loaded), total(Total), first(First) {};
 
-        HttpRequestTask();
-        ~HttpRequestTask();
+      size_t delta;
+      size_t loaded;
+      size_t total;
+      bool first;
+   };
 
-        const std::vector<unsigned char>&   getResponse() const;
-        const std::vector<unsigned char>&   getPostData() const;
-        const std::string&                  getFileName() const;
-        const std::string&                  getUrl() const;
-        size_t                              getReceivedSize() const;
-        size_t                              getExpectedSize() const;
-        spObject                            getObject() const;
+   HttpRequestTask();
+   ~HttpRequestTask();
 
-        /**swap version of getResponse if you want to modify result buffer inplace*/
-        void getResponseSwap(std::vector<unsigned char>&);
-        int  getResponseCode() const { return _responseCode; }
-        const responseCodeChecker& getResponseCodeChecker() const {return _responseCodeChecker;}
-        void addHeader(const std::string& key, const std::string& value);
+   const std::vector<unsigned char>& getResponse() const;
+   const std::vector<unsigned char>& getPostData() const;
+   const std::string& getFileName() const;
+   const std::string& getUrl() const;
+   size_t getReceivedSize() const;
+   size_t getExpectedSize() const;
+   spObject getObject() const;
 
-        void setPostData(const std::vector<unsigned char>& data);
-        void setUrl(const std::string& url);
-        void setFileName(const std::string& name, bool continueDownload = false);
-        void setCacheEnabled(bool enabled);
-        void setObject(spObject obj);
+   /**swap version of getResponse if you want to modify result buffer inplace*/
+   void getResponseSwap(std::vector<unsigned char>&);
+   int getResponseCode() const { return _responseCode; }
+   const responseCodeChecker& getResponseCodeChecker() const { return _responseCodeChecker; }
+   void addHeader(const std::string& key, const std::string& value);
 
-        void setResponseCodeChecker(const responseCodeChecker& f) {_responseCodeChecker = f;}
-        /**by default only response code == 200 is succeded, other codes are dispatching Event::ERROR*/
-        void setSuccessOnAnyResponseCode(bool en);
-        void setExpectedSize(size_t size) { _expectedContentSize = size; }
+   void setPostData(const std::vector<unsigned char>& data);
+   void setUrl(const std::string& url);
+   void setFileName(const std::string& name, bool continueDownload = false);
+   void setCacheEnabled(bool enabled);
+   void setObject(spObject obj);
 
-    protected:
-        bool _prerun() override;
-        void _onError() override;
-        void _onComplete() override;
-        void _dispatchComplete() override;
-        void _finalize(bool error) override;
+   void setResponseCodeChecker(const responseCodeChecker& f) { _responseCodeChecker = f; }
+   /**by default only response code == 200 is succeded, other codes are dispatching Event::ERROR*/
+   void setSuccessOnAnyResponseCode(bool en);
+   void setExpectedSize(size_t size) { _expectedContentSize = size; }
 
-        std::string _getRunInfo() const override { return _url; }
+  protected:
+   bool _prerun() override;
+   void _onError() override;
+   void _onComplete() override;
+   void _dispatchComplete() override;
+   void _finalize(bool error) override;
 
-        void gotHeaders();
-        void write(const void* data, size_t size);
+   std::string _getRunInfo() const override { return _url; }
 
-        //async
-        void asyncProgress(size_t delta, size_t loaded, size_t total);
+   void gotHeaders();
+   void write(const void* data, size_t size);
 
-        void dispatchProgress(size_t delta, size_t loaded, size_t total);
+   // async
+   void asyncProgress(size_t delta, size_t loaded, size_t total);
 
-        virtual void _setFileName(const std::string& name) {}
-        virtual void _setUrl(const std::string& url) {}
-        virtual void _setPostData(const std::vector<unsigned char>& data) {}
-        virtual void _setCacheEnabled(bool enabled) {}
-        virtual void _addHeader(const std::string& key, const std::string& value) {}
+   void dispatchProgress(size_t delta, size_t loaded, size_t total);
 
-        std::string _url;
-        std::string _fname;
-        bool _writeFileError;
-        bool _cacheEnabled;
-        bool _firstTimeProgressDispatched;
-        bool _progressOnWrite;
+   virtual void _setFileName(const std::string& name) {}
+   virtual void _setUrl(const std::string& url) {}
+   virtual void _setPostData(const std::vector<unsigned char>& data) {}
+   virtual void _setCacheEnabled(bool enabled) {}
+   virtual void _addHeader(const std::string& key, const std::string& value) {}
 
-        bool _progressDispatched;
-        unsigned int _progressDeltaDelayed;
+   std::string _url;
+   std::string _fname;
+   bool _writeFileError;
+   bool _cacheEnabled;
+   bool _firstTimeProgressDispatched;
+   bool _progressOnWrite;
 
-        std::vector<unsigned char> _response;
-        std::vector<unsigned char> _postData;
+   bool _progressDispatched;
+   unsigned int _progressDeltaDelayed;
 
-        bool _continueDownload;
+   std::vector<unsigned char> _response;
+   std::vector<unsigned char> _postData;
 
-        size_t _expectedContentSize;
-        size_t _receivedContentSize;
-        file::handle _fhandle;
-        bool _suitableResponse;
-        responseCodeChecker _responseCodeChecker;
+   bool _continueDownload;
 
-        int _responseCode;
+   size_t _expectedContentSize;
+   size_t _receivedContentSize;
+   file::handle _fhandle;
+   bool _suitableResponse;
+   responseCodeChecker _responseCodeChecker;
 
-        spObject _object;
+   int _responseCode;
 
-        typedef std::vector< std::pair<std::string, std::string> >  headers;
-        headers _headers;
-    };
-}
+   spObject _object;
+
+   typedef std::vector<std::pair<std::string, std::string> > headers;
+   headers _headers;
+};
+}  // namespace oxygine
