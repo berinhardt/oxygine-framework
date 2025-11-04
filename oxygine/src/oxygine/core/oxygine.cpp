@@ -946,15 +946,3 @@ void sleep(timeMS time) {
 #endif  // ifdef OXYGINE_SDL
 }
 }  // namespace oxygine
-
-void* x86_64_alignedNew(std::size_t count) {
-   void* ptr = nullptr;
-   int rc = posix_memalign(&ptr, 16, count);
-   if (rc != 0 || ptr == nullptr) {
-      throw std::bad_alloc();
-   }
-   return ptr;
-}
-void x86_64_alignedFree(void* ptr) {
-   if (ptr) free(ptr);
-}

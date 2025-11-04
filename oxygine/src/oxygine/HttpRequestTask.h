@@ -9,8 +9,6 @@
 namespace oxygine {
 DECLARE_SMART(HttpRequestTask, spHttpRequestTask);
 class HttpRequestTask : public AsyncTask {
-   FIX_x86_64_ALIGNMENT();
-
   public:
    static spHttpRequestTask create();
    typedef HttpRequestTask* (*createHttpRequestCallback)();

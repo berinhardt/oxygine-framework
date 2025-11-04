@@ -175,15 +175,4 @@ typedef signed long long int64;
 
 #include "oxygine-forwards.h"
 
-#ifdef __x86_64__
-void* x86_64_alignedNew(std::size_t count);
-void x86_64_alignedFree(void* ptr);
-#define FIX_x86_64_ALIGNMENT()                                                       \
-  public:                                                                            \
-   static void* operator new(std::size_t count) { return x86_64_alignedNew(count); } \
-   static void operator delete(void* ptr) noexcept { x86_64_alignedFree(ptr); }
-#else
-#define FIX_x86_64_ALIGNMENT()
-#endif
-
 #endif
