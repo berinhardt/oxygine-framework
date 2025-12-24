@@ -12,7 +12,7 @@
 namespace oxygine {
 extern uint32_t decodeSymbol(int sym);
 namespace text {
-//#define ALIGNER_LOG
+// #define ALIGNER_LOG
 #ifdef ALIGNER_LOG
 #define ALIGNER_SYM_LOG
 #define DBG_LOG(...) logs::messageln(__VA_ARGS__)
@@ -135,7 +135,7 @@ void Aligner::_alignLine(line& ln) {
       int ws_off = ((options >> 12) & 0xF) +
                    ((options >> 8) & 0xF) * 2.0f;
 
-      if (_font->BiDiPass(ln)) {
+      if (Font::BiDiPass(ln)) {
          int ox = 0;
          int oy = ln[0]->y - ln[0]->gl.offset_y;
 
@@ -143,6 +143,8 @@ void Aligner::_alignLine(line& ln) {
          for (size_t i = 0; i < ln.size(); ++i) {
             Symbol* s = ln[i];
 
+// 2025-12-24 DARTA: esto no deberia ser necesario ahora que hacemos el shaper separado
+#if 0
             if (s->code != s->gl.ch) {
                const glyph* gl = _font->getGlyph(s->code, options);
 
@@ -161,11 +163,11 @@ void Aligner::_alignLine(line& ln) {
                   }
                }
             }
+#endif
             s->x = ox + s->gl.offset_x + style.kerning + ws_off / 2;
             ox += s->gl.advance_x + ws_off / 2;
          }
       }
-
       // calculate real text width
       int rx = 0;
       int lx = 0;
@@ -237,9 +239,9 @@ int Aligner::putSymbol(Symbol& s) {
    _x += s.gl.advance_x + getStyle().kerning + ws_off / 2;
 
    // 2025-03-07: Darta - estaba mal el rx aca, por lo que quedaba con lineas mas grandes de lo esperado
-   //                     dejo el comentario porque puede ser que quitar ws_off de aca rompa la medicion 
+   //                     dejo el comentario porque puede ser que quitar ws_off de aca rompa la medicion
    //                     con las sombras de sdf
-   //int rx = s.x + s.gl.advance_x + ws_off; 
+   // int rx = s.x + s.gl.advance_x + ws_off;
    int rx = s.x - s.gl.offset_x + s.gl.advance_x;
 
    _lineWidth = std::max(rx, _lineWidth);

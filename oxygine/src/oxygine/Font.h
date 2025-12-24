@@ -69,8 +69,21 @@ class Font : public ObjectBase {
    virtual int getPadding() const { return 0; }
    float getScale() const;
 
-   virtual bool BiDiPass(std::vector<text::Symbol*>&) const {
-      return false;
+   typedef bool (*BiDiDelegate_t)(std::vector<text::Symbol*>&);
+   typedef bool (*ShaperDelegate_t)(std::vector<text::Symbol>&);
+   static BiDiDelegate_t bidiDelegate;
+   static ShaperDelegate_t shaperDelegate;
+   static bool BiDiPass(std::vector<text::Symbol*>& param) {
+      if (bidiDelegate)
+         return bidiDelegate(param);
+      else
+         return false;
+   }
+   static bool ShaperPass(std::vector<text::Symbol>& param) {
+      if (shaperDelegate)
+         return shaperDelegate(param);
+      else
+         return false;
    }
 
   protected:

@@ -128,6 +128,7 @@ TextNode::TextNode(const char* v) {
 
       utfstr = getNextCode(code, utfstr, strlen(utfstr));
    }
+   Font::ShaperPass(_data);
 }
 
 Symbol* TextNode::getSymbol(int& pos) {

@@ -3,6 +3,8 @@
 #include "core/NativeTexture.h"
 
 namespace oxygine {
+Font::BiDiDelegate_t Font::bidiDelegate = nullptr;
+Font::ShaperDelegate_t Font::shaperDelegate = nullptr;
 Font::Font() : _size(0), _baselineDistance(0), _scale(1.0f), _sdf(false), _ignoreOptions(true) {}
 
 Font::~Font() {}
