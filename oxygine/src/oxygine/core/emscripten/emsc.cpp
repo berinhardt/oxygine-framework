@@ -4,7 +4,7 @@ namespace oxygine
 {
     void emscSyncFS(bool read)
     {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
         EM_ASM_ARGS(
         {
             FS.mkdir('/data');

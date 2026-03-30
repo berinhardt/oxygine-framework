@@ -77,7 +77,7 @@ unsigned int ShaderProgramGL::createShader(unsigned int type, const char* data, 
    gles = profile == SDL_GL_CONTEXT_PROFILE_ES;
 #endif
 
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
    if (!gles) {
       // logs::messageln("not gles version");
 

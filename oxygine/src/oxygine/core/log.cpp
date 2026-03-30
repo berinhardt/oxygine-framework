@@ -161,7 +161,7 @@ namespace oxygine
             va_start(args, format);
             error_va(format, args);
             va_end(args);
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
             if (_enabled)
             emscStackTrace();
 #endif

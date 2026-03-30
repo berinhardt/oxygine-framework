@@ -14,7 +14,7 @@
 #include <TargetConditionals.h>
 #endif
 
-#if EMSCRIPTEN
+#if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #endif
 
@@ -38,7 +38,7 @@
 // Bypass SDL file functions and use plain fopen, fread etc.
 // #define OXYGINE_FILESYSTEM_USE_STDIO 1
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #define OXYGINE_EMSCRIPTEN 1
 #define OXYGINE_SDL 1
 #ifndef NDEBUG
@@ -65,7 +65,7 @@
 #define DYNAMIC_OBJECT_NAME 1
 
 #ifndef OX_DEBUG
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 #define USE_MEMORY_POOL 1
 #define OBJECT_POOL_ALLOCATOR 1
 #endif
@@ -81,7 +81,7 @@
 
 #define OXYGINE_ASSERT2LOG 1
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 void emscStackTrace();
 #endif
 
@@ -104,7 +104,7 @@ namespace ox = oxygine;
       if (!(x)) __asm("int3"); \
       Q_ASSERT(x);             \
    }
-#elif !OX_DEBUG || EMSCRIPTEN
+#elif !defined(OX_DEBUG) || defined(__EMSCRIPTEN__)
 #define OX_ASSERT_NL(x)
 #else
 #define OX_ASSERT_NL(x) \

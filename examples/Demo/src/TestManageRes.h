@@ -2,7 +2,7 @@
 #include "test.h"
 #include "pthread.h"
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
@@ -34,7 +34,7 @@ public:
         toggle sw[] = {toggle("unload resources", 1), toggle("load resources", 0)};
         addToggle("switch", sw, 2);
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #else
         addButton("mt1", "load using ThreadLoader");
         addButton("mt2", "load from own thread");

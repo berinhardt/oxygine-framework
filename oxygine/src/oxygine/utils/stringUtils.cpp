@@ -248,7 +248,7 @@ std::wstring utf8tows(const char* utf8str) {
    if (n == 1)
       return L"";
 
-#if defined(OXYGINE_SDL) && !defined(EMSCRIPTEN)
+#if defined(OXYGINE_SDL) && !defined(__EMSCRIPTEN__)
    wchar_t* s = 0;
    if (sizeof(wchar_t) == 2)
       s = (wchar_t*)SDL_iconv_string("UCS-2-INTERNAL", "UTF-8", utf8str, n);
@@ -289,7 +289,7 @@ std::string ws2utf8(const wchar_t* wstr) {
    if (n == 1)
       return "";
 
-#if defined(OXYGINE_SDL) && !defined(EMSCRIPTEN)
+#if defined(OXYGINE_SDL) && !defined(__EMSCRIPTEN__)
    char* s = 0;
    if (sizeof(wchar_t) == 2)
       s = SDL_iconv_string("UTF-8", "UCS-2-INTERNAL", (const char*)wstr, n * sizeof(wchar_t));

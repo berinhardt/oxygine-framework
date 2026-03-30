@@ -1,127 +1,122 @@
 #pragma once
 #include "../../oxygine-include.h"
-
-#   include "SDL_config.h"
+#include "SDL_config.h"
 
 #if _WIN32
-#   define GL_GLEXT_PROTOTYPES
-#   include "SDL_opengl.h"
+#define GL_GLEXT_PROTOTYPES
+#include "SDL_opengl.h"
 
-#   define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                      0x8C00
-#   define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                      0x8C01
-#   define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                     0x8C02
-#   define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
+#define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
+#define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
+#define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
+#define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
 
-#   define GL_ETC1_RGB8_OES                                        0x8D64
+#define GL_ETC1_RGB8_OES 0x8D64
 
-
-extern "C"
-{
+extern "C" {
 //!--pfngl-begin--!
-    extern PFNGLSHADERSOURCEPROC _glShaderSource;
-    extern PFNGLUSEPROGRAMPROC _glUseProgram;
-    extern PFNGLVERTEXATTRIBPOINTERPROC _glVertexAttribPointer;
-    extern PFNGLACTIVETEXTUREPROC _glActiveTexture;
-    extern PFNGLENABLEVERTEXATTRIBARRAYPROC _glEnableVertexAttribArray;
-    extern PFNGLDISABLEVERTEXATTRIBARRAYPROC _glDisableVertexAttribArray;
-    extern PFNGLDELETEPROGRAMPROC _glDeleteProgram;
-    extern PFNGLGETSHADERIVPROC _glGetShaderiv;
-    extern PFNGLGETSHADERINFOLOGPROC _glGetShaderInfoLog;
-    extern PFNGLCREATESHADERPROC _glCreateShader;
-    extern PFNGLCREATEPROGRAMPROC _glCreateProgram;
-    extern PFNGLATTACHSHADERPROC _glAttachShader;
-    extern PFNGLCOMPILESHADERPROC _glCompileShader;
-    extern PFNGLDETACHSHADERPROC _glDetachShader;
-    extern PFNGLBINDATTRIBLOCATIONPROC _glBindAttribLocation;
-    extern PFNGLLINKPROGRAMPROC _glLinkProgram;
-    extern PFNGLUNIFORM1IPROC _glUniform1i;
-    extern PFNGLUNIFORM2FPROC _glUniform2f;
-    extern PFNGLUNIFORM2FVPROC _glUniform2fv;
-    extern PFNGLUNIFORM3FVPROC _glUniform3fv;
-    extern PFNGLUNIFORM3FPROC _glUniform3f;
-    extern PFNGLUNIFORM4FVPROC _glUniform4fv;
-    extern PFNGLUNIFORM1FPROC _glUniform1f;
-    extern PFNGLUNIFORMMATRIX4FVPROC _glUniformMatrix4fv;
-    extern PFNGLBINDFRAMEBUFFERPROC _glBindFramebuffer;
-    extern PFNGLGENFRAMEBUFFERSPROC _glGenFramebuffers;
-    extern PFNGLCHECKFRAMEBUFFERSTATUSPROC _glCheckFramebufferStatus;
-    extern PFNGLDELETEFRAMEBUFFERSPROC _glDeleteFramebuffers;
-    extern PFNGLGETUNIFORMLOCATIONPROC _glGetUniformLocation;
-    extern PFNGLFRAMEBUFFERTEXTURE2DPROC _glFramebufferTexture2D;
-    extern PFNGLCOMPRESSEDTEXIMAGE2DPROC _glCompressedTexImage2D;
-    extern PFNGLBINDBUFFERPROC _glBindBuffer;
-    extern PFNGLGENBUFFERSPROC _glGenBuffers;
-    extern PFNGLDRAWBUFFERSPROC _glDrawBuffers;
-    extern PFNGLBUFFERDATAPROC _glBufferData;
-    extern PFNGLGETPROGRAMIVPROC _glGetProgramiv;
-    extern PFNGLGENERATEMIPMAPPROC _glGenerateMipmap;
-    extern PFNGLSTENCILOPSEPARATEPROC _glStencilOpSeparate;
-    extern PFNGLGENRENDERBUFFERSPROC _glGenRenderbuffers;
-    extern PFNGLBINDRENDERBUFFERPROC _glBindRenderbuffer;
-    extern PFNGLRENDERBUFFERSTORAGEPROC _glRenderbufferStorage;
-    extern PFNGLFRAMEBUFFERRENDERBUFFERPROC _glFramebufferRenderbuffer;
-    extern PFNGLDELETERENDERBUFFERSPROC _glDeleteRenderbuffers;
-    extern PFNGLDELETESHADERPROC _glDeleteShader;
-    extern PFNGLDELETEBUFFERSPROC _glDeleteBuffers;
-    extern PFNGLGETPROGRAMINFOLOGPROC _glGetProgramInfoLog;
-    extern PFNGLBLENDEQUATIONPROC _glBlendEquation;
-    extern PFNGLBLENDFUNCSEPARATEPROC _glBlendFuncSeparate;
-    extern PFNGLBLENDEQUATIONSEPARATEPROC _glBlendEquationSeparate;
-    extern PFNGLGETATTRIBLOCATIONPROC _glGetAttribLocation;
+extern PFNGLSHADERSOURCEPROC _glShaderSource;
+extern PFNGLUSEPROGRAMPROC _glUseProgram;
+extern PFNGLVERTEXATTRIBPOINTERPROC _glVertexAttribPointer;
+extern PFNGLACTIVETEXTUREPROC _glActiveTexture;
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC _glEnableVertexAttribArray;
+extern PFNGLDISABLEVERTEXATTRIBARRAYPROC _glDisableVertexAttribArray;
+extern PFNGLDELETEPROGRAMPROC _glDeleteProgram;
+extern PFNGLGETSHADERIVPROC _glGetShaderiv;
+extern PFNGLGETSHADERINFOLOGPROC _glGetShaderInfoLog;
+extern PFNGLCREATESHADERPROC _glCreateShader;
+extern PFNGLCREATEPROGRAMPROC _glCreateProgram;
+extern PFNGLATTACHSHADERPROC _glAttachShader;
+extern PFNGLCOMPILESHADERPROC _glCompileShader;
+extern PFNGLDETACHSHADERPROC _glDetachShader;
+extern PFNGLBINDATTRIBLOCATIONPROC _glBindAttribLocation;
+extern PFNGLLINKPROGRAMPROC _glLinkProgram;
+extern PFNGLUNIFORM1IPROC _glUniform1i;
+extern PFNGLUNIFORM2FPROC _glUniform2f;
+extern PFNGLUNIFORM2FVPROC _glUniform2fv;
+extern PFNGLUNIFORM3FVPROC _glUniform3fv;
+extern PFNGLUNIFORM3FPROC _glUniform3f;
+extern PFNGLUNIFORM4FVPROC _glUniform4fv;
+extern PFNGLUNIFORM1FPROC _glUniform1f;
+extern PFNGLUNIFORMMATRIX4FVPROC _glUniformMatrix4fv;
+extern PFNGLBINDFRAMEBUFFERPROC _glBindFramebuffer;
+extern PFNGLGENFRAMEBUFFERSPROC _glGenFramebuffers;
+extern PFNGLCHECKFRAMEBUFFERSTATUSPROC _glCheckFramebufferStatus;
+extern PFNGLDELETEFRAMEBUFFERSPROC _glDeleteFramebuffers;
+extern PFNGLGETUNIFORMLOCATIONPROC _glGetUniformLocation;
+extern PFNGLFRAMEBUFFERTEXTURE2DPROC _glFramebufferTexture2D;
+extern PFNGLCOMPRESSEDTEXIMAGE2DPROC _glCompressedTexImage2D;
+extern PFNGLBINDBUFFERPROC _glBindBuffer;
+extern PFNGLGENBUFFERSPROC _glGenBuffers;
+extern PFNGLDRAWBUFFERSPROC _glDrawBuffers;
+extern PFNGLBUFFERDATAPROC _glBufferData;
+extern PFNGLGETPROGRAMIVPROC _glGetProgramiv;
+extern PFNGLGENERATEMIPMAPPROC _glGenerateMipmap;
+extern PFNGLSTENCILOPSEPARATEPROC _glStencilOpSeparate;
+extern PFNGLGENRENDERBUFFERSPROC _glGenRenderbuffers;
+extern PFNGLBINDRENDERBUFFERPROC _glBindRenderbuffer;
+extern PFNGLRENDERBUFFERSTORAGEPROC _glRenderbufferStorage;
+extern PFNGLFRAMEBUFFERRENDERBUFFERPROC _glFramebufferRenderbuffer;
+extern PFNGLDELETERENDERBUFFERSPROC _glDeleteRenderbuffers;
+extern PFNGLDELETESHADERPROC _glDeleteShader;
+extern PFNGLDELETEBUFFERSPROC _glDeleteBuffers;
+extern PFNGLGETPROGRAMINFOLOGPROC _glGetProgramInfoLog;
+extern PFNGLBLENDEQUATIONPROC _glBlendEquation;
+extern PFNGLBLENDFUNCSEPARATEPROC _glBlendFuncSeparate;
+extern PFNGLBLENDEQUATIONSEPARATEPROC _glBlendEquationSeparate;
+extern PFNGLGETATTRIBLOCATIONPROC _glGetAttribLocation;
 //!--pfngl-end--!
 }
 
 #elif __ANDROID__
-#   include "GLES2/gl2.h"
-#   define GL_GLEXT_PROTOTYPES
-#   include "GLES2/gl2ext.h"
+#include "GLES2/gl2.h"
+#define GL_GLEXT_PROTOTYPES
+#include "GLES2/gl2ext.h"
 
 #elif __APPLE__
-#   include <TargetConditionals.h>
-#   if TARGET_OS_IPHONE
-#       define GL_ETC1_RGB8_OES                                        0x8D64
-#       include <OpenGLES/ES2/gl.h>
-#       include <OpenGLES/ES2/glext.h>
-#       include <OpenGLES/ES1/gl.h>
-#       include <OpenGLES/ES1/glext.h>
-#   else
-#       define GL_GLEXT_PROTOTYPES
-#       include "SDL_opengl.h"
+#include <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+#define GL_ETC1_RGB8_OES 0x8D64
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include "SDL_opengl.h"
 
-#       define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                      0x8C00
-#       define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                      0x8C01
-#       define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                     0x8C02
-#       define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
+#define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
+#define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
+#define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
+#define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
 
-#       define GL_ETC1_RGB8_OES                                        0x8D64
-#   endif
-#elif EMSCRIPTEN
-#   include "GLES2/gl2.h"
-#   define GL_GLEXT_PROTOTYPES
-#   include "GLES2/gl2ext.h"
-#elif __unix__
-#   define GL_GLEXT_PROTOTYPES
-#   include "SDL_opengl.h"
-
-#   define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG                      0x8C00
-#   define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG                      0x8C01
-#   define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG                     0x8C02
-#   define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
-
-#   define GL_ETC1_RGB8_OES                                        0x8D64
+#define GL_ETC1_RGB8_OES 0x8D64
 #endif
+#elif defined(__EMSCRIPTEN__)
+#include "GLES2/gl2.h"
+#define GL_GLEXT_PROTOTYPES
+#include "GLES2/gl2ext.h"
+#elif __unix__
+#define GL_GLEXT_PROTOTYPES
+#include "SDL_opengl.h"
 
+#define GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
+#define GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG 0x8C01
+#define GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG 0x8C02
+#define GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG 0x8C03
 
+#define GL_ETC1_RGB8_OES 0x8D64
+#endif
 
 #if _WIN32
-#   define GLPREF _
+#define GLPREF _
 #else
-#   define GLPREF
+#define GLPREF
 #endif
 
-#define PASTER(x,y) x ## y
-#define EVALUATOR(x,y)  PASTER(x,y)
-#define DECLARE_GLEXT(y)  EVALUATOR(GLPREF,y)
+#define PASTER(x, y) x##y
+#define EVALUATOR(x, y) PASTER(x, y)
+#define DECLARE_GLEXT(y) EVALUATOR(GLPREF, y)
 
 //!--oxgl-begin--!
 #define oxglShaderSource DECLARE_GLEXT(glShaderSource)
@@ -176,14 +171,13 @@ extern "C"
 #define oxglGetAttribLocation DECLARE_GLEXT(glGetAttribLocation)
 //!--oxgl-end--!
 
+// #undef PASTER
+// #undef EVALUATOR
 
-//#undef PASTER
-//#undef EVALUATOR
+// namespace oxygine {void checkGLError();}
+// #define CHECKGL() checkGLError()
+#define CHECKGL()
 
-//namespace oxygine {void checkGLError();}
-//#define CHECKGL() checkGLError()
-#define CHECKGL() 
-
-typedef void*  (*myGetProcAdress)(const char*);
+typedef void* (*myGetProcAdress)(const char*);
 /**returns number of missing functions/extensions*/
 int initGLExtensions(myGetProcAdress);

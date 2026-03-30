@@ -70,10 +70,10 @@ void run()
     // Initializes our example game. See example.cpp
     example_init();
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
     /*
     If you build for Emscripten, mainloop is called automatically and shouldn't be called here.
-    See emscripten_set_main_loop in the EMSCRIPTEN section below
+    See emscripten_set_main_loop in the __EMSCRIPTEN__ section below
     */
     return;
 #endif
@@ -142,7 +142,7 @@ extern "C"
         //SDL_iPhoneSetAnimationCallback(core::getWindow(), 1, one, nullptr);
 #endif
 
-#if EMSCRIPTEN
+#if __EMSCRIPTEN__
         emscripten_set_main_loop(oneEmsc, 0, 0);
 #endif
 

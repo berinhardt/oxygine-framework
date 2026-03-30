@@ -5,7 +5,7 @@
 #   include <windows.h>
 #elif __ANDROID__
 #   include "core/android/jniUtils.h"
-#elif EMSCRIPTEN
+#elif __EMSCRIPTEN__
 #include <sys/time.h>
 #include "SDL_timer.h"
 #elif __APPLE__
@@ -154,7 +154,7 @@ namespace oxygine
 
     timeMS getTimeMS()
     {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
         return SDL_GetTicks();
 #elif OXYGINE_SDL
         return SDL_GetTicks();
@@ -172,7 +172,7 @@ namespace oxygine
         int64 t = tm.dwLowDateTime + (int64(tm.dwHighDateTime) << 32);
         int64 utc = (t - 116444736000000000LL) / 10000;
         return utc;
-#elif EMSCRIPTEN
+#elif __EMSCRIPTEN__
         struct timeval tv;
         gettimeofday(&tv, NULL);
         int64 tm =

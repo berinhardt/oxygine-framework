@@ -28,7 +28,7 @@
 #include "gl/oxgl.h"
 #include "log.h"
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <sys/time.h>
 
@@ -41,7 +41,7 @@
 #include <TargetConditionals.h>
 
 #include "ios/ios.h"
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
 #include "pthread.h"
 
@@ -58,7 +58,7 @@ extern "C" {
 
 #endif  // ifdef OXYGINE_SDL
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #define HANDLE_FOCUS_LOST 0
 
 void emscStackTrace() {
@@ -78,9 +78,9 @@ void emscStackTrace() {
 
 #elif !SDL_VIDEO_OPENGL
 #define HANDLE_FOCUS_LOST 1
-#else  // ifdef EMSCRIPTEN
+#else  // ifdef __EMSCRIPTEN__
 #define HANDLE_FOCUS_LOST 0
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
 #define LOST_RESET_CONTEXT 0
 
@@ -195,7 +195,7 @@ bool isMainThread() {
 #endif  // ifdef OX_NO_MT
 }
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 void SDL_handleEvent(SDL_Event& event, bool& done);
 int SDL_eventsHandler(void*, SDL_Event* e) {
    bool done = false;
@@ -204,7 +204,7 @@ int SDL_eventsHandler(void*, SDL_Event* e) {
    return 0;
 }
 
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
 void updateUIMessages() {
    ThreadDispatcher::peekMessage msg;
@@ -356,7 +356,7 @@ int init(init_desc* desc_ptr) {
 
    SDL_GL_SetSwapInterval(desc.vsync ? 1 : 0);
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
    SDL_SetEventFilter(SDL_eventsHandler, 0);
 
    int v = EM_ASM_INT(
@@ -370,7 +370,7 @@ int init(init_desc* desc_ptr) {
 
    if (v) _useTouchAPI = true;
 
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
 #if __ANDROID__ || TARGET_OS_IPHONE
 
@@ -660,9 +660,9 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
             getStageByWindow(event.window.windowID)->dispatchEvent(&ev);
          } break;
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
             _useTouchAPI = false;
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
          case SDL_MOUSEMOTION:
 
             if (!_useTouchAPI) input->sendPointerMotionEvent(getStageByWindow(event.window.windowID),
@@ -673,10 +673,10 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
             break;
          case SDL_MOUSEBUTTONDOWN:
          case SDL_MOUSEBUTTONUP: {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
             EM_ASM({ window.focus(); });
             _useTouchAPI = false;
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
             if (!_useTouchAPI) {
                MouseButton b = MouseButton_Left;
@@ -703,9 +703,9 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
             break;
          }
          case SDL_FINGERMOTION: {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
             _useTouchAPI = true;
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
             if (_useTouchAPI) {
                // logs::messageln("SDL_FINGERMOTION");
@@ -719,10 +719,10 @@ void SDL_handleEvent(SDL_Event& event, bool& done) {
          }
          case SDL_FINGERDOWN:
          case SDL_FINGERUP: {
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
             EM_ASM({ window.focus(); });
             _useTouchAPI = true;
-#endif  // ifdef EMSCRIPTEN
+#endif  // ifdef __EMSCRIPTEN__
 
             if (_useTouchAPI) {
                // logs::messageln("SDL_FINGER");
@@ -769,9 +769,9 @@ bool update() {
    SDL_Event event;
 
    while (SDL_PollEvent(&event)) {
-#if !EMSCRIPTEN  // emscripten build handles events from EventsFilter
+#if !__EMSCRIPTEN__  // emscripten build handles events from EventsFilter
       SDL_handleEvent(event, done);
-#endif  // if !EMSCRIPTEN
+#endif  // if !__EMSCRIPTEN__
    }
 
    return done;
@@ -835,7 +835,7 @@ void execute(const char* str) {
 #ifdef OXYGINE_EDITOR
 #elif __ANDROID__
    jniBrowse(str);
-#elif EMSCRIPTEN
+#elif __EMSCRIPTEN__
    EM_ASM_INT(
        {
           var url = UTF8ToString($0);
