@@ -135,10 +135,9 @@ void Actor::transformUpdated() {}
 
 void Actor::calcChildrenBounds(RectF& bounds, const Transform& transform) const {
    const Actor* c = getFirstChild().get();
-
    while (c) {
       if (c->getVisible()) {
-         Transform tr = c->getTransform() * transform;
+         Transform tr = transform * c->getTransform();
          c->calcBounds2(bounds, tr);
       }
       c = c->getNextSibling().get();
