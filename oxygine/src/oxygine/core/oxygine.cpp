@@ -839,7 +839,11 @@ void execute(const char* str) {
    EM_ASM_INT(
        {
           var url = UTF8ToString($0);
-          window.open(url, '_blank');
+          if (typeof window.OxygineOpenURL == "function") {
+             window.OxygineOpenURL(url);
+          } else {
+             window.open(url, '_blank');
+          }
        },
        str);
 #elif __APPLE__
