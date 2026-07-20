@@ -1,8 +1,9 @@
 #include "ResAnim.h"
-#include "Resources.h"
+
 #include "../Image.h"
 #include "../core/NativeTexture.h"
 #include "../core/VideoDriver.h"
+#include "Resources.h"
 
 namespace oxygine {
 static AnimationFrame emptyFrame;
@@ -16,7 +17,7 @@ void ResAnim::init(spNativeTexture texture, const Point& originalSize, int colum
 
    if (!texture) return;
 
-   int frame_width  = originalSize.x / columns;
+   int frame_width = originalSize.x / columns;
    int frame_height = originalSize.y / rows;
 
    animationFrames frames;
@@ -28,7 +29,7 @@ void ResAnim::init(spNativeTexture texture, const Point& originalSize, int colum
    for (int y = 0; y < rows; ++y) {
       for (int x = 0; x < columns; ++x) {
          Rect src;
-         src.pos  = Point(x * frame_width, y * frame_height);
+         src.pos = Point(x * frame_width, y * frame_height);
          src.size = Point(frame_width, frame_height);
 
          float iw = 1.0f / texture->getWidth();
@@ -72,7 +73,7 @@ void ResAnim::init(animationFrames& frames, int columns, float scaleFactor, floa
    _frames.swap(frames);
 
    for (size_t i = 0; i < _frames.size(); ++i) _frames[i].setResAnim(this);
-   _scaleFactor  = scaleFactor;
+   _scaleFactor = scaleFactor;
    _appliedScale = appliedScale;
 }
 
@@ -100,8 +101,8 @@ ResAnim::operator const AnimationFrame&() {
 }
 
 const Resources* ResAnim::getResources() const {
-   const Resource*  parent = getParent()->getParent();
-   const Resources* p      = safeCast<const Resources*>(parent);
+   const Resource* parent = getParent()->getParent();
+   const Resources* p = safeCast<const Resources*>(parent);
 
    return p;
 }
@@ -113,10 +114,7 @@ const AnimationFrame& ResAnim::getFrame(int col, int row) const {
 }
 
 const AnimationFrame& ResAnim::getFrame(int index) const {
-   OX_ASSERT(index < (int)_frames.size());
-
-   if (index < (int)_frames.size()) return _frames[index];
-   return emptyFrame;
+   return _frames[index % (int)_frames.size()];
 }
 
 void ResAnim::setFrame(int col, int row, const AnimationFrame& frame) {
@@ -128,8 +126,10 @@ void ResAnim::setFrame(int col, int row, const AnimationFrame& frame) {
 }
 
 const Vector2& ResAnim::getSize() const {
-   if (_frames.empty()) return ResAnim::NOSIZE;
-   else return _frames[0].getSize();
+   if (_frames.empty())
+      return ResAnim::NOSIZE;
+   else
+      return _frames[0].getSize();
 }
 
 float ResAnim::getWidth() const {
@@ -139,4 +139,4 @@ float ResAnim::getWidth() const {
 float ResAnim::getHeight() const {
    return getSize().y;
 }
-}
+}  // namespace oxygine
