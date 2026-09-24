@@ -1,8 +1,9 @@
 #include "HttpRequestJavaTask.h"
+
 #include "../log.h"
 
 namespace oxygine {
-jclass _jHttpRequestsClass      = 0;
+jclass _jHttpRequestsClass = 0;
 jmethodID _jCreateRequestMethod = 0;
 static HttpRequestTask* createTask() {
    return new HttpRequestJavaTask;
@@ -14,7 +15,14 @@ void HttpRequestTask::init() {
 
    JNIEnv* env = jniGetEnv();
    LOCAL_REF_HOLDER(env);
-   _jHttpRequestsClass = (jclass)env->NewGlobalRef(env->FindClass("org/oxygine/lib/HttpRequests"));
+
+   if (env->ExceptionCheck()) {
+      env->ExceptionDescribe();
+      env->ExceptionClear();
+   }
+
+   jclass _jClass = env->FindClass("org/oxygine/lib/HttpRequests");
+   _jHttpRequestsClass = (jclass)env->NewGlobalRef(_jClass);
    JNI_NOT_NULL(_jHttpRequestsClass);
 
    _jCreateRequestMethod = env->GetStaticMethodID(_jHttpRequestsClass,
@@ -39,7 +47,7 @@ void HttpRequestTask::release() {
    JNI_NOT_NULL(jRelease);
    env->CallStaticVoidMethod(_jHttpRequestsClass, jRelease);
    env->DeleteGlobalRef(_jHttpRequestsClass);
-   _jHttpRequestsClass   = 0;
+   _jHttpRequestsClass = 0;
    _jCreateRequestMethod = 0;
 }
 
@@ -63,20 +71,19 @@ void HttpRequestJavaTask::_run() {
 
    checkJNIException();
 
-   jobjectArray jkeys   = (jobjectArray)env->NewObjectArray(_headers.size(), env->FindClass("java/lang/String"), 0);
+   jobjectArray jkeys = (jobjectArray)env->NewObjectArray(_headers.size(), env->FindClass("java/lang/String"), 0);
    jobjectArray jvalues = (jobjectArray)env->NewObjectArray(_headers.size(), env->FindClass("java/lang/String"), 0);
 
    for (size_t i = 0; i < _headers.size(); ++i) {
-      jstring jkey   = env->NewStringUTF(_headers[i].first.c_str());
+      jstring jkey = env->NewStringUTF(_headers[i].first.c_str());
       jstring jvalue = env->NewStringUTF(_headers[i].second.c_str());
 
-      env->SetObjectArrayElement(jkeys,   i, jkey);
+      env->SetObjectArrayElement(jkeys, i, jkey);
       env->SetObjectArrayElement(jvalues, i, jvalue);
 
       env->DeleteLocalRef(jkey);
       env->DeleteLocalRef(jvalue);
    }
-
 
    addRef();
    _handle = env->NewGlobalRef(env->CallStaticObjectMethod(_jHttpRequestsClass, _jCreateRequestMethod,
@@ -85,22 +92,21 @@ void HttpRequestJavaTask::_run() {
 }
 
 void HttpRequestJavaTask::error_() {
-   core::getMainThreadDispatcher().postCallback([ = ]()
-      {
-         _error();
-         releaseRef();
-      });
+   core::getMainThreadDispatcher().postCallback([=]() {
+      _error();
+      releaseRef();
+   });
 }
 
 void HttpRequestJavaTask::gotHeader_(int respCode, int contentLen) {
-   _responseCode        = respCode;
+   _responseCode = respCode;
    _expectedContentSize = contentLen;
    gotHeaders();
 }
 
 void HttpRequestJavaTask::write_(jbyteArray jdata, int size) {
-   JNIEnv* env  = jniGetEnv();
-   jbyte*  data = env->GetByteArrayElements(jdata, 0);
+   JNIEnv* env = jniGetEnv();
+   jbyte* data = env->GetByteArrayElements(jdata, 0);
 
    write(data, size);
 
@@ -108,11 +114,10 @@ void HttpRequestJavaTask::write_(jbyteArray jdata, int size) {
 }
 
 void HttpRequestJavaTask::complete_() {
-   core::getMainThreadDispatcher().postCallback([ = ]()
-      {
-         _complete();
-         releaseRef();
-      });
+   core::getMainThreadDispatcher().postCallback([=]() {
+      _complete();
+      releaseRef();
+   });
 }
 
 void HttpRequestJavaTask::_finalize(bool) {
@@ -121,17 +126,16 @@ void HttpRequestJavaTask::_finalize(bool) {
    env->DeleteGlobalRef(_handle);
    _handle = 0;
 }
-}
+}  // namespace oxygine
 
-extern "C"
-{
+extern "C" {
 /*
    public static native void nativeHttpRequestSuccess(long handle);
    public static native void nativeHttpRequestError(long handle);
    public static native void nativeHttpRequestGotHeader(long handle, int code, int contentLength);
    public static native void nativeHttpRequestWrite(long handle, byte[] data, int size);
  */
-JNIEnv*                Android_JNI_GetEnv(void);
+JNIEnv* Android_JNI_GetEnv(void);
 
 JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestSuccess(JNIEnv* env, jclass, jlong handle) {
    oxygine::HttpRequestJavaTask* task = (oxygine::HttpRequestJavaTask*)handle;
@@ -145,11 +149,11 @@ JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestError(J
    task->error_();
 }
 
-JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestWrite(JNIEnv*    env,
+JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestWrite(JNIEnv* env,
                                                                                jclass,
-                                                                               jlong      handle,
+                                                                               jlong handle,
                                                                                jbyteArray array,
-                                                                               jint       size) {
+                                                                               jint size) {
    oxygine::HttpRequestJavaTask* task = (oxygine::HttpRequestJavaTask*)handle;
 
    task->write_(array, size);
@@ -157,9 +161,9 @@ JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestWrite(J
 
 JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestGotHeader(JNIEnv* env,
                                                                                    jclass,
-                                                                                   jlong   handle,
-                                                                                   jint    respCode,
-                                                                                   jint    contentLen) {
+                                                                                   jlong handle,
+                                                                                   jint respCode,
+                                                                                   jint contentLen) {
    oxygine::HttpRequestJavaTask* task = (oxygine::HttpRequestJavaTask*)handle;
 
    task->gotHeader_(respCode, contentLen);
