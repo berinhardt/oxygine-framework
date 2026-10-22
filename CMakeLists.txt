@@ -7,6 +7,7 @@ set(OX_HAVE_LIBPNG 0)
 set(OX_HAVE_LIBCURL 0)
 set(OX_HAVE_HTTP 0)
 set(OX_USE_SDL2 1)
+option(OX_FORCE_HPC "Force half pixel correction as the default in ResAtlasPrebuilt" OFF)
 
 #PACKAGES
 find_package(OpenGL)
@@ -115,6 +116,15 @@ if (OX_HAVE_LIBCURL)
 endif(OX_HAVE_LIBCURL)
 
 
+
+# NDEBUG is read by the framework itself (oxygine-include.h, oxygine.cpp) and
+# propagates to consumers via the PUBLIC target_compile_definitions below.
+set(OX_DEFINITIONS ${OX_DEFINITIONS} -DNDEBUG)
+
+# FORCE_HPC sets the half pixel correction default in ResAtlasPrebuilt.h.
+if (OX_FORCE_HPC)
+	set(OX_DEFINITIONS ${OX_DEFINITIONS} -DFORCE_HPC)
+endif(OX_FORCE_HPC)
 
 if (NOT OX_HAVE_HTTP)
 	set(OX_DEFINITIONS ${OX_DEFINITIONS} -DOX_NO_HTTP)
