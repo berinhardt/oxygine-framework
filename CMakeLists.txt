@@ -83,8 +83,14 @@ if (EMSCRIPTEN)
 
 	file(GLOB OXYGINE_JS_LIBRARIES ${OXYGINE_SRC}/core/emscripten/*.js)
 
-	set(OXYGINE_CXX_FLAGS "${OXYGINE_CXX_FLAGS} -s USE_SDL=2 -s USE_LIBPNG=1 -s USE_LIBJPEG=1 -s USE_ZLIB=1 -Wno-unused-command-line-argument -s USE_WEBGL2=1")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_ZLIB=1")#for minizip.c
+	# The emscripten port settings this library needs, each measured against the
+	# generated artifacts: USE_SDL is needed while compiling as well (emcc
+	# injects the port's headers), the others only while linking.
+	target_compile_options(oxygine-framework PUBLIC -sUSE_SDL=2)
+	target_link_options(oxygine-framework PUBLIC -sUSE_SDL=2)
+	target_link_options(oxygine-framework PUBLIC -sUSE_LIBPNG=1)
+	target_link_options(oxygine-framework PUBLIC -sUSE_LIBJPEG=1)
+	target_link_options(oxygine-framework PUBLIC -sUSE_WEBGL2=1)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux") 		
 	set(OX_HAVE_LIBJPEG 1)
 	set(OX_HAVE_LIBPNG 1)
@@ -196,7 +202,10 @@ endif(NOT EMSCRIPTEN)
 
 
 if (NOT MSVC)
-	set(OXYGINE_CXX_FLAGS "${OXYGINE_CXX_FLAGS} -std=c++11 ")
+	# A usage requirement, so consumers inherit the same dialect; extensions off
+	# keeps the emitted flag -std=c++11 rather than -std=gnu++11.
+	target_compile_features(oxygine-framework PUBLIC cxx_std_11)
+	set_target_properties(oxygine-framework PROPERTIES CXX_EXTENSIONS OFF)
 endif(NOT MSVC)
 
 set(CMAKE_CXX_FLAGS ${OXYGINE_CXX_FLAGS})
