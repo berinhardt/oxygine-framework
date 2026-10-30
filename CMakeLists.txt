@@ -148,9 +148,6 @@ else()
 	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/pthreads/include/ ${THIRD_PARTY}/zlib)
 endif()		
 
-target_link_directories(oxygine-framework PUBLIC ${OXYGINE_SOURCE_DIR}/libs ${THIRD_PARTY}/libraries)
-
-
 if (FORCE_GLES)
 	target_link_libraries(oxygine-framework PUBLIC libGLESv2.lib)
 endif(FORCE_GLES)
