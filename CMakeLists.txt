@@ -205,16 +205,10 @@ if (NOT MSVC)
 	set_target_properties(oxygine-framework PROPERTIES CXX_EXTENSIONS OFF)
 endif(NOT MSVC)
 
-set(CMAKE_CXX_FLAGS ${OXYGINE_CXX_FLAGS})
-
 target_compile_definitions(oxygine-framework PUBLIC ${OX_DEFINITIONS})
 
 set(OXYGINE_JS_LIBRARIES
 	${OXYGINE_JS_LIBRARIES}
-	PARENT_SCOPE)
-
-set(OXYGINE_CXX_FLAGS
-	${OXYGINE_CXX_FLAGS}
 	PARENT_SCOPE)
 
 
