@@ -83,12 +83,18 @@ if (EMSCRIPTEN)
 
 	file(GLOB OXYGINE_JS_LIBRARIES ${OXYGINE_SRC}/core/emscripten/*.js)
 
-	# The emscripten port settings this library needs, each measured against the
-	# generated artifacts: USE_SDL is needed while compiling as well (emcc
-	# injects the port's headers), the others only while linking.
+	# The emscripten port settings this library needs. A port setting on the
+	# compile line makes emcc install that port's headers into the sysroot, so
+	# every port whose headers oxygine sources include (SDL.h, png.h, jpeglib.h)
+	# has to be requested while compiling; otherwise a fresh sysroot fails the
+	# compile before anything links. The link line keeps its own copy so linking
+	# never depends on a sysroot some earlier compile happened to populate.
+	# USE_WEBGL2 only selects the link-time GL binding, so it stays link-only.
 	target_compile_options(oxygine-framework PUBLIC -sUSE_SDL=2)
 	target_link_options(oxygine-framework PUBLIC -sUSE_SDL=2)
+	target_compile_options(oxygine-framework PUBLIC -sUSE_LIBPNG=1)
 	target_link_options(oxygine-framework PUBLIC -sUSE_LIBPNG=1)
+	target_compile_options(oxygine-framework PUBLIC -sUSE_LIBJPEG=1)
 	target_link_options(oxygine-framework PUBLIC -sUSE_LIBJPEG=1)
 	target_link_options(oxygine-framework PUBLIC -sUSE_WEBGL2=1)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux") 		
