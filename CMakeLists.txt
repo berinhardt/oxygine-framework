@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 3.16)
-project (OXYGINE)
 
 #OPTIONS
 set(OX_HAVE_LIBJPEG 0)
