@@ -75,11 +75,13 @@ if (ANDROID)
 	add_library(jpeg STATIC IMPORTED)
 	set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libjpeg.a)
 
-	# Android.mk wrapped png and jpeg in LOCAL_WHOLE_STATIC_LIBRARIES. Every
-	# symbol they export is referenced directly from the framework's own
-	# objects, so plain imported targets keep the same objects and
-	# -Wl,--whole-archive is not needed.
-	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
+	# Android.mk wrapped png and jpeg in LOCAL_WHOLE_STATIC_LIBRARIES. A plain
+	# imported target only pulls the archive members something references, so
+	# the compressor entry points the baseline exports would otherwise
+	# disappear; wrap the archives the same way. (libopenal.a is also
+	# whole-archived in Android.mk and contributes its own ring-buffer helpers,
+	# which the sound library's own link handles.)
+	target_link_libraries(oxygine-framework PUBLIC "-Wl,--whole-archive" png jpeg "-Wl,--no-whole-archive" GLESv2 log)
 endif()
 
 target_link_libraries(oxygine-framework PUBLIC glm)
@@ -160,6 +162,10 @@ elseif (ANDROID)
 	# dirs and the imported png/jpeg archives.
 	set(OX_HAVE_LIBJPEG 1)
 	set(OX_HAVE_LIBPNG 1)
+	# Android.mk never defined OX_NO_HTTP: the Java task supplies init() and
+	# release(), which the null bodies compiled under OX_NO_HTTP would collide
+	# with.
+	set(OX_HAVE_HTTP 1)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DUSE_FILE32API)
 endif()
 
