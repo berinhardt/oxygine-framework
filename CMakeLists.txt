@@ -25,6 +25,15 @@ set(FOLDERS oxygine oxygine/closure oxygine/minizip oxygine/core
 if (EMSCRIPTEN)
 	set(PLATFORM emscripten)
 	set(SOURCES ${OXYGINE_SRC}/core/emscripten/HttpRequestEmscriptenTask.cpp)
+elseif (ANDROID)
+	set(PLATFORM android)
+	# Android.mk adds exactly these three JNI sources on top of the folder globs.
+	# It uses the Java HTTP task, so core/curl must not be added to FOLDERS here.
+	# core/gl is already covered by the FOLDERS glob.
+	set(SOURCES
+		${OXYGINE_SRC}/core/android/jniUtils.cpp
+		${OXYGINE_SRC}/core/android/jniHelper.cpp
+		${OXYGINE_SRC}/core/android/HttpRequestJavaTask.cpp)
 else()
 	set(FOLDERS ${FOLDERS} oxygine/core/curl)
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux") 	
@@ -52,6 +61,27 @@ endforeach(ITEM)
 
 add_library(oxygine-framework STATIC ${SOURCES})
 
+if (ANDROID)
+	set(OXYGINE_ANDROID_LIBS ${THIRD_PARTY}/libraries/${ANDROID_ABI})
+	foreach(LIB png jpeg)
+		if (NOT EXISTS ${OXYGINE_ANDROID_LIBS}/lib${LIB}.a)
+			message(FATAL_ERROR
+				"Missing prebuilt lib${LIB} for ${ANDROID_ABI}: ${OXYGINE_ANDROID_LIBS}/lib${LIB}.a")
+		endif()
+	endforeach()
+
+	add_library(png STATIC IMPORTED)
+	set_target_properties(png PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libpng.a)
+	add_library(jpeg STATIC IMPORTED)
+	set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libjpeg.a)
+
+	# Android.mk wrapped png and jpeg in LOCAL_WHOLE_STATIC_LIBRARIES. Every
+	# symbol they export is referenced directly from the framework's own
+	# objects, so plain imported targets keep the same objects and
+	# -Wl,--whole-archive is not needed.
+	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
+endif()
+
 target_link_libraries(oxygine-framework PUBLIC glm)
 
 target_include_directories(oxygine-framework PRIVATE ${OXYGINE_SRC})
@@ -60,6 +90,10 @@ if (EMSCRIPTEN)
 	#don't need SDL2
 elseif (WIN32)	
 	#hardcoded path to SDL2 on windows
+	target_include_directories(oxygine-framework PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SDL/include)
+elseif (ANDROID)
+	# Android builds against the in-tree SDL submodule, as Android.mk does, so
+	# this does not depend on find_path locating a system SDL2.
 	target_include_directories(oxygine-framework PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SDL/include)
 else(WIN32)
 	find_path(SDL2_INCLUDE_DIRS NAMES SDL2/SDL.h)
@@ -119,6 +153,14 @@ elseif(MINGW)
 	set(OX_HAVE_HTTP 1)
 
 	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/curl/)
+elseif (ANDROID)
+	# The same defines Android.mk passes: the png/jpeg backends are used, and the
+	# 32-bit file API keeps minizip on the same off_t as the rest of the build.
+	# The OX_HAVE_LIBPNG/LIBJPEG blocks below add their own -D flags, include
+	# dirs and the imported png/jpeg archives.
+	set(OX_HAVE_LIBJPEG 1)
+	set(OX_HAVE_LIBPNG 1)
+	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DUSE_FILE32API)
 endif()
 
 if (OX_HAVE_LIBCURL)	
@@ -148,6 +190,9 @@ endif(EMSCRIPTEN)
 
 if (MINGW)
 	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/zlib)
+elseif (ANDROID)
+	# third_party/android has no pthreads directory, so only zlib is added.
+	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/zlib)
 else()
 	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/pthreads/include/ ${THIRD_PARTY}/zlib)
 endif()		
@@ -174,6 +219,8 @@ elseif (WIN32)
 		ws2_32)
 
 elseif(EMSCRIPTEN)
+elseif(ANDROID)
+	# Android supplies pthread through libc; there is nothing to link.
 else()
 	target_link_libraries(oxygine-framework PUBLIC pthread)
 endif()
