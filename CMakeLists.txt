@@ -208,11 +208,18 @@ if (FORCE_GLES)
 endif(FORCE_GLES)
 
 if (OX_USE_SDL2)
-	target_link_libraries(oxygine-framework PUBLIC SDL2)
-	if (NOT EMSCRIPTEN) 
-		target_link_libraries(oxygine-framework PUBLIC SDL2main)
+	if (ANDROID)
+		# android.mk's framework module declares no shared libraries; the main module
+		# provides SDL2. Linking it here — PUBLIC or PRIVATE — still puts it on every
+		# consumer's link line for a static library, so the framework must not name it.
+		# The SDL include directories below stay PUBLIC, and OX_USE_SDL2 stays 1.
+	else()
+		target_link_libraries(oxygine-framework PUBLIC SDL2)
+		if (NOT EMSCRIPTEN)
+			target_link_libraries(oxygine-framework PUBLIC SDL2main)
+		endif()
 	endif()
-endif(OX_USE_SDL2)	
+endif(OX_USE_SDL2)
 
 
 if (MINGW) 
