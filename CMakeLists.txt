@@ -267,7 +267,14 @@ if (OX_HAVE_LIBPNG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBPNG)
 
 	if (NOT EMSCRIPTEN)
-		target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)		
+		# Android.mk's THIRD_PARTY ends in a slash, so its image include
+		# directories carry a doubled slash; clang records that text in the
+		# DWARF line table, so Android keeps the same spelling.
+		if (ANDROID)
+			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}//libpng)
+		else()
+			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)
+		endif()
 		# Android links the archive from the main module's whole-archive group;
 		# see the ANDROID branch above. Only the headers come from here.
 		if (NOT ANDROID)
@@ -280,7 +287,11 @@ endif(OX_HAVE_LIBPNG)
 if (OX_HAVE_LIBJPEG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG)
 	if (NOT EMSCRIPTEN)
-		target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)		
+		if (ANDROID)
+			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}//libjpeg)
+		else()
+			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)
+		endif()
 		if (NOT ANDROID)
 			target_link_libraries(oxygine-framework PUBLIC jpeg)
 		endif(NOT ANDROID)
