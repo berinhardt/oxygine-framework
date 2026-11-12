@@ -70,18 +70,18 @@ if (ANDROID)
 		endif()
 	endforeach()
 
-	add_library(png STATIC IMPORTED)
-	set_target_properties(png PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libpng.a)
-	add_library(jpeg STATIC IMPORTED)
-	set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libjpeg.a)
-
-	# Android.mk wrapped png and jpeg in LOCAL_WHOLE_STATIC_LIBRARIES. A plain
-	# imported target only pulls the archive members something references, so
-	# the compressor entry points the baseline exports would otherwise
-	# disappear; wrap the archives the same way. (libopenal.a is also
-	# whole-archived in Android.mk and contributes its own ring-buffer helpers,
-	# which the sound library's own link handles.)
-	target_link_libraries(oxygine-framework PUBLIC "-Wl,--whole-archive" png jpeg "-Wl,--no-whole-archive" GLESv2 log)
+	# Android.mk put png and jpeg in the main module's
+	# LOCAL_WHOLE_STATIC_LIBRARIES, and ndk-build emits the whole-archive block
+	# ahead of the ordinary static libraries (build/core/default-build-commands.mk:
+	# objects, link-whole-archives, static libs, shared libs). A whole-archive
+	# pair declared here can only ever be emitted at this module's position in
+	# the link, after the selective archives, so it lays the blocks out in an
+	# order ndk-build never produced. The ordering decision belongs to the
+	# module that owns the link line: the main module names both archives in
+	# its own ordered whole-archive group. Only the platform libraries stay
+	# here. The headers still come from third_party/android/libpng and /libjpeg
+	# below; the sources include png.h and jpeglib.h.
+	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
 endif()
 
 target_link_libraries(oxygine-framework PUBLIC glm)
@@ -158,8 +158,9 @@ elseif(MINGW)
 elseif (ANDROID)
 	# The same defines Android.mk passes: the png/jpeg backends are used, and the
 	# 32-bit file API keeps minizip on the same off_t as the rest of the build.
-	# The OX_HAVE_LIBPNG/LIBJPEG blocks below add their own -D flags, include
-	# dirs and the imported png/jpeg archives.
+	# The OX_HAVE_LIBPNG/LIBJPEG blocks below add their own -D flags and the
+	# third_party/android include dirs; the archives those headers belong to
+	# are linked by the main module, not here.
 	set(OX_HAVE_LIBJPEG 1)
 	set(OX_HAVE_LIBPNG 1)
 	# Android.mk never defined OX_NO_HTTP: the Java task supplies init() and
@@ -243,7 +244,11 @@ if (OX_HAVE_LIBPNG)
 
 	if (NOT EMSCRIPTEN)
 		target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)		
-		target_link_libraries(oxygine-framework PUBLIC png)
+		# Android links the archive from the main module's whole-archive group;
+		# see the ANDROID branch above. Only the headers come from here.
+		if (NOT ANDROID)
+			target_link_libraries(oxygine-framework PUBLIC png)
+		endif(NOT ANDROID)
 	endif(NOT EMSCRIPTEN)
 endif(OX_HAVE_LIBPNG)
 
@@ -252,7 +257,9 @@ if (OX_HAVE_LIBJPEG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG)
 	if (NOT EMSCRIPTEN)
 		target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)		
-		target_link_libraries(oxygine-framework PUBLIC jpeg)
+		if (NOT ANDROID)
+			target_link_libraries(oxygine-framework PUBLIC jpeg)
+		endif(NOT ANDROID)
 	endif(NOT EMSCRIPTEN)
 endif(OX_HAVE_LIBJPEG)
 
