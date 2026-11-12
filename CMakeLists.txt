@@ -264,7 +264,7 @@ else()
 endif()
 
 if (OX_HAVE_LIBPNG)
-	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBPNG)
+	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBPNG=1)
 
 	if (NOT EMSCRIPTEN)
 		# Android.mk's THIRD_PARTY ends in a slash, so its image include
@@ -288,7 +288,7 @@ endif(OX_HAVE_LIBPNG)
 
 
 if (OX_HAVE_LIBJPEG)
-	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG)
+	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG=1)
 	if (NOT EMSCRIPTEN)
 		if (ANDROID)
 			target_include_directories(oxygine-framework INTERFACE ${THIRD_PARTY}//libjpeg)
