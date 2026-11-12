@@ -269,9 +269,12 @@ if (OX_HAVE_LIBPNG)
 	if (NOT EMSCRIPTEN)
 		# Android.mk's THIRD_PARTY ends in a slash, so its image include
 		# directories carry a doubled slash; clang records that text in the
-		# DWARF line table, so Android keeps the same spelling.
+		# DWARF line table. CMake collapses '//' in an include directory, so
+		# the directory is INTERFACE for consumers and a raw -I for this
+		# target's own compile, which CMake passes through verbatim.
 		if (ANDROID)
-			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}//libpng)
+			target_include_directories(oxygine-framework INTERFACE ${THIRD_PARTY}//libpng)
+			target_compile_options(oxygine-framework PRIVATE "-I${THIRD_PARTY}//libpng")
 		else()
 			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)
 		endif()
@@ -288,7 +291,8 @@ if (OX_HAVE_LIBJPEG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBJPEG)
 	if (NOT EMSCRIPTEN)
 		if (ANDROID)
-			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}//libjpeg)
+			target_include_directories(oxygine-framework INTERFACE ${THIRD_PARTY}//libjpeg)
+			target_compile_options(oxygine-framework PRIVATE "-I${THIRD_PARTY}//libjpeg")
 		else()
 			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)
 		endif()
