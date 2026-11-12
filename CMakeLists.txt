@@ -115,6 +115,12 @@ elseif (ANDROID)
 	# Android builds against the in-tree SDL submodule, as Android.mk does, so
 	# this does not depend on find_path locating a system SDL2.
 	target_include_directories(oxygine-framework PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SDL/include)
+	# ndk-build's LOCAL_C_INCLUDES named glm as '<module>/../glm', and that is
+	# the spelling clang recorded for every framework header that includes it.
+	# The PUBLIC glm target below exports the collapsed absolute path, so put
+	# the baseline spelling first; it only affects this target's own compile.
+	target_include_directories(oxygine-framework BEFORE PRIVATE
+		"${CMAKE_CURRENT_SOURCE_DIR}/../glm")
 else(WIN32)
 	find_path(SDL2_INCLUDE_DIRS NAMES SDL2/SDL.h)
 
