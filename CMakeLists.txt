@@ -27,13 +27,16 @@ if (EMSCRIPTEN)
 	set(SOURCES ${OXYGINE_SRC}/core/emscripten/HttpRequestEmscriptenTask.cpp)
 elseif (ANDROID)
 	set(PLATFORM android)
-	# Android.mk adds exactly these three JNI sources on top of the folder globs.
-	# It uses the Java HTTP task, so core/curl must not be added to FOLDERS here.
-	# core/gl is already covered by the FOLDERS glob.
-	set(SOURCES
-		${OXYGINE_SRC}/core/android/jniUtils.cpp
-		${OXYGINE_SRC}/core/android/jniHelper.cpp
-		${OXYGINE_SRC}/core/android/HttpRequestJavaTask.cpp)
+	# Android.mk hands the compiler its sources in the order LOCAL_SRC_FILES
+	# lists them, and the archiver preserves that order, which is what lays out
+	# the .text blocks inside the archive. Follow the same sequence here.
+	# core/gl is not in it: Android.mk globs core/ one level deep and names the
+	# six core/gl sources after the JNI ones, below the glob loop. It uses the
+	# Java HTTP task, so core/curl must not be added to FOLDERS.
+	set(FOLDERS oxygine/closure oxygine/core oxygine/math oxygine/actor
+			oxygine/tween oxygine/pugixml oxygine/json oxygine/res
+			oxygine/text_utils oxygine/dev_tools oxygine/utils
+			oxygine/winnie_alloc oxygine/minizip oxygine)
 else()
 	set(FOLDERS ${FOLDERS} oxygine/core/curl)
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux") 	
@@ -58,6 +61,21 @@ foreach(ITEM ${FOLDERS})
 	string(REPLACE / \\ SGROUP ${ITEM})
 	source_group(${SGROUP} FILES ${FLS})
 endforeach(ITEM)
+
+if (ANDROID)
+	# Android.mk appends the three JNI sources after the src root glob and the
+	# six core/gl sources after those, so the archive keeps that member order.
+	set(SOURCES ${SOURCES}
+		${OXYGINE_SRC}/core/android/jniUtils.cpp
+		${OXYGINE_SRC}/core/android/jniHelper.cpp
+		${OXYGINE_SRC}/core/android/HttpRequestJavaTask.cpp
+		${OXYGINE_SRC}/core/gl/NativeTextureGLES.cpp
+		${OXYGINE_SRC}/core/gl/oxgl.cpp
+		${OXYGINE_SRC}/core/gl/VertexDeclarationGL.cpp
+		${OXYGINE_SRC}/core/gl/ShaderProgramGL.cpp
+		${OXYGINE_SRC}/core/gl/VideoDriverGL.cpp
+		${OXYGINE_SRC}/core/gl/VideoDriverGLES20.cpp)
+endif()
 
 add_library(oxygine-framework STATIC ${SOURCES})
 
