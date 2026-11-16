@@ -135,8 +135,6 @@ extern "C" {
    public static native void nativeHttpRequestGotHeader(long handle, int code, int contentLength);
    public static native void nativeHttpRequestWrite(long handle, byte[] data, int size);
  */
-JNIEnv* Android_JNI_GetEnv(void);
-
 JNIEXPORT void JNICALL Java_org_oxygine_lib_HttpRequest_nativeHttpRequestSuccess(JNIEnv* env, jclass, jlong handle) {
    oxygine::HttpRequestJavaTask* task = (oxygine::HttpRequestJavaTask*)handle;
 

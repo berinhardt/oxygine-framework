@@ -1,13 +1,10 @@
 #include "jniHelper.h"
 
-extern "C"
-{
-JNIEnv* Android_JNI_GetEnv(void);
-}
+#include <SDL_system.h>
 
 namespace oxygine {
 JNIEnv* jniGetEnv(void) {
-   return Android_JNI_GetEnv();
+   return static_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
 }
 
 std::string jniGetString(JNIEnv* env, jstring jstr) {
