@@ -27,12 +27,9 @@ if (EMSCRIPTEN)
 	set(SOURCES ${OXYGINE_SRC}/core/emscripten/HttpRequestEmscriptenTask.cpp)
 elseif (ANDROID)
 	set(PLATFORM android)
-	# Android.mk hands the compiler its sources in the order LOCAL_SRC_FILES
-	# lists them, and the archiver preserves that order, which is what lays out
-	# the .text blocks inside the archive. Follow the same sequence here.
-	# core/gl is not in it: Android.mk globs core/ one level deep and names the
-	# six core/gl sources after the JNI ones, below the glob loop. It uses the
-	# Java HTTP task, so core/curl must not be added to FOLDERS.
+	# Android compiles the folder set below. core/gl is not in it:
+	# those six sources are named explicitly below. Android uses the Java HTTP
+	# task, so core/curl must not be added to FOLDERS.
 	set(FOLDERS oxygine/closure oxygine/core oxygine/math oxygine/actor
 			oxygine/tween oxygine/pugixml oxygine/json oxygine/res
 			oxygine/text_utils oxygine/dev_tools oxygine/utils
@@ -63,8 +60,7 @@ foreach(ITEM ${FOLDERS})
 endforeach(ITEM)
 
 if (ANDROID)
-	# Android.mk appends the three JNI sources after the src root glob and the
-	# six core/gl sources after those, so the archive keeps that member order.
+	# The JNI sources and the core/gl set, which FOLDERS does not cover.
 	set(SOURCES ${SOURCES}
 		${OXYGINE_SRC}/core/android/jniUtils.cpp
 		${OXYGINE_SRC}/core/android/jniHelper.cpp
@@ -88,17 +84,12 @@ if (ANDROID)
 		endif()
 	endforeach()
 
-	# Android.mk put png and jpeg in the main module's
-	# LOCAL_WHOLE_STATIC_LIBRARIES, and ndk-build emits the whole-archive block
-	# ahead of the ordinary static libraries (build/core/default-build-commands.mk:
-	# objects, link-whole-archives, static libs, shared libs). A whole-archive
-	# pair declared here can only ever be emitted at this module's position in
-	# the link, after the selective archives, so it lays the blocks out in an
-	# order ndk-build never produced. The ordering decision belongs to the
-	# module that owns the link line: the main module names both archives in
-	# its own ordered whole-archive group. Only the platform libraries stay
-	# here. The headers still come from third_party/android/libpng and /libjpeg
-	# below; the sources include png.h and jpeglib.h.
+	# png and jpeg are linked whole by the main module's ordered whole-archive
+	# group (cmake/android.cmake), not here: a whole-archive pair declared in
+	# this branch can only be emitted at this module's position in the link,
+	# after the selective archives. Only the platform libraries stay here. The
+	# headers still come from third_party/android/libpng and /libjpeg below; the
+	# sources include png.h and jpeglib.h.
 	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
 endif()
 
@@ -107,18 +98,19 @@ target_link_libraries(oxygine-framework PUBLIC glm)
 target_include_directories(oxygine-framework PRIVATE ${OXYGINE_SRC})
 target_include_directories(oxygine-framework PUBLIC ${OXYGINE_ROOT}/src)
 if (EMSCRIPTEN)
-	#don't need SDL2
+	# SDL headers come from emcc's -sUSE_SDL=2 port, declared below; this
+	# branch deliberately adds no in-tree SDL include directory.
 elseif (WIN32)	
 	#hardcoded path to SDL2 on windows
 	target_include_directories(oxygine-framework PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SDL/include)
 elseif (ANDROID)
-	# Android builds against the in-tree SDL submodule, as Android.mk does, so
-	# this does not depend on find_path locating a system SDL2.
+	# Android builds against the in-tree SDL submodule, so this does not
+	# depend on find_path locating a system SDL2.
 	target_include_directories(oxygine-framework PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SDL/include)
-	# ndk-build's LOCAL_C_INCLUDES named glm as '<module>/../glm', and that is
-	# the spelling clang recorded for every framework header that includes it.
-	# The PUBLIC glm target below exports the collapsed absolute path, so put
-	# the baseline spelling first; it only affects this target's own compile.
+	# The framework headers include glm through '<module>/../glm', the spelling
+	# clang records. The PUBLIC glm target below exports the collapsed absolute
+	# path, so put this spelling first; it only affects this target's own
+	# compile.
 	target_include_directories(oxygine-framework BEFORE PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}/../glm")
 else(WIN32)
@@ -180,14 +172,13 @@ elseif(MINGW)
 
 	target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/curl/)
 elseif (ANDROID)
-	# The same defines Android.mk passes: the png/jpeg backends are used, and the
-	# 32-bit file API keeps minizip on the same off_t as the rest of the build.
-	# The OX_HAVE_LIBPNG/LIBJPEG blocks below add their own -D flags and the
-	# third_party/android include dirs; the archives those headers belong to
-	# are linked by the main module, not here.
+	# The png/jpeg backends are used, and the 32-bit file API keeps minizip on
+	# the same off_t as the rest of the build. The OX_HAVE_LIBPNG/LIBJPEG blocks
+	# below add their own -D flags and the third_party/android include dirs; the
+	# archives those headers belong to are linked by the main module, not here.
 	set(OX_HAVE_LIBJPEG 1)
 	set(OX_HAVE_LIBPNG 1)
-	# Android.mk never defined OX_NO_HTTP: the Java task supplies init() and
+	# OX_NO_HTTP must not be defined: the Java task supplies init() and
 	# release(), which the null bodies compiled under OX_NO_HTTP would collide
 	# with.
 	set(OX_HAVE_HTTP 1)
@@ -267,11 +258,11 @@ if (OX_HAVE_LIBPNG)
 	set(OX_DEFINITIONS	${OX_DEFINITIONS} -DOX_HAVE_LIBPNG=1)
 
 	if (NOT EMSCRIPTEN)
-		# Android.mk's THIRD_PARTY ends in a slash, so its image include
-		# directories carry a doubled slash; clang records that text in the
-		# DWARF line table. CMake collapses '//' in an include directory, so
-		# the directory is INTERFACE for consumers and a raw -I for this
-		# target's own compile, which CMake passes through verbatim.
+		# clang records the include directory text in the DWARF line table.
+		# Android's image include directories carry a doubled slash, which CMake
+		# collapses in an include directory, so they are INTERFACE for consumers
+		# and a raw -I for this target's own compile, which CMake passes through
+		# verbatim.
 		if (ANDROID)
 			target_include_directories(oxygine-framework INTERFACE ${THIRD_PARTY}//libpng)
 			target_compile_options(oxygine-framework PRIVATE "-I${THIRD_PARTY}//libpng")
