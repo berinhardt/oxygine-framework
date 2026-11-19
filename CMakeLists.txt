@@ -84,12 +84,13 @@ if (ANDROID)
 		endif()
 	endforeach()
 
-	# png and jpeg are linked whole by the main module's ordered whole-archive
-	# group (cmake/android.cmake), not here: a whole-archive pair declared in
-	# this branch can only be emitted at this module's position in the link,
-	# after the selective archives. Only the platform libraries stay here. The
-	# headers still come from third_party/android/libpng and /libjpeg below; the
-	# sources include png.h and jpeglib.h.
+	# png and jpeg are named by the main module's ordered link list at a fixed
+	# position; they are linked there, selectively and not whole, and are not
+	# named here. A link declared in this branch can only be emitted at this
+	# module's position in the link, after the selective archives. Only the
+	# platform libraries stay here. The headers still come from
+	# third_party/android/libpng and /libjpeg below; the sources include png.h
+	# and jpeglib.h.
 	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
 endif()
 
@@ -269,8 +270,9 @@ if (OX_HAVE_LIBPNG)
 		else()
 			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)
 		endif()
-		# Android links the archive from the main module's whole-archive group;
-		# see the ANDROID branch above. Only the headers come from here.
+		# Android gets the archive from the main module's ordered link list, at
+		# its fixed position; see the ANDROID branch above. Only the headers
+		# come from here.
 		if (NOT ANDROID)
 			target_link_libraries(oxygine-framework PUBLIC png)
 		endif(NOT ANDROID)
