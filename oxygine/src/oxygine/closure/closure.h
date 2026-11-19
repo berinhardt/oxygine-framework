@@ -30,9 +30,9 @@ void messageln(const char* format, ...);
 #ifdef CLOSURE_FUNCTION
 #include <functional>
 #include <memory>
-#include <stdexcept>
 #endif
 #include <inttypes.h>
+#include <stdexcept>
 
 #define TEMPLATE_PARAM_LIST class R
 #define PARAM_TYPE_LIST
