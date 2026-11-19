@@ -30,6 +30,7 @@ void messageln(const char* format, ...);
 #ifdef CLOSURE_FUNCTION
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #endif
 #include <inttypes.h>
 
