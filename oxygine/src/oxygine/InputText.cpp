@@ -157,11 +157,16 @@ int InputText::_onSDLEvent(SDL_Event* event) {
          break;
       }
       case SDL_TEXTINPUT: {
+         SDL_TextInputEvent& te = event->text;
+
+         // A line break has one source: Event::COMPLETE. Some IMEs also commit
+         // Return as text; appending it would add a second break.
+         // (android-build-reliability#27)
+         if ((te.text[0] == '\n' || te.text[0] == '\r') && te.text[1] == '\0') return 0;
+
          if (_maxLength) {
             if (getLen(_txt.c_str(), _txt.length()) >= _maxLength) return 0;
          }
-
-         SDL_TextInputEvent& te = event->text;
 
          // logs::messageln("text: %d %d %d %d", (int)(te.text[0]), (int)(te.text[1]), (int)(te.text[2]), (int)(te.text[3]));
 
