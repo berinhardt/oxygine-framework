@@ -32,6 +32,7 @@ void messageln(const char* format, ...);
 #include <memory>
 #endif
 #include <inttypes.h>
+#include <stdexcept>
 
 #define TEMPLATE_PARAM_LIST class R
 #define PARAM_TYPE_LIST
