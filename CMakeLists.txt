@@ -84,13 +84,20 @@ if (ANDROID)
 		endif()
 	endforeach()
 
-	# png and jpeg are named by the main module's ordered link list at a fixed
-	# position; they are linked there, selectively and not whole, and are not
-	# named here. A link declared in this branch can only be emitted at this
-	# module's position in the link, after the selective archives. Only the
-	# platform libraries stay here. The headers still come from
-	# third_party/android/libpng and /libjpeg below; the sources include png.h
-	# and jpeglib.h.
+	# Create the imported targets this branch links below. png and jpeg are
+	# prebuilt per-ABI archives; the existence loop above has already failed the
+	# configure, naming the archive and the ABI, if one is missing.
+	add_library(png STATIC IMPORTED)
+	set_target_properties(png PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libpng.a)
+	add_library(jpeg STATIC IMPORTED)
+	set_target_properties(jpeg PROPERTIES IMPORTED_LOCATION ${OXYGINE_ANDROID_LIBS}/libjpeg.a)
+
+	# png and jpeg belong to this module: its sources include png.h and
+	# jpeglib.h and call into both. They are named here, by the module whose own
+	# sources reference them, PUBLIC because a static target's link dependency
+	# reaches its consumers whether it is written PUBLIC or PRIVATE, and
+	# selectively rather than whole. The header directories still come from
+	# third_party/android/libpng and /libjpeg below.
 	target_link_libraries(oxygine-framework PUBLIC GLESv2 log)
 endif()
 
@@ -176,7 +183,8 @@ elseif (ANDROID)
 	# The png/jpeg backends are used, and the 32-bit file API keeps minizip on
 	# the same off_t as the rest of the build. The OX_HAVE_LIBPNG/LIBJPEG blocks
 	# below add their own -D flags and the third_party/android include dirs; the
-	# archives those headers belong to are linked by the main module, not here.
+	# archives those headers belong to are linked by this module in its Android
+	# branch above.
 	set(OX_HAVE_LIBJPEG 1)
 	set(OX_HAVE_LIBPNG 1)
 	# OX_NO_HTTP must not be defined: the Java task supplies init() and
@@ -270,12 +278,11 @@ if (OX_HAVE_LIBPNG)
 		else()
 			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libpng)
 		endif()
-		# Android gets the archive from the main module's ordered link list, at
-		# its fixed position; see the ANDROID branch above. Only the headers
-		# come from here.
-		if (NOT ANDROID)
-			target_link_libraries(oxygine-framework PUBLIC png)
-		endif(NOT ANDROID)
+		# The archive is named once for every platform that uses it: the
+		# imported target created in the ANDROID branch above, or a plain -lpng
+		# name elsewhere. The doubled-slash INTERFACE directory above stays: it
+		# is this target's own spelling, matched by the raw -I on its compile.
+		target_link_libraries(oxygine-framework PUBLIC png)
 	endif(NOT EMSCRIPTEN)
 endif(OX_HAVE_LIBPNG)
 
@@ -289,9 +296,10 @@ if (OX_HAVE_LIBJPEG)
 		else()
 			target_include_directories(oxygine-framework PUBLIC ${THIRD_PARTY}/libjpeg)
 		endif()
-		if (NOT ANDROID)
-			target_link_libraries(oxygine-framework PUBLIC jpeg)
-		endif(NOT ANDROID)
+		# The archive is named once for every platform that uses it: the imported
+		# target created in the ANDROID branch above, or a plain -ljpeg name
+		# elsewhere.
+		target_link_libraries(oxygine-framework PUBLIC jpeg)
 	endif(NOT EMSCRIPTEN)
 endif(OX_HAVE_LIBJPEG)
 
