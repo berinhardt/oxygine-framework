@@ -31,7 +31,10 @@ void ClipRectActor::handleEvent(Event* event) {
 }
 
 void ClipRectActor::render(const RenderState& parentRS, RenderState& rs) {
-   _rdelegate->render(this, parentRS, rs);
+   RenderDelegate* rd = getValidRenderDelegate();
+   if (!rd) return;
+
+   rd->render(this, parentRS, rs);
 }
 
 void ClipRectActor::serialize(serializedata* data) {

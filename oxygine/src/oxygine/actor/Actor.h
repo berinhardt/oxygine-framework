@@ -193,6 +193,12 @@ class Actor : public EventDispatcher, public intrusive_list_item<spActor>, publi
    void setClock(spClock clock);
    void setRenderDelegate(RenderDelegate* mat);
 
+   /**Returns the delegate used to render this actor. Actors built before
+    * oxygine::core::init() captured a null STDRenderDelegate::instance, so the
+    * stored pointer is repaired from the live instance when needed.
+    * Returns null while the engine has no render delegate yet.*/
+   RenderDelegate* getValidRenderDelegate();
+
    /**Show/Hide actor and children. Invisible Actor doesn't receive Touch events.*/
    void setVisible(bool vis) {
       _flags &= ~flag_visible;

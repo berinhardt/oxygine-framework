@@ -645,6 +645,15 @@ void Actor::setRenderDelegate(RenderDelegate* mat) {
    _rdelegate = mat;
 }
 
+RenderDelegate* Actor::getValidRenderDelegate() {
+   // The constructor captures STDRenderDelegate::instance. It is null when the
+   // actor is built before core::init() (or while another game instance is
+   // re-initialising the engine), and dereferencing it crashes in render().
+   // Repair the delegate from the live instance instead of keeping null.
+   if (!_rdelegate) _rdelegate = STDRenderDelegate::instance;
+   return _rdelegate;
+}
+
 const Transform& Actor::getTransform() const {
    updateTransform();
    return _transform;
@@ -1003,6 +1012,10 @@ void Actor::completeRender(const RenderState& rs) {}
 bool Actor::internalRender(RenderState& rs, const RenderState& parentRS) {
    if (!prepareRender(rs, parentRS)) return false;
 
+   // Derived doRender() implementations (Sprite, TextField, ...) dispatch
+   // through _rdelegate; make sure the fallback is in place before they run.
+   getValidRenderDelegate();
+
    // if (!_renderer->render(this, rs))
    doRender(rs);
 
@@ -1031,7 +1044,10 @@ bool Actor::getBounds(RectF& bounds) const {
 }
 
 void Actor::render(const RenderState& parentRS, RenderState& rs) {
-   _rdelegate->render(this, parentRS, rs);
+   RenderDelegate* rd = getValidRenderDelegate();
+   if (!rd) return;
+
+   rd->render(this, parentRS, rs);
 }
 
 RectF Actor::getDestRect() const {
